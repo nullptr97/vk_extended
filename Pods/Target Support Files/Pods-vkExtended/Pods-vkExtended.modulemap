@@ -1,0 +1,6 @@
+framework module Pods_vkExtended {
+  umbrella header "Pods-vkExtended-umbrella.h"
+
+  export *
+  module * { export * }
+}

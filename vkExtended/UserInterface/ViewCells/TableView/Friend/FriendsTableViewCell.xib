@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="SF-Pro-Rounded-Regular.otf">
+            <string>SFProRounded-Regular</string>
+        </array>
+        <array key="SF-Pro-Rounded-Semibold.otf">
+            <string>SFProRounded-Semibold</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="FriendsTableViewCell" rowHeight="147" id="KGk-i7-Jjw" customClass="FriendsTableViewCell" customModule="vkExtended" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="434" height="147"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="434" height="147"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="GNV-zT-oWx">
+                        <rect key="frame" x="16" y="8" width="42" height="42"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="42" id="4yZ-nl-4L3"/>
+                            <constraint firstAttribute="width" constant="42" id="zLd-cN-EcC"/>
+                        </constraints>
+                    </imageView>
+                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="ImL-pF-t2K">
+                        <rect key="frame" x="74" y="7.5" width="304" height="43"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Друг нах" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vyO-Ga-Ixq">
+                                <rect key="frame" x="0.0" y="0.0" width="304" height="23"/>
+                                <fontDescription key="fontDescription" name="SFProRounded-Semibold" family="SF Pro Rounded" pointSize="19"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Город друга" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ToI-P9-RmR">
+                                <rect key="frame" x="0.0" y="26" width="304" height="17"/>
+                                <fontDescription key="fontDescription" name="SFProRounded-Regular" family="SF Pro Rounded" pointSize="14"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                    </stackView>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2ac-gg-d4H">
+                        <rect key="frame" x="390" y="15" width="28" height="28"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="28" id="3Cg-It-7My"/>
+                            <constraint firstAttribute="width" constant="28" id="HSn-dF-Pam"/>
+                        </constraints>
+                        <state key="normal" image="messages_outline_28 @ chats"/>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="2ac-gg-d4H" firstAttribute="centerY" secondItem="GNV-zT-oWx" secondAttribute="centerY" id="NRl-5s-vB2"/>
+                    <constraint firstItem="ImL-pF-t2K" firstAttribute="centerY" secondItem="GNV-zT-oWx" secondAttribute="centerY" id="Tet-Fa-ZC2"/>
+                    <constraint firstItem="GNV-zT-oWx" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="16" id="Tqy-Gc-Hiq"/>
+                    <constraint firstAttribute="trailing" secondItem="2ac-gg-d4H" secondAttribute="trailing" constant="16" id="agQ-2r-HNo"/>
+                    <constraint firstItem="ImL-pF-t2K" firstAttribute="leading" secondItem="GNV-zT-oWx" secondAttribute="trailing" constant="16" id="c6M-r2-9Hr"/>
+                    <constraint firstItem="2ac-gg-d4H" firstAttribute="leading" secondItem="ImL-pF-t2K" secondAttribute="trailing" constant="12" id="efO-vY-HrG"/>
+                    <constraint firstAttribute="bottom" secondItem="GNV-zT-oWx" secondAttribute="bottom" constant="8" id="h9W-J0-B7q"/>
+                    <constraint firstItem="GNV-zT-oWx" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="8" id="tpX-0u-xvK"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <connections>
+                <outlet property="avatarImageView" destination="GNV-zT-oWx" id="tCu-C9-35x"/>
+                <outlet property="friendAdditionalLabel" destination="ToI-P9-RmR" id="J2E-Ye-AbA"/>
+                <outlet property="friendNameLabel" destination="vyO-Ga-Ixq" id="SSQ-sL-4LJ"/>
+                <outlet property="messageButton" destination="2ac-gg-d4H" id="Qaj-gs-hRV"/>
+            </connections>
+            <point key="canvasLocation" x="214.49275362318843" y="164.39732142857142"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="messages_outline_28 @ chats" width="28" height="28"/>
+    </resources>
+</document>
