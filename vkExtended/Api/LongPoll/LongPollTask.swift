@@ -25,7 +25,7 @@ final class LongPollTaskImpl: Operation, LongPollTask {
     
     override func main() {
         update(ts: startTs)
-        semaphore.wait()
+//        semaphore.wait()
     }
     
     private func update(ts: String, hasErrored: Bool = false) {

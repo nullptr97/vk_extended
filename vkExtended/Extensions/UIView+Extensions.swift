@@ -13,10 +13,10 @@ extension UIView {
         self.backgroundColor = .getThemeableColor(from: .white)
     }
     // Добавление блюра к View
-    func setBlurBackground(style: UIBlurEffect.Style) {
+    func setBlurBackground(style: UIBlurEffect.Style, frame: CGRect = .zero) {
         let blurEffect = UIBlurEffect(style: style)
         let blurView = UIVisualEffectView(effect: blurEffect)
-        blurView.frame = self.bounds
+        blurView.frame = frame == .zero ? bounds : frame
         blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         self.insertSubview(blurView, at: 0)
     }

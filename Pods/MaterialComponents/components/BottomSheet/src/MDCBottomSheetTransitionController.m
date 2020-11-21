@@ -16,7 +16,7 @@
 
 #import "MDCBottomSheetPresentationController.h"
 
-static const NSTimeInterval MDCBottomSheetTransitionDuration = 0.25;
+static const NSTimeInterval MDCBottomSheetTransitionDuration = 0.3;
 
 @interface MDCBottomSheetTransitionController ()
 @property(nonatomic, weak, nullable)

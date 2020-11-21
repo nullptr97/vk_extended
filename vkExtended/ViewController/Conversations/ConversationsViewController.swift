@@ -21,20 +21,9 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
     private let mainTable = TableView(frame: .zero, style: .plain)
     private lazy var refreshControl = DRPRefreshControl()
     private var token: NotificationToken?
-    private var lastContentOffset: CGFloat = 0
     private lazy var searchController = SearchBarController()
     var conversations = try! Realm().objects(Conversation.self).sorted(byKeyPath: "lastMessage.dateInteger", ascending: false).sorted(byKeyPath: "isImportantDialog", ascending: false).filter("isPrivateConversation = %@", false).filter("ownerId = %@", Constants.currentUserId)
-    private let fab: MDCFloatingButton = {
-        let fab = MDCFloatingButton(shape: .default)
-        fab.setImage(Icon.cm.add?.withRenderingMode(.alwaysTemplate).tint(with: .adaptableWhite), for: .normal)
-        fab.backgroundColor = .systemBlue
-        fab.setTitleColor(.adaptableWhite, for: .normal)
-        fab.isUppercaseTitle = false
-        fab.setTitleFont(GoogleSansFont.semibold(with: 15), for: .normal)
-        fab.setTitleColor(.getThemeableColor(from: .white), for: .normal)
-        fab.setElevation(.fabResting, for: .normal)
-        return fab
-    }()
+    var selectedConversations = [Conversation]()
     private let swipeGesture: UIPanGestureRecognizer = {
         let gesture = UIPanGestureRecognizer()
         gesture.minimumNumberOfTouches = 2
@@ -60,13 +49,13 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
         title = "Мессенджер"
         prepareTable()
         setupTable()
-        setupFab()
-        
-        observeConversations()
     }
     
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        let addButton = UIBarButtonItem(image: UIImage(named: "write_outline_28")?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue), style: .plain, target: self, action: nil)
+        setNavigationItems(rightNavigationItems: [addButton])
     }
     
     open override func viewWillDisappear(_ animated: Bool) {
@@ -108,22 +97,16 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
         }
     }
     
-    // Настройка кнопки добавления
-    func setupFab() {
-        view.addSubview(fab)
-        fab.autoPinEdge(.bottom, to: .bottom, of: view, withOffset: -(tabBarController?.tabBar.bounds.height ?? 0) - 16)
-        fab.autoPinEdge(.trailing, to: .trailing, of: view, withOffset: -16)
-    }
-    
     // Подготовка таблицы
     func prepareTable() {
         view.addSubview(mainTable)
         mainTable.separatorStyle = .none
         mainTable.autoPinEdge(toSuperviewSafeArea: .top, withInset: 56)
-        mainTable.autoPinEdge(.bottom, to: .bottom, of: view, withOffset: -(tabBarController?.tabBar.bounds.height ?? 0))
+        mainTable.autoPinEdge(.bottom, to: .bottom, of: view)
         mainTable.autoPinEdge(.trailing, to: .trailing, of: view)
         mainTable.autoPinEdge(.leading, to: .leading, of: view)
         mainTable.backgroundColor = .adaptableWhite
+        mainTable.contentInset.bottom = 52
         let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
         longPressGestureRecognizer.minimumPressDuration = 0.25
         mainTable.addGestureRecognizer(longPressGestureRecognizer)
@@ -132,7 +115,7 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
     // Настройка таблицы
     func setupTable() {
         mainTable.keyboardDismissMode = .onDrag
-        mainTable.allowsMultipleSelection = false
+        mainTable.allowsMultipleSelection = true
         mainTable.allowsMultipleSelectionDuringEditing = true
         mainTable.separatorStyle = .none
         mainTable.delegate = self
@@ -145,7 +128,7 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
         refreshControl.add(to: mainTable, target: self, selector: #selector(reloadMessages))
         refreshControl.loadingSpinner.colorSequence = [.adaptableDarkGrayVK]
         refreshControl.loadingSpinner.lineWidth = 2.5
-        refreshControl.loadingSpinner.rotationCycleDuration = 1
+        refreshControl.loadingSpinner.rotationCycleDuration = 0.75
     }
     
     // Настройка поисковика
@@ -181,14 +164,40 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
         }
     }
     
+    open func setTableViewEditing(_ editing: Bool, animated: Bool) {
+        mainTable.setEditing(editing, animated: true)
+        if !editing {
+            let addButton = UIBarButtonItem(image: UIImage(named: "write_outline_28")?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue), style: .plain, target: self, action: nil)
+            setNavigationItems(leftNavigationItems: [], rightNavigationItems: [addButton])
+        } else {
+            let closeButton = UIBarButtonItem(image: UIImage(named: "cancel_outline_28")?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue), style: .plain, target: self, action: #selector(onEndEditing))
+            let removeButton = UIBarButtonItem(image: UIImage(named: "delete_outline_28")?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue), style: .plain, target: self, action: #selector(onRemoveSelectedConversations))
+            setNavigationItems(leftNavigationItems: [closeButton], rightNavigationItems: [removeButton])
+        }
+    }
+    
     // Открыть приватные переписки
     @objc func onOpenPrivateConversation() {
-        self.presenter?.onOpenPrivateConversations()
+        presenter?.onOpenPrivateConversations()
+    }
+    
+    // Удалить выделенные переписки
+    @objc func onRemoveSelectedConversations() {
+        showAlert(title: "Удаление чатов", message: "Вы точно хотите удалить выбранные чаты?", buttonTitles: ["Удалить", "Отмена"], highlightedButtonIndex: 1) { [weak self] (index) in
+            if index == 0, let self = self {
+                self.presenter?.onRemoveMultipleConversations(by: self.selectedConversations.compactMap { $0.peerId })
+                self.onEndEditing()
+                return
+            }
+        }
     }
     
     // Остановка рефрешера
     func stopRefreshControl() {
         refreshControl.endRefreshing()
+        if token == nil {
+            observeConversations()
+        }
     }
     
     // При обновлении страницы
@@ -196,9 +205,19 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
         presenter?.getConversations()
     }
     
+    // При отмене редактирования
+    @objc func onEndEditing() {
+        setTableViewEditing(false, animated: true)
+        selectedConversations.removeAll()
+        for cell in mainTable.cells {
+            cell.setSelected(false, animated: true)
+        }
+        title = "Мессенджер"
+    }
+    
     // Обработка долгого нажатия на диалог
     @objc func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer?) {
-        guard let point = gestureRecognizer?.location(in: self.mainTable) else { return }
+        guard let point = gestureRecognizer?.location(in: self.mainTable), !mainTable.isEditing else { return }
         let indexPath = self.mainTable.indexPathForRow(at: point)
         if indexPath == nil {
             print("Long press on table view, not row.")
@@ -211,37 +230,6 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
     }
 }
 extension ConversationsViewController: UITableViewDelegate, UITableViewDataSource {
-    public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        lastContentOffset = scrollView.contentOffset.y
-    }
-
-    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let transform = CGAffineTransform.identity
-        switch scrollView.scrollDirection {
-        case .up where scrollView.contentOffset.y >= lastContentOffset + 200:
-            UIView.animate(.promise, duration: 0.3, delay: 0, options: .preferredFramesPerSecond60) { [weak self] in
-                guard let self = self else { return }
-                self.fab.transform = transform.scaledBy(x: -0.001, y: -0.001)
-                self.fab.layoutIfNeeded()
-            }
-        case .down where scrollView.contentOffset.y < lastContentOffset - 200:
-            self.fab.isHidden = false
-            UIView.animate(.promise, duration: 0.3, delay: 0, options: .preferredFramesPerSecond60) { [weak self] in
-                guard let self = self else { return }
-                self.fab.transform = .identity
-                self.fab.layoutIfNeeded()
-            }
-        case .down where scrollView.contentOffset.y == 0, .up where scrollView.contentOffset.y == 0:
-            UIView.animate(.promise, duration: 0.3, delay: 0, options: .preferredFramesPerSecond60) { [weak self] in
-                guard let self = self else { return }
-                self.fab.transform = transform.scaledBy(x: -0.001, y: -0.001)
-                self.fab.layoutIfNeeded()
-            }
-        default:
-            break
-        }
-    }
-    
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return conversations.count
     }
@@ -249,7 +237,7 @@ extension ConversationsViewController: UITableViewDelegate, UITableViewDataSourc
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MessageViewCell", for: indexPath) as! MessageViewCell
         cell.alternativeSetup(conversation: conversations[indexPath.row])
-        cell.selectionStyle = .none
+        cell.selectionStyle = .default
         cell.delegate = self
         return cell
     }
@@ -259,7 +247,27 @@ extension ConversationsViewController: UITableViewDelegate, UITableViewDataSourc
     }
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: false)
+        let cell = tableView.cellForRow(at: indexPath) as! MessageViewCell
+        guard selectedConversations.count < 25 else {
+            cell.setSelected(false, animated: true)
+            event(message: "Выбрано максимальное количество", isError: true)
+            return
+        }
+        let selectedConversation = conversations[indexPath.row]
+        selectedConversations.append(selectedConversation)
+        cell.setSelected(true, animated: true)
+        title = "Выбрано: \(selectedConversations.count)"
+    }
+    
+    public func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        let cell = tableView.cellForRow(at: indexPath) as! MessageViewCell
+        for (index, conversation) in selectedConversations.enumerated() {
+            if conversations[indexPath.row].peerId == conversation.peerId {
+                selectedConversations.remove(at: index)
+                cell.setSelected(false, animated: true)
+                title = "Выбрано: \(selectedConversations.count)"
+            }
+        }
     }
     
     public func numberOfSections(in tableView: UITableView) -> Int {
@@ -274,7 +282,13 @@ extension ConversationsViewController: MessageViewCellDelegate {
 extension ConversationsViewController {
     // Получение доступных с диалогом действий
     func getActions(at conversation: Conversation, from indexPath: IndexPath) -> [MDCActionSheetAction] {
-        guard let presenter = self.presenter else { return [] }
+        guard let presenter = self.presenter, let cell = mainTable.cellForRow(at: indexPath) as? MessageViewCell else { return [] }
+        let selectConversation = MDCActionSheetAction(title: "Выбрать", image: UIImage(named: "edit_outline_28"), handler: { action in
+            self.setTableViewEditing(true, animated: true)
+            self.selectedConversations.append(conversation)
+            cell.setSelected(true, animated: true)
+            self.title = "Выбрано: \(self.selectedConversations.count)"
+        })
         let setImportantStatus = MDCActionSheetAction(title: !conversation.isImportantDialog ? "Пометить избранным" : "Убрать пометку избранного", image: UIImage(named: conversation.isImportantDialog ? "unfavorite_outline_28" : "favorite_outline_28"), handler: { action in
             self.setImportantStatus(at: conversation)
         })
@@ -314,11 +328,11 @@ extension ConversationsViewController {
         removeConversation.tintColor = .extendedRed
         var actions: [MDCActionSheetAction]
         if conversation.unreadStatus == .unreadIn || conversation.unreadStatus == .markedUnread {
-            actions = [setImportantStatus, readConversation, snooze, hideConversation, removeConversation]
+            actions = [selectConversation, setImportantStatus, readConversation, snooze, hideConversation, removeConversation]
         } else if conversation.unreadStatus != .markedUnread && !conversation.isOutgoing {
-            actions = [setImportantStatus, /*unreadConversation*/ snooze, hideConversation, removeConversation]
+            actions = [selectConversation, setImportantStatus, /*unreadConversation*/ snooze, hideConversation, removeConversation]
         } else {
-            actions = [setImportantStatus, snooze, hideConversation, removeConversation]
+            actions = [selectConversation, setImportantStatus, snooze, hideConversation, removeConversation]
         }
         
         return actions

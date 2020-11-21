@@ -20,6 +20,7 @@ class Localization: NSObject {
     let forwardString: [String?] = ["пересланное сообщение", "пересланных сообщения", "пересланных сообщений", nil]
     
     let wallsCount: [String?] = ["запись", "записи", "записей", nil]
+    let audioCount: [String?] = ["аудио", "аудио", "аудио", nil]
     let commentsCount: [String?] = ["комментарий", "комментария", "комментариев", nil]
     let friendsCount: [String?] = ["друг", "друга", "друзей", nil]
     let searchedCount: [String?] = ["человек найден", "человека найдено", "человек найден", nil]

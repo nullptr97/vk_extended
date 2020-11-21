@@ -8,6 +8,20 @@
 import UIKit
 import MaterialComponents
 import Material
+import PromiseKit
+import SwiftyJSON
+import Alamofire
+
+struct Note: Decodable {
+    var id: Int
+    var ownerId: Int
+    var title: String
+    var text: String
+    var date: Int
+    var comments: Int
+    var readComments: Int
+    var viewUrl: String
+}
 
 open class BaseViewController: UIViewController {
     public let appBarViewController = MDCAppBarViewController()
@@ -38,7 +52,7 @@ open class BaseViewController: UIViewController {
     }
     
     func setNavigationItems(leftNavigationItems: [UIBarButtonItem] = [], rightNavigationItems: [UIBarButtonItem] = []) {
-        appBarViewController.navigationBar.leftBarButtonItems?.append(contentsOf: leftNavigationItems)
+        appBarViewController.navigationBar.leftBarButtonItems = leftNavigationItems
         appBarViewController.navigationBar.rightBarButtonItems = rightNavigationItems
     }
     

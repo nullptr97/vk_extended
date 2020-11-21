@@ -40,7 +40,6 @@ struct Attachment: Decodable {
     let photo: Photo?
     let doc: Doc?
     let audioPlaylist: AudioPlaylist?
-    let audio: Audio?
     let link: WallLink?
     let type: String?
 }
@@ -162,7 +161,6 @@ struct AudioPlaylist: Decodable {
     let count, followers, plays, createTime: Int
     let updateTime: Int
     let isFollowing: Bool
-    let audios: [Audio]
     let photo: PhotoAudio
     let accessKey, albumType: String
 }

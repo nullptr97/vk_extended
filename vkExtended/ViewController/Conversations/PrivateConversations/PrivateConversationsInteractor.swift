@@ -35,7 +35,7 @@ class PrivateConversationsInteractor: PrivateConversationsInteractorProtocol {
                 }
                 self.presenter?.onEvent(message: "Сообщение прочитано", isError: false)
             case .error(let error):
-                self.presenter?.onEvent(message: error.toVK().localizedDescription, isError: true)
+                self.presenter?.onEvent(message: error.toApi()?.message ?? "", isError: true)
             }
         }.catch { error in
             self.presenter?.onEvent(message: error.toVK().localizedDescription, isError: true)
@@ -60,7 +60,7 @@ class PrivateConversationsInteractor: PrivateConversationsInteractorProtocol {
                 }
                 self.presenter?.onEvent(message: "Сообщение непрочитано", isError: false)
             case .error(let error):
-                self.presenter?.onEvent(message: error.toVK().localizedDescription, isError: true)
+                self.presenter?.onEvent(message: error.toApi()?.message ?? "", isError: true)
             }
         }.catch { error in
             self.presenter?.onEvent(message: error.toVK().localizedDescription, isError: true)
@@ -86,7 +86,7 @@ class PrivateConversationsInteractor: PrivateConversationsInteractorProtocol {
                 }
                 self.presenter?.onEvent(message: "Уведомления \(sound == 1 ? "включены" : "выключены")", isError: false)
             case .error(let error):
-                self.presenter?.onEvent(message: error.localizedDescription, isError: true)
+                self.presenter?.onEvent(message: error.toApi()?.message ?? "", isError: true)
             }
         }.catch { error in
             self.presenter?.onEvent(message: error.toVK().localizedDescription, isError: true)
@@ -111,7 +111,7 @@ class PrivateConversationsInteractor: PrivateConversationsInteractorProtocol {
                 }
                 self.presenter?.onEvent(message: "Чат удалён", isError: false)
             case .error(let error):
-                self.presenter?.onEvent(message: error.toVK().localizedDescription, isError: true)
+                self.presenter?.onEvent(message: error.toApi()?.message ?? "", isError: true)
             }
         }.catch { error in
             self.presenter?.onEvent(message: error.toVK().localizedDescription, isError: true)

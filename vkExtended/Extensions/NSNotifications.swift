@@ -47,6 +47,9 @@ extension Notification.Name {
     static let onPlayerStop = Notification.Name(rawValue: "VKExt.AudioPlayer.Stop")
     static let onPlayerPause = Notification.Name(rawValue: "VKExt.AudioPlayer.Pause")
     static let onPlayerResume = Notification.Name(rawValue: "VKExt.AudioPlayer.Resume")
+    static let onPlayerNext = Notification.Name(rawValue: "VKExt.AudioPlayer.Next")
+    static let onPlayerPrev = Notification.Name(rawValue: "VKExt.AudioPlayer.Prev")
+    static let onPlayerStateChanged = Notification.Name(rawValue: "VKExt.AudioPlayer.State.Changed")
 }
 extension Notification.Name {
     static let onCaptchaDone = Notification.Name(rawValue: "VKExt.Login.Capthca")

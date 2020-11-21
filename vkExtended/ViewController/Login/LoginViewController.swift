@@ -27,7 +27,7 @@ class LoginViewController: UIViewController {
     private let userDefaults = UserDefaults.standard
     
     private var vkDelegate: ExtendedVKDelegate?
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(onCaptchaInputed(notification:)), name: .onCaptchaDone, object: nil)
@@ -79,7 +79,10 @@ class LoginViewController: UIViewController {
                 Self.doneIndicator.play()
                 loadingNotification.hide(animated: true, afterDelay: 1)
                 self.mainQueue.asyncAfter(deadline: .now() + 1) {
-                    self.navigationController?.pushViewController(BottomNavigationViewController(), animated: true)
+                    self.dismiss(animated: true) { [weak self] in
+                        guard let self = self else { return }
+                        self.postNotification(name: .onLogin)
+                    }
                 }
             }
         } onError: { [weak self] (error) in

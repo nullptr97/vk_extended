@@ -112,6 +112,16 @@ extension Double {
         return CGFloat(self)
     }
 }
+extension TimeInterval {
+    var stringDuration: String {
+        let time = NSInteger(self)
+        
+        let seconds = time % 60
+        let minutes = (time / 60) % 60
+        
+        return String(format: "%0.2d:%0.2d", minutes, seconds)
+    }
+}
 extension Float {
     func format(f: String) -> String {
         return String(format: "%\(f)f", self)

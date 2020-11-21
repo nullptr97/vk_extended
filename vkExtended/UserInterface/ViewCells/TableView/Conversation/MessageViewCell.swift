@@ -17,7 +17,7 @@ protocol MessageViewCellDelegate: class {
     func didTapAvatar(cell: MessageViewCell, with peerId: Int)
 }
 
-class MessageViewCell: Material.TableViewCell {
+class MessageViewCell: TableViewCell {
     @IBOutlet weak var avatarInterlocutor: UIImageView! {
         didSet {
             avatarInterlocutor.isUserInteractionEnabled = true

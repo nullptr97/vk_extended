@@ -8,20 +8,46 @@
 import UIKit
 import Material
 
+enum CellType: String {
+    case audio = "Музыка"
+    case groups = "Сообщества"
+    case videos = "Видео"
+    case files = "Файлы"
+    case bookmarks = "Закладки"
+    case liked = "Понравившееся"
+    case ui = "Интерфейс"
+    case messages = "Сообщения"
+    case newsfeed = "Новости"
+    case logout = "Выйти из аккаунта"
+}
+
+protocol MenuCellDelegate: class {
+    func onOpenMenuItem(for cell: MenuTableViewCell)
+}
+
 class MenuTableViewCell: TableViewCell {
     @IBOutlet weak var menuItemLabel: UILabel!
     @IBOutlet weak var menuItemImageView: UIImageView!
     
+    weak var delegate: MenuCellDelegate?
+    var cellType: CellType = .audio
+    
     override func awakeFromNib() {
         super.awakeFromNib()
+        backgroundColor = .getThemeableColor(from: .white)
+        contentView.backgroundColor = .getThemeableColor(from: .white)
         
         menuItemLabel.font = GoogleSansFont.medium(with: 16)
+        isUserInteractionEnabled = true
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTapMenuItem)))
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
+    }
+    
+    @objc func onTapMenuItem() {
+        delegate?.onOpenMenuItem(for: self)
     }
     
     var itemTitle: String? {

@@ -34,7 +34,7 @@ class FriendsInteractor: FriendsInteractorProtocol {
                         self.presenter?.presentData(response: .presentFooterError(message: "Ошибка парсинга данных"))
                     }
                 case .error(let error):
-                    self.presenter?.presentData(response: .presentFooterError(message: error.toVK().localizedDescription))
+                    self.presenter?.presentData(response: .presentFooterError(message: error.toApi()?.message ?? ""))
                 }
             }.catch { error in
                 self.presenter?.presentData(response: .presentFooterError(message: error.localizedDescription))

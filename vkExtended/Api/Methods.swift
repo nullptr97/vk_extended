@@ -181,6 +181,8 @@ struct ApiMethod {
     }
     public enum Execute {
         case execute
+        case getMusicPage
+        case groupsGet
     }
     public enum Fave{
         case addGroup

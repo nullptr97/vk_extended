@@ -42,4 +42,14 @@ public extension UIViewController {
     func setupBackground() {
         view.backgroundColor = .getThemeableColor(from: .white)
     }
+    
+    // Послать уведомление
+    func postNotification(name: NSNotification.Name, object: Any? = nil, userInfo: [AnyHashable : Any]? = nil) {
+        NotificationCenter.default.post(name: name, object: object, userInfo: userInfo)
+    }
+}
+
+// Послать уведомление
+func postNotification(name: NSNotification.Name, object: Any? = nil, userInfo: [AnyHashable : Any]? = nil) {
+    NotificationCenter.default.post(name: name, object: object, userInfo: userInfo)
 }

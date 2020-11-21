@@ -9,8 +9,9 @@ import Foundation
 import UIKit
 
 public struct Constants {
-    public static let appId: String = "3140623"
-    public static let clientSecret: String = "VeWdmVclDCtn6ihuP1nt"
+    public static let appId: String = "2274003"
+    public static let clientSecret: String = "hHbZxrka2uZ6jB1inYsH"
+    public static let userAgent: String = "VKAndroidApp/5.23-2978 (Android 4.4.2; SDK 19; x86; unknown Android SDK built for x86; en; 320x240)"
     public static let currentUserId: Int = UserDefaults.standard.integer(forKey: "userId")
     public static let isCurrentUserBlocked: Bool = UserDefaults.standard.bool(forKey: "blockStatus")
     public static let verifyProfilesInt: [Int] = [565872157, 557526975, -196655673, 386246393, 93266796, 137471776, 109366233]

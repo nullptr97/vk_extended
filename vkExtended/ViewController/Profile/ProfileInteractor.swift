@@ -27,7 +27,7 @@ class ProfileInteractor: ProfileInteractorProtocol {
         switch request {
         case .getProfile(userId: let userId):
             let parameters: Alamofire.Parameters = [
-                Parameter.code.rawValue: "return [API.users.get({\"user_ids\": \"\(userId.stringValue)\", \"fields\": \"\(Constants.userFields)\"}), API.photos.getAll({\"owner_id\": \"\(userId.stringValue)\", \"extended\": \"1\"}), API.friends.get({\"user_id\": \"\(userId.stringValue)\", \"order\": \"hints\", \"count\": \"200\", \"fields\": \"\(Constants.userFields)\"}), API.wall.get({\"owner_id\": \"\(userId.stringValue)\", \"extended\": \"1\", \"fields\": \"\(Constants.userFields)\", \"filter\": \"all\"})];",
+                Parameter.code.rawValue: "return [API.users.get({\"user_ids\": \"\(userId.stringValue)\", \"fields\": \"\(Constants.userFields)\"}), API.photos.getAll({\"owner_id\": \"\(userId.stringValue)\", \"extended\": \"1\"}), API.friends.get({\"user_id\": \"\(userId.stringValue)\", \"order\": \"hints\", \"count\": \"200\", \"fields\": \"\(Constants.userFields)\"}), API.wall.get({\"owner_id\": \"\(userId.stringValue)\", \"extended\": \"1\", \"fields\": \"\(Constants.userFields)\", \"filter\": \"all\"})];"
             ]
             
             presenter?.presentData(response: .presentFooterLoader)
@@ -48,7 +48,7 @@ class ProfileInteractor: ProfileInteractorProtocol {
                     
                     self.presenter?.presentData(response: .presentProfile(profile: decodedUser, photos: decodedPhotos, friends: decodedFriends, wall: decodedWall, revealdedPostId: self.revealedPostIds))
                 case .error(let error):
-                    self.presenter?.presentData(response: .presentFooterError(message: error.toVK().localizedDescription))
+                    self.presenter?.presentData(response: .presentFooterError(message: error.toApi()?.message ?? ""))
                 }
             }.catch { error in
                 self.presenter?.presentData(response: .presentFooterError(message: error.localizedDescription))
@@ -74,7 +74,7 @@ class ProfileInteractor: ProfileInteractorProtocol {
                         self.presenter?.presentData(response: .presentFooterError(message: "Ошибка данных"))
                     }
                 case .error(let error):
-                    self.presenter?.presentData(response: .presentFooterError(message: error.toVK().localizedDescription))
+                    self.presenter?.presentData(response: .presentFooterError(message: error.toApi()?.message ?? ""))
                 }
             }.catch { error in
                 self.presenter?.presentData(response: .presentFooterError(message: error.localizedDescription))

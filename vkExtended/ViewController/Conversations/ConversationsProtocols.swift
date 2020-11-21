@@ -27,6 +27,7 @@ protocol ConversationsPresenterProtocol: class {
     func onChangeSilenceMode(from peerId: Int, sound: Int)
     func onDeleteConversation(from peerId: Int)
     func onOpenPrivateConversations()
+    func onRemoveMultipleConversations(by peerIds: [Int])
 }
 
 //MARK: Interactor -
@@ -37,6 +38,7 @@ protocol ConversationsInteractorProtocol: class {
     func markAsUnreadConversation(peerId: Int)
     func setSilenceMode(peerId: Int, sound: Int)
     func deleteConversation(peerId: Int)
+    func removeMultipleConversations(by peerIds: [Int])
 }
 
 //MARK: View -

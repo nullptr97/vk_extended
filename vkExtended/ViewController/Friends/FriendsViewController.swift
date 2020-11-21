@@ -40,9 +40,10 @@ open class FriendsViewController: BaseViewController, FriendsViewProtocol {
     func prepareTable() {
         view.addSubview(mainTable)
         mainTable.autoPinEdge(toSuperviewSafeArea: .top, withInset: 56)
-        mainTable.autoPinEdge(toSuperviewSafeArea: .bottom, withInset: 52)
+        mainTable.autoPinEdge(.bottom, to: .bottom, of: view)
         mainTable.autoPinEdge(.trailing, to: .trailing, of: view)
         mainTable.autoPinEdge(.leading, to: .leading, of: view)
+        mainTable.contentInset.bottom = 52
     }
     
     // Настройка таблицы
@@ -58,7 +59,7 @@ open class FriendsViewController: BaseViewController, FriendsViewProtocol {
         refreshControl.add(to: mainTable, target: self, selector: #selector(reloadFriends))
         refreshControl.loadingSpinner.colorSequence = [.adaptableDarkGrayVK]
         refreshControl.loadingSpinner.lineWidth = 2.5
-        refreshControl.loadingSpinner.rotationCycleDuration = 1
+        refreshControl.loadingSpinner.rotationCycleDuration = 0.75
         mainTable.tableFooterView = footerView
         mainTable.tableHeaderView = searchController.searchBar
         setupSearchBar()

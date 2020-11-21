@@ -66,10 +66,11 @@ class ProfileViewController: BaseViewController, ProfileViewProtocol {
     func prepareTable() {
         view.addSubview(mainTable)
         mainTable.autoPinEdge(toSuperviewSafeArea: .top, withInset: 56)
-        mainTable.autoPinEdge(toSuperviewSafeArea: .bottom, withInset: 52)
+        mainTable.autoPinEdge(.bottom, to: .bottom, of: view)
         mainTable.autoPinEdge(.trailing, to: .trailing, of: view)
         mainTable.autoPinEdge(.leading, to: .leading, of: view)
         mainTable.tableFooterView = footerView
+        mainTable.contentInset.bottom = 52
     }
     
     // Настройка таблицы
@@ -87,7 +88,7 @@ class ProfileViewController: BaseViewController, ProfileViewProtocol {
         refreshControl.add(to: mainTable, target: self, selector: #selector(reloadProfile))
         refreshControl.loadingSpinner.colorSequence = [.adaptableDarkGrayVK]
         refreshControl.loadingSpinner.lineWidth = 2.5
-        refreshControl.loadingSpinner.rotationCycleDuration = 1
+        refreshControl.loadingSpinner.rotationCycleDuration = 0.75
     }
 
     // Отобразить данные

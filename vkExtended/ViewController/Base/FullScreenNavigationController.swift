@@ -11,14 +11,6 @@ import Material
 import MaterialComponents
 
 public final class FullScreenNavigationController: NavigationController, UINavigationControllerDelegate {
-    public override func prepare() {
-        delegate = self
-        definesPresentationContext = true
-        edgesForExtendedLayout = []
-        extendedLayoutIncludesOpaqueBars = true
-        automaticallyAdjustsScrollViewInsets = true
-        super.prepare()
-    }
     
     public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
@@ -27,7 +19,10 @@ public final class FullScreenNavigationController: NavigationController, UINavig
     
     public override func viewDidLoad() {
         super.viewDidLoad()
+        delegate = self
         definesPresentationContext = true
+        edgesForExtendedLayout = []
+        extendedLayoutIncludesOpaqueBars = true
         view.backgroundColor = .getThemeableColor(from: .white)
         isMotionEnabled = true
         setNavigationBarHidden(true, animated: false)

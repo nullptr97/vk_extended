@@ -79,4 +79,9 @@ class ConversationsPresenter: ConversationsPresenterProtocol {
             self.router.openPrivateConversations()
         }
     }
+    
+    // Обработка действия "Удалить несколько переписок"
+    func onRemoveMultipleConversations(by peerIds: [Int]) {
+        interactor?.removeMultipleConversations(by: peerIds)
+    }
 }

@@ -15,7 +15,7 @@ class ConversationsRouter: ConversationsWireframeProtocol {
     
     weak var viewController: UIViewController?
     weak var baseViewController: UIViewController?
-    var transitioningDelegate = MDCBottomDrawerTransitionController()
+    var transitioningDelegate = MDCBottomSheetTransitionController()
     
     // Инициализация VIPER модуля
     static func initModule(_ viewController: ConversationsViewController) {
@@ -46,11 +46,9 @@ class ConversationsRouter: ConversationsWireframeProtocol {
     // Открыть приватные переписки
     func openPrivateConversations() {
         let contentViewController = PrivateConversationsViewController()
-        let bottomDrawerViewController = MDCBottomDrawerViewController()
-        bottomDrawerViewController.contentViewController = contentViewController
-        bottomDrawerViewController.transitioningDelegate = transitioningDelegate
-        bottomDrawerViewController.modalPresentationStyle = .custom
-        bottomDrawerViewController.trackingScrollView = contentViewController.mainTable
-        baseViewController?.navigationController?.present(bottomDrawerViewController, animated: true, completion: nil)
+//        contentViewController.transitioningDelegate = transitioningDelegate
+        contentViewController.modalPresentationStyle = .fullScreen
+        contentViewController.modalTransitionStyle = .crossDissolve
+        baseViewController?.navigationController?.present(contentViewController, animated: true, completion: nil)
     }
 }

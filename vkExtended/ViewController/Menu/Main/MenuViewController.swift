@@ -16,7 +16,7 @@ class MenuViewController: BaseViewController, MenuViewProtocol {
 	var presenter: MenuPresenterProtocol?
     private let mainTable = TableView(frame: .zero, style: .grouped)
     private let titles: [String] = ["Контент", "Личное", "Настройки", ""]
-    private let items: [[String]] = [["Музыка", "Сообщества", "Видео"], ["Файлы", "Закладки", "Понравившееся"], ["Интерфейс", "Сообщения", "Новости"], ["Выйти из аккаунта"]]
+    private let types: [[CellType]] = [[.audio, .groups, .videos], [.files, .bookmarks, .liked], [.ui, .messages, .newsfeed], [.logout]]
     private let imagesString: [[String]] = [["music_outline_28", "users_3_outline_28", "video_outline_28"], ["document_outline_28", "favorite_outline_28", "like_outline_28"], ["palette_outline_28", "messages_outline_28 @ chats", "news"], ["cancel_outline_28"]]
 
 	override func viewDidLoad() {
@@ -32,10 +32,11 @@ class MenuViewController: BaseViewController, MenuViewProtocol {
         view.addSubview(mainTable)
         mainTable.separatorStyle = .none
         mainTable.autoPinEdge(toSuperviewSafeArea: .top, withInset: 56)
-        mainTable.autoPinEdge(.bottom, to: .bottom, of: view, withOffset: -(tabBarController?.tabBar.bounds.height ?? 0))
+        mainTable.autoPinEdge(.bottom, to: .bottom, of: view)
         mainTable.autoPinEdge(.trailing, to: .trailing, of: view)
         mainTable.autoPinEdge(.leading, to: .leading, of: view)
         mainTable.backgroundColor = .adaptableWhite
+        mainTable.contentInset.bottom = 52
     }
     
     // Настройка таблицы
@@ -51,21 +52,23 @@ class MenuViewController: BaseViewController, MenuViewProtocol {
 }
 extension MenuViewController: UITableViewDelegate, UITableViewDataSource {
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items[section].count
+        return types[section].count
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MenuTableViewCell", for: indexPath) as! MenuTableViewCell
         cell.selectionStyle = .none
-        cell.itemTitle = items[indexPath.section][indexPath.row]
+        cell.itemTitle = types[indexPath.section][indexPath.row].rawValue
+        cell.cellType = types[indexPath.section][indexPath.row]
         cell.itemImage = UIImage(named: imagesString[indexPath.section][indexPath.row])
         cell.itemImageTint = indexPath.section == titles.count - 1 ? .extendedRed : .systemBlue
         cell.itemTitleTint = indexPath.section == titles.count - 1 ? .extendedRed : .getThemeableColor(from: .black)
+        cell.delegate = self
         return cell
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let header = TableHeader(frame: CGRect(origin: .zero, size: .custom(tableView.bounds.width, section == titles.count - 1 ? 1 : 36)))
+        let header = TableHeader(frame: CGRect(origin: .zero, size: .custom(tableView.bounds.width, section == titles.count - 1 ? 18 : 36)))
         header.headerTitle = titles[section].uppercased()
         header.dividerVisibility = section == 0 ? .invisible : .visible
         return header
@@ -73,6 +76,10 @@ extension MenuViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return section == titles.count - 1 ? 1 : 36
+    }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return .leastNormalMagnitude
     }
     
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -85,5 +92,46 @@ extension MenuViewController: UITableViewDelegate, UITableViewDataSource {
     
     public func numberOfSections(in tableView: UITableView) -> Int {
         return titles.count
+    }
+}
+extension MenuViewController: MenuCellDelegate {
+    func onOpenMenuItem(for cell: MenuTableViewCell) {
+        switch cell.cellType {
+        case .audio:
+            let audioViewController = AudioViewController()
+            navigationController?.pushViewController(audioViewController)
+        case .groups:
+            break
+        case .videos:
+            break
+        case .files:
+            break
+        case .bookmarks:
+            break
+        case .liked:
+            break
+        case .ui:
+            break
+        case .messages:
+            break
+        case .newsfeed:
+            break
+        case .logout:
+            showAlert(title: "Подтверждение", message: "Вы действительно хотите выйти из аккаута?", buttonTitles: ["Да", "Отмена"], highlightedButtonIndex: 1) { (index) in
+                if index == 0 {
+                    DispatchQueue.global(qos: .userInteractive).async {
+                        VK.sessions.default.logOut()
+                        DispatchQueue.main.async {
+                            let rootViewController = UIApplication.shared.windows.first!.rootViewController as! UINavigationController
+                            let presentViewController = LoginViewController()
+                            presentViewController.modalTransitionStyle = .crossDissolve
+                            presentViewController.modalPresentationStyle = .fullScreen
+                            rootViewController.present(presentViewController, animated: true, completion: nil)
+                        }
+                    }
+                }
+            }
+            
+        }
     }
 }

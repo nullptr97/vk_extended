@@ -36,8 +36,45 @@ class ConversationsInteractor: ConversationsInteractorProtocol {
         }
     }
     
+    // Удалить несколько переписок
+    func removeMultipleConversations(by peerIds: [Int]) {
+        let parameters: Alamofire.Parameters = [
+            Parameter.code.rawValue: """
+var peer_ids = \(peerIds);
+var i=0;
+while (i<peer_ids.length)
+{
+API.messages.deleteConversation( {"peer_id":peer_ids[i]});
+i=i+1;
+};
+return;
+"""
+        ]
+        
+        Request.dataRequest(method: ApiMethod.method(from: .execute, with: ApiMethod.Execute.execute, hasExecute: true), parameters: parameters, hasEventMethod: true).done { response in
+            switch response {
+            case .error(let error):
+                self.presenter?.onEvent(message: error.toApi()?.message ?? "", isError: true)
+            default:
+                DispatchQueue.global(qos: .background).async {
+                    autoreleasepool {
+                        let realm = try! Realm()
+                        let conversations = peerIds.compactMap({ realm.objects(Conversation.self).filter("peerId == %@", $0).first })
+                        try! realm.write {
+                            realm.delete(conversations)
+                        }
+                    }
+                }
+                self.presenter?.onEvent(message: "Выбранные чаты удалены", isError: false)
+            }
+        }.catch { error in
+            self.presenter?.onEvent(message: error.localizedDescription, isError: true)
+        }
+    }
+    
+    // Обновить базу данных
     func updateDb(by response: JSON) {
-        DispatchQueue.global(qos: .background).async {
+        DispatchQueue.global(qos: .userInteractive).async {
             autoreleasepool {
                 let realm = try! Realm()
                 let items = response["items"].arrayValue
@@ -50,7 +87,7 @@ class ConversationsInteractor: ConversationsInteractorProtocol {
                         let profiles = response["profiles"].arrayValue
                         let groups = response["groups"].arrayValue
                         
-                        let senderType = self.profile(for: id > 2000000000 ? fromId : id, profiles: profiles, groups: groups)
+                        let senderType = self.configureProfile(for: id > 2000000000 ? fromId : id, profiles: profiles, groups: groups)
                         let conversation: Conversation = Conversation(conversation: item["conversation"], lastMessage: item["last_message"], representable: senderType)
                         realm.add(conversation, update: .modified)
                     }
@@ -59,23 +96,14 @@ class ConversationsInteractor: ConversationsInteractorProtocol {
         }
     }
     
-    private func profile(for sourseId: Int, profiles: [JSON], groups: [JSON]) -> JSON {
+    // Конфигурация профиля
+    private func configureProfile(for sourseId: Int, profiles: [JSON], groups: [JSON]) -> JSON {
         let profilesOrGroups: [JSON] = sourseId >= 0 ? profiles : groups
         let normalSourseId = sourseId >= 0 ? sourseId : -sourseId
         let profileRepresenatable = profilesOrGroups.first { (myProfileRepresenatable) -> Bool in
             myProfileRepresenatable["id"].intValue == normalSourseId
         }
         return profileRepresenatable!
-    }
-    
-    func getLongPollServer(success: @escaping(_ longPollServer: LongPollServer) -> (Void)) {
-        let parameters: Alamofire.Parameters = [Parameter.needPts.rawValue: 1, Parameter.lpVersion.rawValue: 3]
-        Request.jsonRequest(method: ApiMethod.method(from: .messages, with: ApiMethod.Messages.getLongPollServer), postFields: parameters).done { data in
-            let json = JSON(data)
-            success(LongPollServer(key: json["key"].stringValue, server: json["server"].stringValue, ts: json["ts"].intValue, pts: json["pts"].intValue))
-        }.catch { error in
-            
-        }
     }
     
     // Прочитать сообщение
@@ -97,7 +125,7 @@ class ConversationsInteractor: ConversationsInteractorProtocol {
                 }
                 self.presenter?.onEvent(message: "Сообщение прочитано", isError: false)
             case .error(let error):
-                self.presenter?.onEvent(message: error.toVK().localizedDescription, isError: true)
+                self.presenter?.onEvent(message: error.toApi()?.message ?? "", isError: true)
             }
         }.catch { error in
             self.presenter?.onEvent(message: error.toVK().localizedDescription, isError: true)
@@ -122,7 +150,7 @@ class ConversationsInteractor: ConversationsInteractorProtocol {
                 }
                 self.presenter?.onEvent(message: "Сообщение непрочитано", isError: false)
             case .error(let error):
-                self.presenter?.onEvent(message: error.toVK().localizedDescription, isError: true)
+                self.presenter?.onEvent(message: error.toApi()?.message ?? "", isError: true)
             }
         }.catch { error in
             self.presenter?.onEvent(message: error.toVK().localizedDescription, isError: true)
@@ -148,7 +176,7 @@ class ConversationsInteractor: ConversationsInteractorProtocol {
                 }
                 self.presenter?.onEvent(message: "Уведомления \(sound == 1 ? "включены" : "выключены")", isError: false)
             case .error(let error):
-                self.presenter?.onEvent(message: error.localizedDescription, isError: true)
+                self.presenter?.onEvent(message: error.toApi()?.message ?? "", isError: true)
             }
         }.catch { error in
             self.presenter?.onEvent(message: error.toVK().localizedDescription, isError: true)
@@ -173,7 +201,7 @@ class ConversationsInteractor: ConversationsInteractorProtocol {
                 }
                 self.presenter?.onEvent(message: "Чат удалён", isError: false)
             case .error(let error):
-                self.presenter?.onEvent(message: error.toVK().localizedDescription, isError: true)
+                self.presenter?.onEvent(message: error.toApi()?.message ?? "", isError: true)
             }
         }.catch { error in
             self.presenter?.onEvent(message: error.toVK().localizedDescription, isError: true)

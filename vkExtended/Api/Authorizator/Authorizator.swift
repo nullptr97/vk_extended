@@ -39,7 +39,7 @@ final class AuthorizatorImpl: Authorizator {
         defer { vkAppToken = nil }
         
         return queue.sync {
-            auth(login: login, password: password, sessionId: sessionId, captchaSid: captchaSid, captchaKey: captchaKey)
+            self.auth(login: login, password: password, sessionId: sessionId, captchaSid: captchaSid, captchaKey: captchaKey)
         }
     }
     
@@ -75,44 +75,36 @@ final class AuthorizatorImpl: Authorizator {
     }
     
     private var settings: String {
-        return "notify,friends,photos,audio,video,docs,status,notes,pages,wall,groups,messages,offline,notifications"
+        return "all"
     }
     
     func parameters(login: String, password: String) -> Alamofire.Parameters {
+        let deviceId = UIDevice.current.identifierForVendor!.uuidString
+        
         let parameters: Alamofire.Parameters = [
             "grant_type": "password",
             "client_id": Constants.appId,
             "client_secret": Constants.clientSecret,
             "username": login,
             "password": password,
-            "v": 5.124,
+            "v": "5.93",
             "scope": settings,
             "lang": "ru",
-            "2fa_supported": 1
+            "2fa_supported": 1,
+            "device_id": deviceId
         ]
         return parameters
     }
-    
+
     func auth(login: String, password: String, sessionId: String, captchaSid: String? = nil, captchaKey: String? = nil) -> Promise<InvalidatableToken> {
-        var alamofireParameters = parameters(login: login, password: password)
-        let sortedKeys = Array(alamofireParameters.keys).sorted(by: <)
+        let alamofireParameters = parameters(login: login, password: password)
         
-        var stringForMD5 = ""
-        
-        for key in sortedKeys {
-            stringForMD5 = stringForMD5 + key + "=\(alamofireParameters[key] ?? "")&"
-        }
-        if stringForMD5.last! == "&" {
-            stringForMD5.remove(at: stringForMD5.index(before: stringForMD5.endIndex))
-        }
-        if let captchaSid = captchaSid, let captchaKey = captchaKey {
-            alamofireParameters["captcha_sid"] = captchaSid
-            alamofireParameters["captcha_key"] = captchaKey
-        }
-        alamofireParameters["sig"] = MD5.MD5(stringForMD5)
+        let headers = [
+            "User-Agent": Constants.userAgent
+        ]
         
         return firstly {
-            Alamofire.request(directAuthUrl, method: .post, parameters: alamofireParameters).responseJSON()
+            Alamofire.request(directAuthUrl, method: .get, parameters: alamofireParameters, headers: headers).responseJSON()
         }.compactMap {
             let json = JSON($0.json)
             let error = json["error"]

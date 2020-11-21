@@ -91,6 +91,9 @@ public enum Parameter: String, Hashable {
     case targetUids = "target_uids"
     case needMutual = "need_mutual"
     case out
+    case needOwner = "need_owner"
+    case playlistsCount = "playlists_count"
+    case needPlaylists = "need_playlists"
     case needViewed
     case suggested
     case text
@@ -101,8 +104,10 @@ public enum Parameter: String, Hashable {
     case phones
     case needSign = "need_sign"
     case ownerId = "owner_id"
+    case audioCount = "audio_count"
     case domain
     case query
+    case oauth
     case ownersOnly = "owners_only"
     case posts
     case copyHistoryDepth = "copy_history_depth"
@@ -236,7 +241,7 @@ public enum Parameter: String, Hashable {
     case contacts
     case myContact
     case returnAll = "return_all"
-    case token
+    case token = "access_token"
     case deviceModel = "device_model"
     case systemVersion = "system_version"
     case noText = "no_text"
