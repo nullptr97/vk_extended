@@ -10,6 +10,7 @@ import UIKit
 
 struct CellSizes: FeedCellSizes {
     var postLabelFrame: CGRect
+    var repostLabelFrame: CGRect
     var moreTextButtonFrame: CGRect
     var attachmentFrame: CGRect
     var bottomViewFrame: CGRect
@@ -17,8 +18,8 @@ struct CellSizes: FeedCellSizes {
 }
 
 protocol FeedCellLayoutCalculatorProtocol {
-    func sizes(postText: String?, photoAttachments: [AttachmentCellViewModel], isFullSizedPost: Bool, isRepost: Bool) -> FeedCellSizes
-    func suggestionSizes(postText: String?, photoAttachment: [AttachmentCellViewModel]) -> FeedCellSizes
+    func sizes(postText: String?, repostText: String?, photoAttachments: [AttachmentCellViewModel], isFullSizedPost: Bool) -> FeedCellSizes
+    func suggestionSizes(postText: String?, repostText: String?, photoAttachment: [AttachmentCellViewModel]) -> FeedCellSizes
 }
 
 final class FeedCellLayoutCalculator: FeedCellLayoutCalculatorProtocol {
@@ -28,27 +29,47 @@ final class FeedCellLayoutCalculator: FeedCellLayoutCalculatorProtocol {
         self.screenWidth = screenWidth
     }
 
-    func sizes(postText: String?, photoAttachments: [AttachmentCellViewModel], isFullSizedPost: Bool, isRepost: Bool = false) -> FeedCellSizes {
+    func sizes(postText: String?, repostText: String?, photoAttachments: [AttachmentCellViewModel], isFullSizedPost: Bool) -> FeedCellSizes {
         var showMoreTextButton = false
         let cardViewWidth = screenWidth - 16 - 16
         
         // MARK: Работа с postLabelFrame
-        var postLabelFrame = CGRect(origin: CGPoint(x: Constants.postLabelInsets.left, y: isRepost ? Constants.postLabelRepostInsets.top : Constants.postLabelInsets.top),
-                                    size: CGSize.zero)
+        var postLabelFrame = CGRect(origin: CGPoint(x: Constants.postLabelInsets.left, y: Constants.postLabelInsets.top), size: CGSize.zero)
         
         if let text = postText, !text.isEmpty {
             let width = cardViewWidth - Constants.postLabelInsets.left - Constants.postLabelInsets.right
-            var height = text.height(with: width, font: Constants.postLabelFont)
+            var height: CGFloat
+            let postLabelFont = GoogleSansFont.regular(with: 15)
+            height = text.height(with: width, font: postLabelFont)
             
-            let limitHeight = Constants.postLabelFont.lineHeight * Constants.minifiedPostLimitLines
+            let limitHeight = postLabelFont.lineHeight * Constants.minifiedPostLimitLines
             
             if !isFullSizedPost && height > limitHeight {
-                height = Constants.postLabelFont.lineHeight * Constants.minifiedPostLines
+                height = postLabelFont.lineHeight * Constants.minifiedPostLines
                 showMoreTextButton = true
             }
             
             postLabelFrame.size = CGSize(width: width, height: height)
         }
+        
+        var repostLabelFrame = CGRect(origin: CGPoint(x: Constants.postLabelInsets.left, y: Constants.postLabelRepostInsets.top ), size: CGSize.zero)
+        
+        if let text = repostText, !text.isEmpty {
+            let width = cardViewWidth - Constants.postLabelRepostInsets.left - Constants.postLabelRepostInsets.right
+            var height: CGFloat
+            let postLabelFont = GoogleSansFont.regular(with: 15)
+            height = text.height(with: width, font: postLabelFont)
+            
+            let limitHeight = postLabelFont.lineHeight * Constants.minifiedPostLimitLines
+            
+            if !isFullSizedPost && height > limitHeight {
+                height = postLabelFont.lineHeight * Constants.minifiedPostLines
+                showMoreTextButton = true
+            }
+            
+            repostLabelFrame.size = CGSize(width: width, height: height)
+        }
+        
         // MARK: Работа с moreTextButtonFrame
         
         var moreTextButtonSize = CGSize.zero
@@ -65,17 +86,17 @@ final class FeedCellLayoutCalculator: FeedCellLayoutCalculatorProtocol {
         
         let attachmentTop: CGFloat
         if postLabelFrame.size == CGSize.zero {
-            attachmentTop = isRepost ? Constants.postLabelRepostInsets.top : Constants.postLabelInsets.top
+            attachmentTop = Constants.postLabelInsets.top
         } else {
-            attachmentTop = isRepost ? moreTextButtonFrame.maxY + Constants.postLabelRepostInsets.bottom : moreTextButtonFrame.maxY + Constants.postLabelInsets.bottom
+            attachmentTop = moreTextButtonFrame.maxY + Constants.postLabelInsets.bottom
         }
         
         var attachmentFrame = CGRect(origin: CGPoint(x: photoAttachments.count > 0 ? 8 : 0, y: attachmentTop),
                                      size: CGSize.zero)
         
         if let attachment = photoAttachments.first {
-            let photoHeight: Float = Float(attachment.height)
-            let photoWidth: Float = Float(attachment.width)
+            let photoHeight: Float = attachment.height.float
+            let photoWidth: Float = attachment.width.float
             let ratio = CGFloat(photoHeight / photoWidth)
             if photoAttachments.count == 1 {
                 attachmentFrame.size = CGSize(width: cardViewWidth, height: cardViewWidth * ratio)
@@ -85,8 +106,8 @@ final class FeedCellLayoutCalculator: FeedCellLayoutCalculatorProtocol {
                     let photoSize = CGSize(width: CGFloat(photo.width), height: CGFloat(photo.height))
                     photos.append(photoSize)
                 }
-                let rowHeight = RowLayout.getCollectionHeight(photos: photos)
-                attachmentFrame.size = CGSize(width: cardViewWidth, height: rowHeight!)
+                let rowHeight = screenWidth
+                attachmentFrame.size = CGSize(width: cardViewWidth, height: rowHeight)
             }
         }
         
@@ -102,13 +123,14 @@ final class FeedCellLayoutCalculator: FeedCellLayoutCalculatorProtocol {
         let totalHeight = bottomViewFrame.maxY + Constants.cardInsets.bottom
         
         return CellSizes(postLabelFrame: postLabelFrame,
+                         repostLabelFrame: repostLabelFrame,
                          moreTextButtonFrame: moreTextButtonFrame,
                          attachmentFrame: attachmentFrame,
                          bottomViewFrame: bottomViewFrame,
                          totalHeight: totalHeight)
     }
     
-    func suggestionSizes(postText: String?, photoAttachment: [AttachmentCellViewModel]) -> FeedCellSizes {
+    func suggestionSizes(postText: String?, repostText: String?, photoAttachment: [AttachmentCellViewModel]) -> FeedCellSizes {
         var showMoreTextButton = false
         let cardViewWidth = screenWidth - Constants.cardInsets.left - Constants.cardInsets.right
         
@@ -167,6 +189,7 @@ final class FeedCellLayoutCalculator: FeedCellLayoutCalculatorProtocol {
         let totalHeight = bottomViewFrame.maxY + Constants.cardInsets.bottom
         
         return CellSizes(postLabelFrame: postLabelFrame,
+                         repostLabelFrame: .zero,
                          moreTextButtonFrame: moreTextButtonFrame,
                          attachmentFrame: attachmentFrame,
                          bottomViewFrame: bottomViewFrame,

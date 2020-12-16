@@ -48,7 +48,7 @@ class RowLayout: UICollectionViewLayout {
             photos.append(photoSize)
         }
                 
-        guard var rowHeight = RowLayout.getCollectionHeight(photos: photos) else { return }
+        var rowHeight = RowLayout.getCollectionHeight()
         
         rowHeight = rowHeight / CGFloat(RowLayout.numbersOfRows)
         
@@ -81,32 +81,8 @@ class RowLayout: UICollectionViewLayout {
         
     }
     
-    static func getCollectionHeight(photos: [CGSize]) -> CGFloat? {
-        let newScreenWidth = screenWidth - 32
-        switch photos.count {
-        case 1:
-            return (newScreenWidth / 3) * 2
-        case 2:
-            return (newScreenWidth / 5) * 2 + (newScreenWidth / 5) * 2
-        case 3:
-            return (newScreenWidth / 9) * 3
-        case 4:
-            return (newScreenWidth / 20) * 7
-        case 5:
-            return (newScreenWidth / 12) * 8 + (newScreenWidth / 20) * 7
-        case 6:
-            return (newScreenWidth / 9) * 4 + (newScreenWidth / 9) * 2
-        case 7:
-            return (newScreenWidth / 9) * 3 + (newScreenWidth / 20) * 7
-        case 8:
-            return (newScreenWidth / 3) * 1 + (newScreenWidth / 3) * 1
-        case 9:
-            return (newScreenWidth / 9) * 3 + (newScreenWidth / 9) * 3 + (newScreenWidth / 9) * 3
-        case 10:
-            return (newScreenWidth / 0.215) + (newScreenWidth / 9) * 3 + (newScreenWidth / 0.215) + (newScreenWidth / 9) * 3
-        default:
-            return nil
-        }
+    static func getCollectionHeight() -> CGFloat {
+        return screenWidth
     }
     
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
@@ -161,7 +137,7 @@ class MessageLayout: UICollectionViewLayout {
         }
         
         
-        guard let rowHeight = RowLayout.getCollectionHeight(photos: messageText) else { return }
+        let rowHeight = RowLayout.getCollectionHeight()
         
         let photosRatios = messageText.map { $0.height / $0.width }
         

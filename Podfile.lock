@@ -1,13 +1,12 @@
 PODS:
   - Alamofire (4.9.1)
-  - ChameleonFramework/Default (2.1.0)
-  - ChameleonFramework/Swift (2.1.0):
-    - ChameleonFramework/Default
   - DRPLoadingSpinner (1.3.1):
     - DRPLoadingSpinner/core (= 1.3.1)
   - DRPLoadingSpinner/core (1.3.1)
-  - FPSCounter (4.0.1)
   - IBPCollectionViewCompositionalLayout (0.6.7)
+  - IGListDiffKit (4.0.0)
+  - IGListKit (4.0.0):
+    - IGListDiffKit (= 4.0.0)
   - Kingfisher (5.15.6):
     - Kingfisher/Core (= 5.15.6)
   - Kingfisher/Core (5.15.6)
@@ -678,6 +677,7 @@ PODS:
   - Realm/Headers (10.0.0)
   - RealmSwift (10.0.0):
     - Realm (= 10.0.0)
+  - SloppySwiper (0.6)
   - SwifterSwift (5.2.0):
     - SwifterSwift/AppKit (= 5.2.0)
     - SwifterSwift/CoreAnimation (= 5.2.0)
@@ -703,13 +703,16 @@ PODS:
   - SwifterSwift/StoreKit (5.2.0)
   - SwifterSwift/SwiftStdlib (5.2.0)
   - SwifterSwift/UIKit (5.2.0)
+  - SwiftMessages (8.0.3):
+    - SwiftMessages/App (= 8.0.3)
+  - SwiftMessages/App (8.0.3)
   - SwiftyJSON (4.3.0)
+  - SwiftyXML (3.0.4)
 
 DEPENDENCIES:
-  - ChameleonFramework/Swift
   - DRPLoadingSpinner
-  - FPSCounter (~> 4.0)
   - IBPCollectionViewCompositionalLayout
+  - IGListKit (~> 4.0.0)
   - Kingfisher (~> 5.0)
   - lottie-ios
   - Material
@@ -719,16 +722,23 @@ DEPENDENCIES:
   - PromiseKit/Alamofire (~> 6.0)
   - PureLayout
   - RealmSwift
+  - SloppySwiper
   - SwifterSwift
+  - SwiftMessages
   - SwiftyJSON (~> 4.0)
+  - SwiftyXML (~> 3.0.0)
 
 SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - SloppySwiper
+    - SwiftMessages
+    - SwiftyXML
   trunk:
     - Alamofire
-    - ChameleonFramework
     - DRPLoadingSpinner
-    - FPSCounter
     - IBPCollectionViewCompositionalLayout
+    - IGListDiffKit
+    - IGListKit
     - Kingfisher
     - lottie-ios
     - Material
@@ -748,10 +758,10 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
-  ChameleonFramework: d21a3cc247abfe5e37609a283a8238b03575cf64
   DRPLoadingSpinner: 725e530bf4ebe2cc351b1fbc94d24fe8ac3300fd
-  FPSCounter: 262ec30f9f5a2fd7843b593ea80016fece7c809c
   IBPCollectionViewCompositionalLayout: 06cf9aa021fd80807385d5c49ece4364609a0c97
+  IGListDiffKit: 665d6cf43ce726e676013db9c7d6c4294259b6b2
+  IGListKit: fd5a5d21935298f5849fa49d426843cff97b77c7
   Kingfisher: b3554e7bf6106115b44e8795300bad580ef2fdc7
   lottie-ios: 48fac6be217c76937e36e340e2d09cf7b10b7f5f
   Material: a2a3f400a3b549d53ef89e56c58c4535b29db387
@@ -766,9 +776,12 @@ SPEC CHECKSUMS:
   PureLayout: bd3c4ec3a3819ad387c99ebb72c6b129c3ed4d2d
   Realm: 5654b8e5e45034d07b219e089034be2ef7d1e7bf
   RealmSwift: 5b4c8c85be4c14ff52054a4d80a8d338167dd79c
+  SloppySwiper: 37e38f6da8df5c805914c6f32ec6ec8da63abe7c
   SwifterSwift: 334181863c416882d97b7a60c05054d9e4d799e2
+  SwiftMessages: 063ec9ffea3ffa7d17ba595157a9ec78e4fe045f
   SwiftyJSON: 6faa0040f8b59dead0ee07436cbf76b73c08fd08
+  SwiftyXML: afa603d3ef7ce88ef19879d7324c05b5a5fe6672
 
-PODFILE CHECKSUM: a883c5e0760eac9a29a3fb59f9e2c2c53ebc8c60
+PODFILE CHECKSUM: 811c49983f6d51ab7e14629289bea33129bcddd8
 
-COCOAPODS: 1.10.0.beta.1
+COCOAPODS: 1.10.0

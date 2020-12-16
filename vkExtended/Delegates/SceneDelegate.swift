@@ -23,7 +23,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         vkDelegate = VKGeneralDelegate()
 
-        let rootViewController = UINavigationController(rootViewController: BottomNavigationViewController())
+        let rootViewController = FullScreenNavigationController(rootViewController: BottomNavigationViewController())
         rootViewController.motionNavigationTransitionType = .zoom
         rootViewController.setNavigationBarHidden(true, animated: false)
         guard let windowScene = (scene as? UIWindowScene) else { return }
@@ -42,8 +42,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
-        // Called when the scene has moved from an inactive state to an active state.
-        // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
@@ -66,7 +64,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let parameters: Alamofire.Parameters = [
             Parameter.groupId.rawValue: "extended_team",
             Parameter.extended.rawValue: 1,
-            Parameter.userId.rawValue: Constants.currentUserId
+            Parameter.userId.rawValue: currentUserId
         ]
 
         Request.dataRequest(method: ApiMethod.method(from: .groups, with: ApiMethod.Groups.isMember), parameters: parameters).done { response in

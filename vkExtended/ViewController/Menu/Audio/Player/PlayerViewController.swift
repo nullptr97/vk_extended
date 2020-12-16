@@ -15,18 +15,18 @@ class PlayerViewController: UIViewController {
     @IBOutlet weak var blurredArtworkImageView: UIImageView!
     @IBOutlet weak var artworkImageView: UIImageView! {
         didSet {
-            artworkImageView.backgroundColor = .adaptableDivider
+            artworkImageView.backgroundColor = .getThemeableColor(fromNormalColor: .lightGray)
         }
     }
     @IBOutlet weak var sliderView: UIView!
     @IBOutlet weak var progressSlider: BufferSlider! {
         didSet {
-            progressSlider.bufferColor = UIColor.systemBlue.withAlphaComponent(0.25)
-            progressSlider.setThumbImage(UIImage(named: "Hide Outgoing Unread Badge")?.crop(toWidth: 10, toHeight: 10)?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue), for: .normal)
-            progressSlider.minimumTrackTintColor = .systemBlue
-            progressSlider.maximumTrackTintColor = .systemBlue
-            progressSlider.progressColor = .systemBlue
-            progressSlider.baseColor = .systemBlue
+            progressSlider.bufferColor = UIColor.getAccentColor(fromType: .common).withAlphaComponent(0.25)
+            progressSlider.setThumbImage(UIImage(named: "Hide Outgoing Unread Badge")?.crop(toWidth: 10, toHeight: 10)?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .common)), for: .normal)
+            progressSlider.minimumTrackTintColor = .getAccentColor(fromType: .common)
+            progressSlider.maximumTrackTintColor = .getAccentColor(fromType: .common)
+            progressSlider.progressColor = .getAccentColor(fromType: .common)
+            progressSlider.baseColor = .getAccentColor(fromType: .common)
             progressSlider.roundedSlider = true
             progressSlider.maximumValue = 1
         }
@@ -34,13 +34,13 @@ class PlayerViewController: UIViewController {
     @IBOutlet weak var titleLabel: UILabel! {
         didSet {
             titleLabel.font = GoogleSansFont.semibold(with: 24)
-            titleLabel.textColor = .getThemeableColor(from: .black)
+            titleLabel.textColor = .getThemeableColor(fromNormalColor: .black)
         }
     }
     @IBOutlet weak var artistLabel: UILabel! {
         didSet {
             artistLabel.font = GoogleSansFont.medium(with: 16)
-            artistLabel.textColor = .systemBlue
+            artistLabel.textColor = .getAccentColor(fromType: .common)
         }
     }
     
@@ -61,33 +61,33 @@ class PlayerViewController: UIViewController {
     }
     @IBOutlet weak var saveButton: UIButton! {
         didSet {
-            saveButton.setImage(UIImage(named: "shuffle_24")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(from: .black)), for: .normal)
+            saveButton.setImage(UIImage(named: "shuffle_24")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(fromNormalColor: .black)), for: .normal)
         }
     }
     @IBOutlet weak var prevButton: UIButton! {
         didSet {
-            prevButton.setImage(UIImage(named: "skip_previous_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(from: .black)), for: .normal)
+            prevButton.setImage(UIImage(named: "skip_previous_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(fromNormalColor: .black)), for: .normal)
         }
     }
     @IBOutlet weak var playingButton: UIButton! {
         didSet {
-            playingButton.setImage(UIImage(named: AudioService.instance.player.state == .playing ? "pause_48" : "play_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(from: .black)), for: .normal)
+            playingButton.setImage(UIImage(named: AudioService.instance.player.state == .playing ? "pause_48" : "play_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(fromNormalColor: .black)), for: .normal)
         }
     }
     @IBOutlet weak var nextButton: UIButton! {
         didSet {
-            nextButton.setImage(UIImage(named: "skip_next_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(from: .black)), for: .normal)
+            nextButton.setImage(UIImage(named: "skip_next_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(fromNormalColor: .black)), for: .normal)
         }
     }
     @IBOutlet weak var moreButton: UIButton! {
         didSet {
-            moreButton.setImage(UIImage(named: "more_horizontal_28")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(from: .black)), for: .normal)
+            moreButton.setImage(UIImage(named: "more_horizontal_28")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(fromNormalColor: .black)), for: .normal)
         }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()        
-        view.backgroundColor = .getThemeableColor(from: .white)
+        view.backgroundColor = .getThemeableColor(fromNormalColor: .white)
 
         sliderView.addSubview(progressSlider)
         progressSlider.autoPinEdgesToSuperviewEdges()
@@ -96,13 +96,13 @@ class PlayerViewController: UIViewController {
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        progressSlider.minimumTrackTintColor = .adaptableGrayVK
-        progressSlider.maximumTrackTintColor = .adaptableGrayVK
-        saveButton.setImage(UIImage(named: "shuffle_24")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(from: .black)), for: .normal)
-        prevButton.setImage(UIImage(named: "skip_previous_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(from: .black)), for: .normal)
-        playingButton.setImage(UIImage(named: AudioService.instance.player.state == .playing ? "pause_48" : "play_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(from: .black)), for: .normal)
-        nextButton.setImage(UIImage(named: "skip_next_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(from: .black)), for: .normal)
-        moreButton.setImage(UIImage(named: "more_horizontal_28")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(from: .black)), for: .normal)
+        progressSlider.minimumTrackTintColor = .getThemeableColor(fromNormalColor: .gray)
+        progressSlider.maximumTrackTintColor = .getThemeableColor(fromNormalColor: .gray)
+        saveButton.setImage(UIImage(named: "shuffle_24")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(fromNormalColor: .black)), for: .normal)
+        prevButton.setImage(UIImage(named: "skip_previous_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(fromNormalColor: .black)), for: .normal)
+        playingButton.setImage(UIImage(named: AudioService.instance.player.state == .playing ? "pause_48" : "play_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(fromNormalColor: .black)), for: .normal)
+        nextButton.setImage(UIImage(named: "skip_next_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(fromNormalColor: .black)), for: .normal)
+        moreButton.setImage(UIImage(named: "more_horizontal_28")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(fromNormalColor: .black)), for: .normal)
     }
     
     @objc func onSeek(sender: BufferSlider) {
@@ -118,7 +118,7 @@ class PlayerViewController: UIViewController {
         } else {
             resumeTrack()
         }
-        playingButton.setImage(UIImage(named: AudioService.instance.player.state == .playing ? "pause_48" : "play_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(from: .black)), for: .normal)
+        playingButton.setImage(UIImage(named: AudioService.instance.player.state == .playing ? "pause_48" : "play_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(fromNormalColor: .black)), for: .normal)
     }
     
     @IBAction func onNextTrack(_ sender: UIButton) {

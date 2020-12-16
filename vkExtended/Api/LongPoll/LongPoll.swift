@@ -3,11 +3,12 @@ import Alamofire
 import SwiftyJSON
 
 protocol LongPollTaskMaker: class {
+    func longPollTask(session: Session?, data: LongPollTaskData) -> LongPollTask
     func longPollTask(data: LongPollTaskData) -> LongPollTask
 }
 
 protocol LongPollMaker: class {
-    func longPoll() -> LongPoll
+    func longPoll(session: Session) -> LongPoll
 }
 
 public enum LongPollVersion: String {
@@ -40,6 +41,7 @@ extension LongPoll {
 
 public final class LongPollImpl: LongPoll {
     
+    private weak var session: Session?
     private weak var operationMaker: LongPollTaskMaker?
     private let connectionObserver: ConnectionObserver?
     private let getInfoDelay: TimeInterval
@@ -57,6 +59,7 @@ public final class LongPollImpl: LongPoll {
     private var version: LongPollVersion = .first
     
     init(
+        session: Session?,
         operationMaker: LongPollTaskMaker,
         connectionObserver: ConnectionObserver?,
         getInfoDelay: TimeInterval,
@@ -64,6 +67,7 @@ public final class LongPollImpl: LongPoll {
         onDisconnected: (() -> ())? = nil
         ) {
         self.isActive = false
+        self.session = session
         self.operationMaker = operationMaker
         self.connectionObserver = connectionObserver
         self.getInfoDelay = getInfoDelay
@@ -146,6 +150,11 @@ public final class LongPollImpl: LongPoll {
                 self.onReceiveEvents?(events)
             }, onError: { [weak self] in
                 guard let self = self else { return }
+                    try! Api.Messages.getConversations().done { conversations in
+                        ConversationService.instance.updateDb(by: conversations)
+                    }.catch { error in
+                        print(error.toVK().toApi()?.message ?? error.localizedDescription)
+                    }
                 self.handleError($0)
             })
             
@@ -158,22 +167,30 @@ public final class LongPollImpl: LongPoll {
         
         guard isConnected, let data = taskData else { return }
         
-        guard let operation = operationMaker?.longPollTask(data: data) else { return }
+        guard let operation = operationMaker?.longPollTask(session: session, data: data) else { return }
         updatingQueue.addOperation(operation.toOperation())
     }
     
     private func getConnectionInfo(completion: @escaping ((server: String, lpKey: String, ts: String)) -> ()) {
+        guard let session = session, session.state == .authorized else { return }
+
         let semaphore = DispatchSemaphore(value: 0)
         
         var result: (server: String, lpKey: String, ts: String)?
         
         let parameters: Alamofire.Parameters = [Parameter.needPts.rawValue: 1, Parameter.lpVersion.rawValue: 3]
         
-        Request.jsonRequest(method: ApiMethod.method(from: .messages, with: ApiMethod.Messages.getLongPollServer), postFields: parameters).done { data in
-            defer { semaphore.signal() }
+        Request.dataRequest(method: ApiMethod.method(from: .messages, with: ApiMethod.Messages.getLongPollServer), parameters: parameters).done { response in
+            switch response {
+            case .success(let data):
+                defer { semaphore.signal() }
 
-            let json = JSON(data)
-            result = (json["server"].stringValue, json["key"].stringValue, json["ts"].stringValue)
+                let json = JSON(data)
+                result = (json["server"].stringValue, json["key"].stringValue, json["ts"].stringValue)
+            case .error(let error):
+                print(error.localizedDescription)
+                semaphore.signal()
+            }
         }.catch { error in
             semaphore.signal()
         }

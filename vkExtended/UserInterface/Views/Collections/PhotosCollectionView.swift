@@ -17,7 +17,7 @@ class PhotosCollectionView: UICollectionView, UICollectionViewDelegate, UICollec
         delegate = self
         dataSource = self
         
-        backgroundColor = .adaptableWhite
+        backgroundColor = .getThemeableColor(fromNormalColor: .white)
         
         layout.scrollDirection = .horizontal
         

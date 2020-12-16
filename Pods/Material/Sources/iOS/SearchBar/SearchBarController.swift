@@ -107,8 +107,9 @@ fileprivate extension SearchBarController {
   /// Layout the searchBar.
   func layoutSearchBar() {
     searchBar.frame.origin.x = 12
-    searchBar.frame.origin.y = .top == searchBarAlignment ? statusBarOffsetAdjustment : view.bounds.height - searchBar.bounds.height
+    searchBar.frame.origin.y = 8
     searchBar.frame.size.width = view.bounds.width - 24
+    searchBar.frame.size.height = 41
   }
   
   /// Layout the rootViewController.

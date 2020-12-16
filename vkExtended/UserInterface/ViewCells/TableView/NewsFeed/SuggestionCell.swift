@@ -44,7 +44,7 @@ final class SuggestionCell: Material.TableViewCell {
         let label = UILabel()
         label.numberOfLines = 0
         label.font = GoogleSansFont.medium(with: 14)
-        label.textColor = .adaptableBlack
+        label.textColor = .getThemeableColor(fromNormalColor: .black)
         label.backgroundColor = .adaptablePostColor
         return label
     }()
@@ -55,7 +55,7 @@ final class SuggestionCell: Material.TableViewCell {
         let label = UILabel()
         label.numberOfLines = 0
         label.font = GoogleSansFont.regular(with: 13)
-        label.textColor = .adaptableDarkGrayVK
+        label.textColor = .getThemeableColor(fromNormalColor: .darkGray)
         label.backgroundColor = .adaptablePostColor
         return label
     }()
@@ -93,7 +93,7 @@ final class SuggestionCell: Material.TableViewCell {
         toolbar.title = viewModel.name
         contentLabel.text = viewModel.text
         if viewModel.comments?.intValue ?? 0 > 0 {
-            commentsLabel.text = "\(viewModel.comments ?? "") \(getStringByDeclension(number: viewModel.comments?.intValue ?? 0, arrayWords: Localization.instance.commentsCount))"
+            commentsLabel.text = "\(viewModel.comments ?? "") \(getStringByDeclension(number: viewModel.comments?.intValue ?? 0, arrayWords: Localization.commentsCount))"
         }
         avatarImageView.kf.setImage(with: URL(string: viewModel.iconUrlString))
     }
@@ -117,14 +117,14 @@ extension SuggestionCell {
         
         toolbar.titleLabel.textAlignment = .left
         toolbar.titleLabel.font = GoogleSansFont.medium(with: 16)
-        toolbar.titleLabel.textColor = .adaptableBlack
-        toolbar.backgroundColor = .adaptableWhite
+        toolbar.titleLabel.textColor = .getThemeableColor(fromNormalColor: .black)
+        toolbar.backgroundColor = .getThemeableColor(fromNormalColor: .white)
     }
     
     fileprivate func prepareBottomBar() {
         bottomBar.leftViews = [likeButton, shareButton]
         bottomBar.rightViews = [moreButton]
-        bottomBar.backgroundColor = .adaptableWhite
+        bottomBar.backgroundColor = .getThemeableColor(fromNormalColor: .white)
     }
     
     fileprivate func preparePresenterCard() {

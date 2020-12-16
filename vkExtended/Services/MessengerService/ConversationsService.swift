@@ -121,7 +121,27 @@ class ConversationService: NSObject {
         }
     }
     
-    private func profile(for sourseId: Int, profiles: [JSON], groups: [JSON]) -> JSON {
+    func updateDb(by conversations: [Conversation]) {
+        serviceQueue.async {
+            let realm = try! Realm()
+
+            try! realm.write {
+                conversations.compactMap { realm.add($0, update: .modified) }
+            }
+        }
+    }
+    
+    func conversations(from item: JSON, with profiles: [JSON] = [], with groups: [JSON] = []) -> Conversation {
+        let id = item["conversation"]["peer"]["id"].intValue
+        let fromId = item["last_message"]["from_id"].intValue
+        
+        let senderType =
+            ConversationService.instance.profile(for: id > 2000000000 ? fromId : id, profiles: profiles, groups: groups)
+        let conversation: Conversation = Conversation(conversation: item["conversation"], lastMessage: item["last_message"], representable: senderType)
+        return conversation
+    }
+    
+    func profile(for sourseId: Int, profiles: [JSON], groups: [JSON]) -> JSON {
         let profilesOrGroups: [JSON] = sourseId >= 0 ? profiles : groups
         let normalSourseId = sourseId >= 0 ? sourseId : -sourseId
         let profileRepresenatable = profilesOrGroups.first { (myProfileRepresenatable) -> Bool in

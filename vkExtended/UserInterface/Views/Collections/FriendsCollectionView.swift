@@ -17,7 +17,7 @@ class FriendsCollectionView: UICollectionView, UICollectionViewDelegate, UIColle
         delegate = self
         dataSource = self
         
-        backgroundColor = .adaptableWhite
+        backgroundColor = .getThemeableColor(fromNormalColor: .white)
         
         layout.scrollDirection = .horizontal
         
@@ -45,17 +45,18 @@ class FriendsCollectionView: UICollectionView, UICollectionViewDelegate, UIColle
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = dequeueReusableCell(withReuseIdentifier: "FriendCollectionViewCell", for: indexPath) as! FriendCollectionViewCell
-        cell.userId = friends[indexPath.item].id ?? Constants.currentUserId
+        cell.userId = friends[indexPath.item].id ?? currentUserId
         cell.delegate = self
         if friends.count > 0, let url = URL(string: friends[indexPath.item].photo100 ?? "") {
             cell.friendImageView.kf.setImage(with: url)
         }
-        cell.friendNameLabel.attributedText = NSAttributedString(string: friends[indexPath.item].firstName! + "\n", attributes: [.foregroundColor: UIColor.getThemeableColor(from: .black), .font: GoogleSansFont.medium(with: 11)]) + NSAttributedString(string: friends[indexPath.item].lastName!, attributes: [.foregroundColor: UIColor.getThemeableColor(from: .black), .font: GoogleSansFont.semibold(with: 11)])
+        cell.friendNameLabel.attributedText = NSAttributedString(string: friends[indexPath.item].firstName! + "\n", attributes: [.foregroundColor: UIColor.getThemeableColor(fromNormalColor: .black), .font: GoogleSansFont.medium(with: 11)]) + NSAttributedString(string: friends[indexPath.item].lastName!, attributes: [.foregroundColor: UIColor.getThemeableColor(fromNormalColor: .black), .font: GoogleSansFont.semibold(with: 11)])
+        cell.setupOnline(isOnline: friends[indexPath.item].isOnline ?? false, isMobile: friends[indexPath.item].isMobile ?? false)
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return 4
+        return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
@@ -63,7 +64,12 @@ class FriendsCollectionView: UICollectionView, UICollectionViewDelegate, UIColle
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return .custom((collectionView.bounds.width / 6) - 3, 110)
+        return .custom((collectionView.bounds.width / 6), 110)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        guard indexPath.item == friends.count - 5, let profileViewController = parentViewController as? ProfileViewController else { return }
+        profileViewController.presenter?.start(request: .getFriends(userId: profileViewController.userId))
     }
 }
 extension FriendsCollectionView: FriendFrofileDelegate {

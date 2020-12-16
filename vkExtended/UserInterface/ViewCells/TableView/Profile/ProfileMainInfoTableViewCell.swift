@@ -28,16 +28,16 @@ class ProfileMainInfoTableViewCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        backgroundColor = .getThemeableColor(from: .white)
-        contentView.backgroundColor = .getThemeableColor(from: .white)
+        backgroundColor = .getThemeableColor(fromNormalColor: .white)
+        contentView.backgroundColor = .getThemeableColor(fromNormalColor: .white)
         
-        avatarImageView.drawBorder(48, width: 0.5, color: .adaptableDivider)
+        avatarImageView.drawBorder(48, width: 0.5, color: .getThemeableColor(fromNormalColor: .lightGray))
         
-        nameLabel.textColor = .getThemeableColor(from: .black)
-        etcInfoLabel.textColor = .adaptableDarkGrayVK
-        friendsCountLabel.textColor = .adaptableDarkGrayVK
-        followersCountLabel.textColor = .adaptableDarkGrayVK
-        groupsCountLabel.textColor = .adaptableDarkGrayVK
+        nameLabel.textColor = .getThemeableColor(fromNormalColor: .black)
+        etcInfoLabel.textColor = .getThemeableColor(fromNormalColor: .darkGray)
+        friendsCountLabel.textColor = .getThemeableColor(fromNormalColor: .darkGray)
+        followersCountLabel.textColor = .getThemeableColor(fromNormalColor: .darkGray)
+        groupsCountLabel.textColor = .getThemeableColor(fromNormalColor: .darkGray)
         
         nameLabel.font = GoogleSansFont.bold(with: 20)
         etcInfoLabel.font = GoogleSansFont.regular(with: 16)
@@ -61,7 +61,7 @@ class ProfileMainInfoTableViewCell: UITableViewCell {
     }
     
     func setup(by viewModel: ProfileCellViewModel) {
-        if let urlString = viewModel.photoMaxOrig, let url = URL(string: urlString) {
+        if let url = URL(string: viewModel.photoMaxOrig) {
             KingfisherManager.shared.retrieveImage(with: url) { [weak self] (result) in
                 guard let self = self else { return }
                 switch result {
@@ -74,7 +74,7 @@ class ProfileMainInfoTableViewCell: UITableViewCell {
             }
         }
         
-        nameLabel.text = "\(viewModel.firstName!) \(viewModel.lastName!)"
+        nameLabel.text = viewModel.getFullName(nameCase: .nom, false)
         etcInfoLabel.text = viewModel.status
         
         friendsCountLabel.text = "\(viewModel.friendsCount ?? 0)"
@@ -85,10 +85,10 @@ class ProfileMainInfoTableViewCell: UITableViewCell {
             groupsCountLabel.text = "\(viewModel.counters?.groups ?? 0)"
         }
         
-        setupButtons(hasCurrentUser: Constants.currentUserId == viewModel.id, canMessage: viewModel.type, friendAction: viewModel.friendActionType)
+        setupButtons(hasCurrentUser: currentUserId == viewModel.id, canMessage: viewModel.type, friendAction: viewModel.friendActionType)
         
-        if viewModel.isOnline ?? false {
-            if viewModel.isMobile ?? false {
+        if viewModel.isOnline {
+            if viewModel.isMobile {
                 onlineImageView.image = UIImage(named: "Online Mobile")
             } else {
                 onlineImageView.image = UIImage(named: "Online")
@@ -102,6 +102,6 @@ class ProfileMainInfoTableViewCell: UITableViewCell {
         userActionButton.isHidden = hasCurrentUser
         messageButton.isHidden = hasCurrentUser || canMessage == .actionFriend
 
-        userActionButton.setImage(UIImage(named: friendAction.setImage(from: friendAction))?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue)?.resize(toWidth: 24)?.resize(toHeight: 24), for: .normal)
+        userActionButton.setImage(UIImage(named: friendAction.setImage(from: friendAction))?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .common))?.resize(toWidth: 24)?.resize(toHeight: 24), for: .normal)
     }
 }

@@ -90,7 +90,7 @@ class Conversation: Object {
     // var pinnedMessage: DBMessage?
     @objc dynamic var state: String?
     var activeIds: [Int] = []
-    @objc var ownerId: Int = Constants.currentUserId
+    @objc var ownerId: Int = currentUserId
     @objc dynamic var isGroupChannel: Bool = false
     // Push Settings
     @objc dynamic var disabledUntil: Int = 0
@@ -186,7 +186,7 @@ class Conversation: Object {
     class func getAvatarAcronymColor(at idIndex: Int, completion: @escaping(_ color: UIColor) -> Void) {
         for index in 0...idIndex {
             if index < 6 {
-                completion(.systemBlue)
+                completion(.getAccentColor(fromType: .common))
             } else {
                 continue
             }
@@ -288,6 +288,7 @@ class ConversationInterlocutor: Object {
     @objc dynamic var sex: Int = 0
     @objc dynamic var verified: Int = 0
     @objc dynamic var name: String = ""
+    @objc dynamic var imageStatusUrl: String? = ""
     
     dynamic var senderId: Int? = 0
     @objc dynamic var senderName: String? = ""
@@ -298,6 +299,7 @@ class ConversationInterlocutor: Object {
     convenience init(profileJSON: JSON) {
         self.init()
         self.id = profileJSON["id"].intValue
+        self.imageStatusUrl = profileJSON["image_status"]["images"].arrayValue.first?["url"].string
         self.name = profileJSON["first_name"].stringValue + " " + profileJSON["last_name"].stringValue
         self.photo100 = profileJSON["photo_100"].stringValue
         self.visible = profileJSON["online_info"]["visible"].boolValue

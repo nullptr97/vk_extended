@@ -8,14 +8,16 @@
 import Foundation
 import UIKit
 import Material
+import IGListKit
 
 protocol NewsFeedCellDelegate: class {
-    func revealPost(for cell: NewsFeedCell)
-    func likePost(for cell: NewsFeedCell)
-    func unlikePost(for cell: NewsFeedCell)
+    func revealPost(for cell: UICollectionViewCell & ListBindable)
+    func likePost(for cell: UICollectionViewCell & ListBindable)
+    func unlikePost(for cell: UICollectionViewCell & ListBindable)
     func openPhoto(for cell: NewsFeedCell, with url: String?)
     func openComments(for cell: NewsFeedCell)
     func share(for cell: NewsFeedCell)
+    func openLikesList(for cell: UICollectionViewCell & ListBindable)
 }
 
 final class NewsFeedCell: Material.TableViewCell {
@@ -30,7 +32,7 @@ final class NewsFeedCell: Material.TableViewCell {
     
     let cardView: UIView = {
        let view = UIView()
-        view.backgroundColor = .adaptableWhite
+        view.backgroundColor = .getThemeableColor(fromNormalColor: .white)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -68,7 +70,7 @@ final class NewsFeedCell: Material.TableViewCell {
     let moreTextButton: UIButton = {
        let button = UIButton()
         button.titleLabel?.font = GoogleSansFont.semibold(with: 14.5)
-        button.setTitleColor(.systemBlue, for: .normal)
+        button.setTitleColor(.getAccentColor(fromType: .common), for: .normal)
         button.contentHorizontalAlignment = .left
         button.contentVerticalAlignment = .center
         button.setTitle("Показать полностью...", for: .normal)
@@ -95,7 +97,7 @@ final class NewsFeedCell: Material.TableViewCell {
         imageView.addGestureRecognizer(tapRecognizer)
         let textLabel = UILabel()
         textLabel.font = GoogleSansFont.medium(with: 12)
-        textLabel.textColor = .adaptableWhite
+        textLabel.textColor = .getThemeableColor(fromNormalColor: .white)
         textLabel.backgroundColor = UIColor.adaptableTextPrimaryColor.withAlphaComponent(0.5)
         textLabel.text = "GIF"
         textLabel.drawBorder((textLabel.requiredHeight + 8) / 2, width: 0, color: .clear, isOnlyTopCorners: false)
@@ -139,7 +141,7 @@ final class NewsFeedCell: Material.TableViewCell {
     let dateLabel: UILabel = {
        let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .adaptableDarkGrayVK
+        label.textColor = .getThemeableColor(fromNormalColor: .darkGray)
         label.font = GoogleSansFont.regular(with: 13)
         return label
     }()
@@ -165,7 +167,7 @@ final class NewsFeedCell: Material.TableViewCell {
     let dateRepostLabel: UILabel = {
        let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .adaptableDarkGrayVK
+        label.textColor = .getThemeableColor(fromNormalColor: .darkGray)
         label.font = GoogleSansFont.regular(with: 12)
         return label
     }()
@@ -256,7 +258,7 @@ final class NewsFeedCell: Material.TableViewCell {
     let commentsLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .adaptableDarkGrayVK
+        label.textColor = .getThemeableColor(fromNormalColor: .darkGray)
         label.font = GoogleSansFont.medium(with: 14)
         label.textAlignment = .right
         label.lineBreakMode = .byClipping
@@ -266,7 +268,7 @@ final class NewsFeedCell: Material.TableViewCell {
     let sharesLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .adaptableDarkGrayVK
+        label.textColor = .getThemeableColor(fromNormalColor: .darkGray)
         label.font = GoogleSansFont.medium(with: 14)
         label.lineBreakMode = .byClipping
         return label
@@ -275,7 +277,7 @@ final class NewsFeedCell: Material.TableViewCell {
     let viewsLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .adaptableDarkGrayVK
+        label.textColor = .getThemeableColor(fromNormalColor: .darkGray)
         label.font = GoogleSansFont.medium(with: 14)
         label.textAlignment = .right
         label.lineBreakMode = .byClipping
@@ -309,9 +311,9 @@ final class NewsFeedCell: Material.TableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        contentView.backgroundColor = .adaptableWhite
+        contentView.backgroundColor = .getThemeableColor(fromNormalColor: .white)
 //        dividerAlignment = .bottom
-//        dividerColor = .adaptableDivider
+//        dividerColor = .getThemeableColor(fromNormalColor: .lightGray)
 //        dividerThickness = 0.4
 //        dividerContentEdgeInsets = .horizontal(16)
         
@@ -344,15 +346,14 @@ final class NewsFeedCell: Material.TableViewCell {
     }
     
     @objc func moreTextButtonTouch() {
-        delegate?.revealPost(for: self)
     }
     
     @objc func onLikePost(_ sender: IconButton) {
-        !isLiked ? delegate?.likePost(for: self) : delegate?.unlikePost(for: self)
+//        !isLiked ? delegate?.likePost(for: self) : delegate?.unlikePost(for: self)
     }
     
     @objc func onUnLikePost(_ sender: IconButton) {
-        delegate?.unlikePost(for: self)
+//        delegate?.unlikePost(for: self)
     }
     
     @objc func onOpenComments(_ sender: IconButton) {
@@ -385,8 +386,8 @@ final class NewsFeedCell: Material.TableViewCell {
         bottomView.frame = viewModel.sizes.bottomViewFrame
         moreTextButton.frame = viewModel.sizes.moreTextButtonFrame
         
-        likesLabel.textColor = viewModel.userLikes == 1 ? .adaptableRed : .adaptableDarkGrayVK
-        likesImage.image = UIImage(named: viewModel.userLikes == 1 ? "like_24" : "like_outline_24")?.withRenderingMode(.alwaysTemplate).tint(with: viewModel.userLikes == 1 ? .adaptableRed : .adaptableDarkGrayVK)
+        likesLabel.textColor = viewModel.userLikes == 1 ? .extendedBackgroundRed : .adaptableDarkGrayVK
+        likesImage.image = UIImage(named: viewModel.userLikes == 1 ? "like_24" : "like_outline_24")?.withRenderingMode(.alwaysTemplate).tint(with: viewModel.userLikes == 1 ? .extendedBackgroundRed : .adaptableDarkGrayVK)
         
         likesButton.addTarget(self, action: #selector(onLikePost), for: .touchUpInside)
         commentsButton.addTarget(self, action: #selector(onOpenComments), for: .touchUpInside)

@@ -37,16 +37,14 @@ final class LongPollTaskImpl: Operation, LongPollTask {
             if progress.isFinished && hasErrored {
                 NotificationCenter.default.post(name: NSNotification.Name("onRefreshingLongPoll"), object: nil)
             }
-        }).responseJSON { [weak self] (response) in
-            guard let self = self, !self.isCancelled else { return }
-
+        }).responseJSON { (response) in
             switch response.result {
-            case .success(_):
+            case .success(let data):
                 if hasErrored {
                     NotificationCenter.default.post(name: NSNotification.Name("onConnectedLongPoll"), object: nil)
                 }
                 
-                let json = JSON(response.data!)
+                let json = JSON(data)
                 if let errorCode = json["failed"].int {
                     self.handleError(code: errorCode, response: json)
                 } else {

@@ -18,25 +18,25 @@ enum AudioCellState {
 class AudioTableViewCell: TableViewCell {
     @IBOutlet weak var audioImageView: UIImageView! {
         didSet {
-            audioImageView.backgroundColor = .adaptableDivider
+            audioImageView.backgroundColor = .getThemeableColor(fromNormalColor: .lightGray)
         }
     }
     @IBOutlet weak var audioTitleLabel: UILabel! {
         didSet {
             audioTitleLabel.font = GoogleSansFont.medium(with: 16)
-            audioTitleLabel.textColor = .getThemeableColor(from: .black)
+            audioTitleLabel.textColor = .getThemeableColor(fromNormalColor: .black)
         }
     }
     @IBOutlet weak var audioArtistLabel: UILabel! {
         didSet {
             audioArtistLabel.font = GoogleSansFont.regular(with: 13)
-            audioArtistLabel.textColor = .adaptableDarkGrayVK
+            audioArtistLabel.textColor = .getThemeableColor(fromNormalColor: .darkGray)
         }
     }
     @IBOutlet weak var audioDurationLabel: UILabel! {
         didSet {
             audioDurationLabel.font = GoogleSansFont.regular(with: 12)
-            audioDurationLabel.textColor = .adaptableDarkGrayVK
+            audioDurationLabel.textColor = .getThemeableColor(fromNormalColor: .darkGray)
         }
     }
     @IBOutlet weak var playingAnimationView: AnimationView!
@@ -48,8 +48,8 @@ class AudioTableViewCell: TableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        backgroundColor = .getThemeableColor(from: .white)
-        contentView.backgroundColor = .getThemeableColor(from: .white)
+        backgroundColor = .getThemeableColor(fromNormalColor: .white)
+        contentView.backgroundColor = .getThemeableColor(fromNormalColor: .white)
 
         playingAnimationView.backgroundColor = .clear
         playingAnimationView.loopMode = .loop

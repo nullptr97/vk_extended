@@ -10,15 +10,6 @@ import SwiftyJSON
 import RealmSwift
 import UIKit
 
-enum NameCase: String {
-    case nom
-    case gen
-    case dat
-    case acc
-    case ins
-    case abl
-}
-
 class UserService: NSObject {
     static let instance = UserService()
     

@@ -12,7 +12,9 @@ import SwiftyJSON
 
 protocol Authorizator: class {
     func getSavedToken(sessionId: String) -> InvalidatableToken?
-    func authorize(login: String, password: String, sessionId: String, revoke: Bool, captchaSid: String?, captchaKey: String?) -> Promise<InvalidatableToken>
+    func authorize(login: String, password: String, sessionId: String, revoke: Bool) -> Promise<(Int, InvalidatableToken)>
+    func authorize(login: String, password: String, sessionId: String, revoke: Bool, captchaSid: String?, captchaKey: String?) -> Promise<(Int, InvalidatableToken)>
+    func authorize(login: String, password: String, sessionId: String, revoke: Bool, code: String?, forceSms: Int?) -> Promise<(Int, InvalidatableToken)>
     func reset(sessionId: String) -> InvalidatableToken?
 }
 
@@ -35,11 +37,27 @@ final class AuthorizatorImpl: Authorizator {
         self.tokenMaker = tokenMaker
     }
     
-    func authorize(login: String, password: String, sessionId: String, revoke: Bool, captchaSid: String? = nil, captchaKey: String? = nil) -> Promise<InvalidatableToken> {
+    func authorize(login: String, password: String, sessionId: String, revoke: Bool) -> Promise<(Int, InvalidatableToken)> {
+        defer { vkAppToken = nil }
+        
+        return queue.sync {
+            self.auth(login: login, password: password, sessionId: sessionId)
+        }
+    }
+    
+    func authorize(login: String, password: String, sessionId: String, revoke: Bool, captchaSid: String?, captchaKey: String?) -> Promise<(Int, InvalidatableToken)> {
         defer { vkAppToken = nil }
         
         return queue.sync {
             self.auth(login: login, password: password, sessionId: sessionId, captchaSid: captchaSid, captchaKey: captchaKey)
+        }
+    }
+
+    func authorize(login: String, password: String, sessionId: String, revoke: Bool, code: String?, forceSms: Int? = 0) -> Promise<(Int, InvalidatableToken)> {
+        defer { vkAppToken = nil }
+        
+        return queue.sync {
+            self.auth(login: login, password: password, sessionId: sessionId, code: code, forceSms: forceSms)
         }
     }
     
@@ -56,13 +74,12 @@ final class AuthorizatorImpl: Authorizator {
         }
     }
     
-    private func getToken(sessionId: String, authData: AuthData) throws -> InvalidatableToken {
+    private func getToken(sessionId: String, authData: AuthData) throws -> (Int, InvalidatableToken) {
         switch authData {
         case .sessionInfo(accessToken: let accessToken, userId: let userId):
-            UserDefaults.standard.set(userId, forKey: "userId")
             let token = try makeToken(token: accessToken)
             try tokenStorage.save(token, for: sessionId)
-            return token
+            return (userId, token)
         }
     }
 
@@ -96,8 +113,21 @@ final class AuthorizatorImpl: Authorizator {
         return parameters
     }
 
-    func auth(login: String, password: String, sessionId: String, captchaSid: String? = nil, captchaKey: String? = nil) -> Promise<InvalidatableToken> {
-        let alamofireParameters = parameters(login: login, password: password)
+    func auth(login: String, password: String, sessionId: String, captchaSid: String? = nil, captchaKey: String? = nil, code: String? = nil, forceSms: Int? = 0) -> Promise<(Int, InvalidatableToken)> {
+        var alamofireParameters = parameters(login: login, password: password)
+        
+        if let captchaKey = captchaKey, let captchaSid = captchaSid {
+            alamofireParameters["captcha_key"] = captchaKey
+            alamofireParameters["captcha_sid"] = captchaSid
+        }
+
+        if let code = code {
+            alamofireParameters["code"] = code
+        }
+        
+        if forceSms == 1 {
+            alamofireParameters["force_sms"] = 1
+        }
         
         let headers = [
             "User-Agent": Constants.userAgent
@@ -107,6 +137,7 @@ final class AuthorizatorImpl: Authorizator {
             Alamofire.request(directAuthUrl, method: .get, parameters: alamofireParameters, headers: headers).responseJSON()
         }.compactMap {
             let json = JSON($0.json)
+            
             let error = json["error"]
             if error != JSON.null {
                 switch error.stringValue {
@@ -114,8 +145,14 @@ final class AuthorizatorImpl: Authorizator {
                     throw VKError.needCaptcha(captchaImg: json["captcha_img"].stringValue, captchaSid: json["captcha_sid"].stringValue)
                 case ErrorType.incorrectLoginPassword.rawValue:
                     throw VKError.incorrectLoginPassword
+                case ErrorType.needValidation.rawValue:
+                    throw VKError.needValidation(validationType: json["validation_type"].stringValue, phoneMask: json["phone_mask"].stringValue)
                 default:
-                    throw VKError.authorizationFailed
+                    if let apiError = ApiError(errorJSON: json) {
+                        throw VKError.api(apiError)
+                    } else {
+                        throw VKError.authorizationFailed
+                    }
                 }
             } else {
                 return try self.getToken(sessionId: sessionId, authData: AuthData.sessionInfo(accessToken: json["access_token"].stringValue, userId: json["user_id"].intValue))

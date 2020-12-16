@@ -86,13 +86,13 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sip-zr-RTR">
-                    <rect key="frame" x="32" y="571" width="350" height="20.5"/>
+                    <rect key="frame" x="32" y="571" width="350" height="21"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <nil key="textColor"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <stackView opaque="NO" contentMode="scaleToFill" distribution="equalCentering" translatesAutoresizingMaskIntoConstraints="NO" id="52h-Ds-Vdg">
-                    <rect key="frame" x="32" y="623.5" width="350" height="48"/>
+                    <rect key="frame" x="32" y="624" width="350" height="48"/>
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hrd-B6-RjJ">
                             <rect key="frame" x="0.0" y="0.0" width="24" height="48"/>
@@ -153,7 +153,7 @@
     </objects>
     <designables>
         <designable name="Pz7-U0-dy8">
-            <size key="intrinsicContentSize" width="-1" height="30"/>
+            <size key="intrinsicContentSize" width="27" height="30"/>
         </designable>
     </designables>
     <resources>

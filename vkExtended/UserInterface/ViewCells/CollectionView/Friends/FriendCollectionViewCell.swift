@@ -14,6 +14,7 @@ protocol FriendFrofileDelegate: class {
 class FriendCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var friendImageView: UIImageView!
     @IBOutlet weak var friendNameLabel: UILabel!
+    @IBOutlet weak var onlineImageView: UIImageView!
     
     var userId: Int = 0
     weak var delegate: FriendFrofileDelegate?
@@ -23,10 +24,15 @@ class FriendCollectionViewCell: UICollectionViewCell {
         isUserInteractionEnabled = true
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTapFriend)))
         
-        friendImageView.drawBorder(28, width: 0.5, color: .adaptableDivider)
+        friendImageView.drawBorder(28, width: 0.5, color: .getThemeableColor(fromNormalColor: .lightGray))
     }
     
     @objc func onTapFriend() {
         delegate?.onTapFriend(from: self, with: userId)
+    }
+    
+    func setupOnline(isOnline: Bool, isMobile: Bool) {
+        onlineImageView.isHidden = !isOnline
+        onlineImageView.image = UIImage(named: isMobile ? "Online Mobile" : "Online")
     }
 }

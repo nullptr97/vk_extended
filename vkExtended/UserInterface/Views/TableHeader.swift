@@ -49,14 +49,14 @@ class TableHeader: View {
         Bundle.main.loadNibNamed("TableHeader", owner: self, options: nil)
         addSubview(headerView)
         headerView.frame = bounds
-        headerView.backgroundColor = .getThemeableColor(from: .white)
+        headerView.backgroundColor = .getThemeableColor(fromNormalColor: .white)
         
         headerLabel.font = GoogleSansFont.semibold(with: 14)
-        headerLabel.textColor = .adaptableDarkGrayVK
+        headerLabel.textColor = .getThemeableColor(fromNormalColor: .darkGray)
         
         dividerAlignment = .top
         dividerThickness = 0.4
-        dividerColor = .adaptableDivider
+        dividerColor = .getThemeableColor(fromNormalColor: .lightGray)
     }
     
     open var headerTitle: String? {

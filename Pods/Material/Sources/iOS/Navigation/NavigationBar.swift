@@ -35,7 +35,7 @@ open class NavigationBar: UINavigationBar, Themeable {
   fileprivate var toolbarToText: [Toolbar: String?]?
   
   open override var intrinsicContentSize: CGSize {
-    return CGSize(width: bounds.width, height: bounds.height)
+    return CGSize(width: bounds.width, height: 52)
   }
   
   /// A preset wrapper around contentEdgeInsets.
@@ -156,7 +156,7 @@ open class NavigationBar: UINavigationBar, Themeable {
    when subclassing.
    */
   open func prepare() {
-    barStyle = .black
+    barStyle = .default
     isTranslucent = false
     depthPreset = .none
     contentScaleFactor = Screen.scale
@@ -209,6 +209,7 @@ internal extension NavigationBar {
     }
     
     let toolbar = item.toolbar
+    toolbar.heightPreset = .custom(56)
     toolbar.backgroundColor = .clear
     toolbar.interimSpace = interimSpace
     toolbar.contentEdgeInsets = contentEdgeInsets
@@ -228,6 +229,6 @@ internal extension NavigationBar {
     }
     
     item.titleView = toolbar
-    item.titleView!.frame = bounds
+    item.titleView!.frame = CGRect(origin: CGPoint(x: bounds.origin.x, y: bounds.origin.y - 6), size: bounds.size)
   }
 }

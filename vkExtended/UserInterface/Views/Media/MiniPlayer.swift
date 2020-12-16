@@ -29,20 +29,20 @@ class MiniPlayer: View {
         Bundle.main.loadNibNamed("MiniPlayer", owner: self, options: nil)
         addSubview(miniPlayer)
         miniPlayer.frame = bounds
-        miniPlayer.backgroundColor = .getThemeableColor(from: .white)
+        miniPlayer.backgroundColor = .getThemeableColor(fromNormalColor: .white)
         
         titleLabel.font = GoogleSansFont.medium(with: 15)
-        titleLabel.textColor = .getThemeableColor(from: .black)
+        titleLabel.textColor = .getThemeableColor(fromNormalColor: .black)
         
         artistLabel.font = GoogleSansFont.regular(with: 12)
-        artistLabel.textColor = .adaptableDarkGrayVK
+        artistLabel.textColor = .getThemeableColor(fromNormalColor: .darkGray)
         
         playingButton.contentMode = .center
         closeButton.contentMode = .center
         
         dividerAlignment = .bottom
         dividerThickness = 0.4
-        dividerColor = .adaptableDivider
+        dividerColor = .getThemeableColor(fromNormalColor: .lightGray)
     }
     
     func setupPlayer(from state: AudioPlayerState) {
@@ -50,31 +50,31 @@ class MiniPlayer: View {
         case .buffering:
             isHidden = false
             isUserInteractionEnabled = true
-            playingButton.setImage(UIImage(named: "play_48")?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue), for: .normal)
+            playingButton.setImage(UIImage(named: "play_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .common)), for: .normal)
             closeButton.setImage(UIImage(named: "cancel_outline_36")?.withRenderingMode(.alwaysTemplate).tint(with: .adaptableDarkGrayVK), for: .normal)
         case .playing:
             isHidden = false
             isUserInteractionEnabled = true
-            playingButton.setImage(UIImage(named: "pause_48")?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue), for: .normal)
+            playingButton.setImage(UIImage(named: "pause_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .common)), for: .normal)
             closeButton.setImage(UIImage(named: "skip_next_48")?.withRenderingMode(.alwaysTemplate).tint(with: .adaptableDarkGrayVK), for: .normal)
         case .paused:
             isHidden = false
             isUserInteractionEnabled = true
-            playingButton.setImage(UIImage(named: "play_48")?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue), for: .normal)
+            playingButton.setImage(UIImage(named: "play_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .common)), for: .normal)
             closeButton.setImage(UIImage(named: "cancel_outline_36")?.withRenderingMode(.alwaysTemplate).tint(with: .adaptableDarkGrayVK), for: .normal)
         case .stopped:
             isHidden = true
             isUserInteractionEnabled = false
-            playingButton.setImage(UIImage(named: "play_48")?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue), for: .normal)
+            playingButton.setImage(UIImage(named: "play_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .common)), for: .normal)
             closeButton.setImage(UIImage(named: "cancel_outline_36")?.withRenderingMode(.alwaysTemplate).tint(with: .adaptableDarkGrayVK), for: .normal)
         case .waitingForConnection:
             isUserInteractionEnabled = true
-            playingButton.setImage(UIImage(named: "play_48")?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue), for: .normal)
+            playingButton.setImage(UIImage(named: "play_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .common)), for: .normal)
             closeButton.setImage(UIImage(named: "cancel_outline_36")?.withRenderingMode(.alwaysTemplate).tint(with: .adaptableDarkGrayVK), for: .normal)
         case .failed(_):
             isHidden = true
             isUserInteractionEnabled = false
-            playingButton.setImage(UIImage(named: "play_48")?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue), for: .normal)
+            playingButton.setImage(UIImage(named: "play_48")?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .common)), for: .normal)
             closeButton.setImage(UIImage(named: "cancel_outline_36")?.withRenderingMode(.alwaysTemplate).tint(with: .adaptableDarkGrayVK), for: .normal)
         }
     }

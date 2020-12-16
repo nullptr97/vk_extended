@@ -115,6 +115,9 @@
             <point key="canvasLocation" x="157.24637681159422" y="96.09375"/>
         </tableViewCell>
     </objects>
+    <designables>
+        <designable name="Vi8-Xl-VVa"/>
+    </designables>
     <resources>
         <image name="music_outline_28" width="28" height="28"/>
         <systemColor name="systemBackgroundColor">

@@ -50,7 +50,7 @@ class LastMessage: Object {
         if lastMessage["attachments"].array?.count ?? 0 == 1 {
             self.attachmentType = Conversation.typeAttachment(string: lastMessage["attachments"].array?.first?["type"].stringValue).rawValue
         } else {
-            self.attachmentType = "\(lastMessage["attachments"].array?.count ?? 0) \(getStringByDeclension(number: lastMessage["attachments"].array?.count ?? 0, arrayWords: Localization.instance.attachmentsString))"
+            self.attachmentType = "\(lastMessage["attachments"].array?.count ?? 0) \(getStringByDeclension(number: lastMessage["attachments"].array?.count ?? 0, arrayWords: Localization.attachmentsString))"
         }
         self.hasAttachments = lastMessage["attachments"].array?.first?["type"].stringValue != nil
         self.forwardMessagesCount = lastMessage["fwd_messages"].arrayValue.count

@@ -11,6 +11,8 @@ import Foundation
 public indirect enum VKError: Error {
     // MARK: - Any error wrapper
     case unknown(Error)
+    case noAccessToken(String)
+    case emptyJSON(String)
     
     // MARK: - Errors from VK API
     case api(ApiError)
@@ -53,6 +55,7 @@ public indirect enum VKError: Error {
     
     case needCaptcha(captchaImg: String, captchaSid: String)
     case incorrectLoginPassword
+    case needValidation(validationType: String, phoneMask: String)
     
     func toApi() -> ApiError? {
         switch self {

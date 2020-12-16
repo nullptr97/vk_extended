@@ -8,7 +8,7 @@
 import UIKit
 import Material
 
-enum CellType: String {
+enum CellType: String, CaseIterable {
     case audio = "Музыка"
     case groups = "Сообщества"
     case videos = "Видео"
@@ -18,11 +18,13 @@ enum CellType: String {
     case ui = "Интерфейс"
     case messages = "Сообщения"
     case newsfeed = "Новости"
+    case dev = "Для разработчика"
     case logout = "Выйти из аккаунта"
 }
 
 protocol MenuCellDelegate: class {
     func onOpenMenuItem(for cell: MenuTableViewCell)
+    func onChangeSwitchState(for cell: UISettingsTableViewCell, state: Bool)
 }
 
 class MenuTableViewCell: TableViewCell {
@@ -34,8 +36,8 @@ class MenuTableViewCell: TableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        backgroundColor = .getThemeableColor(from: .white)
-        contentView.backgroundColor = .getThemeableColor(from: .white)
+        backgroundColor = .getThemeableColor(fromNormalColor: .white)
+        contentView.backgroundColor = .getThemeableColor(fromNormalColor: .white)
         
         menuItemLabel.font = GoogleSansFont.medium(with: 16)
         isUserInteractionEnabled = true
@@ -57,7 +59,7 @@ class MenuTableViewCell: TableViewCell {
     
     var itemImage: UIImage? {
         get { return menuItemImageView.image }
-        set { menuItemImageView.image = newValue?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue) }
+        set { menuItemImageView.image = newValue?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .common)) }
     }
     
     var itemImageTint: UIColor {

@@ -29,6 +29,7 @@ class MessageViewCell: TableViewCell {
             avatarInterlocutor.addGestureRecognizer(doubleTapRecognizer)
         }
     }
+    @IBOutlet weak var statusImageView: UIImageView!
     @IBOutlet weak var nameInterlocutor: UILabel!
     @IBOutlet weak var messageText: UILabel!
     @IBOutlet weak var lastMessageViw: UIView!
@@ -65,7 +66,7 @@ class MessageViewCell: TableViewCell {
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        self.avatarInterlocutor.drawBorder(28, width: 0.5, color: .adaptableDivider, isOnlyTopCorners: false)
+        self.avatarInterlocutor.drawBorder(28, width: 0.5, color: .getThemeableColor(fromNormalColor: .lightGray), isOnlyTopCorners: false)
     }
     
     override func prepareForReuse() {
@@ -77,6 +78,7 @@ class MessageViewCell: TableViewCell {
         unreadLabel.text = nil
         avatarInterlocutor.image = nil
         onlineImageView.image = nil
+        statusImageView.image = nil
     }
     
     func alternativeSetup(conversation: Conversation) {
@@ -98,15 +100,15 @@ class MessageViewCell: TableViewCell {
     
     // Настройка графики
     func setupLayer() {
-        self.backgroundColor = .adaptableWhite
+        self.backgroundColor = .getThemeableColor(fromNormalColor: .white)
         self.typingView.isHidden = true
         self.avatarInterlocutor.setRounded()
         self.avatarInterlocutor.backgroundColor = .adaptablePostColor
-        self.avatarInterlocutor.drawBorder(28, width: 0.5, color: .adaptableDivider, isOnlyTopCorners: false)
+        self.avatarInterlocutor.drawBorder(28, width: 0.5, color: .getThemeableColor(fromNormalColor: .lightGray), isOnlyTopCorners: false)
         self.unreadCountView.setRounded()
-        self.unreadLabel.textColor = .systemBlue
+        self.unreadLabel.textColor = .getAccentColor(fromType: .common)
         self.unreadLabel.font = GoogleSansFont.medium(with: 13)
-        self.unreadInView.backgroundColor = .systemBlue
+        self.unreadInView.backgroundColor = .getAccentColor(fromType: .common)
         self.unreadInView.setRounded()
         self.nameInterlocutor.textColor = .adaptableTextPrimaryColor
         self.nameInterlocutor.font = GoogleSansFont.bold(with: 18)
@@ -114,10 +116,10 @@ class MessageViewCell: TableViewCell {
         self.messageText.textColor = UIColor.color(from: 0x6D7885)
         self.messageTimeLabel.font = GoogleSansFont.regular(with: 14)
         self.messageTimeLabel.textColor = UIColor.color(from: 0x99A2AD)
-        self.typingView.backgroundColor = .adaptableWhite
+        self.typingView.backgroundColor = .getThemeableColor(fromNormalColor: .white)
         self.typingView.backgroundColor = .clear
         self.typingLabel.font = GoogleSansFont.medium(with: 14)
-        self.typingLabel.textColor = .adaptableDarkGrayVK
+        self.typingLabel.textColor = .getThemeableColor(fromNormalColor: .darkGray)
     }
 
     // Установка последнего сообщения
@@ -244,40 +246,41 @@ class MessageViewCell: TableViewCell {
     
     func setupLastMessage(by conversation: Conversation, with sender: NSAttributedString) -> NSAttributedString {
         guard let lastMessage = conversation.lastMessage else { return NSAttributedString(string: "") }
+        let text = (lastMessage.text.isEmpty && !lastMessage.hasForwardedMessages && !lastMessage.hasReplyMessage && !lastMessage.hasAttachments) ? "Пустое сообщение" : lastMessage.text
         if lastMessage.hasForwardedMessages {
-            let forwardedMessages = "\(lastMessage.forwardMessagesCount) \(getStringByDeclension(number: lastMessage.forwardMessagesCount, arrayWords: Localization.instance.forwardString))"
-            let forwardedMessagesText = NSAttributedString(string: forwardedMessages, attributes: [.foregroundColor: UIColor.systemBlue, .font: GoogleSansFont.regular(with: 16)])
-            return lastMessage.text != "" ? sender + NSAttributedString(string: "\(lastMessage.text) ") + forwardedMessagesText : sender + forwardedMessagesText
+            let forwardedMessages = "\(lastMessage.forwardMessagesCount) \(getStringByDeclension(number: lastMessage.forwardMessagesCount, arrayWords: Localization.forwardString))"
+            let forwardedMessagesText = NSAttributedString(string: forwardedMessages, attributes: [.foregroundColor: UIColor.getAccentColor(fromType: .common), .font: GoogleSansFont.regular(with: 16)])
+            return text != "" ? sender + NSAttributedString(string: "\(text) ") + forwardedMessagesText : sender + forwardedMessagesText
         } else if lastMessage.hasReplyMessage {
-            let replyMessageText = NSAttributedString(string: "Ответ", attributes: [.foregroundColor: UIColor.systemBlue, .font: GoogleSansFont.regular(with: 16)])
-            return lastMessage.text != "" ? sender + NSAttributedString(string: "\(lastMessage.text) ")  + replyMessageText : sender + replyMessageText
+            let replyMessageText = NSAttributedString(string: "Ответ", attributes: [.foregroundColor: UIColor.getAccentColor(fromType: .common), .font: GoogleSansFont.regular(with: 16)])
+            return text != "" ? sender + NSAttributedString(string: "\(text) ")  + replyMessageText : sender + replyMessageText
         } else if lastMessage.hasAttachments {
-            let attachmentText = NSAttributedString(string: lastMessage.attachmentType, attributes: [.foregroundColor: UIColor.systemBlue, .font: GoogleSansFont.regular(with: 16)])
-            return lastMessage.text != "" ? sender + NSAttributedString(string: "\(lastMessage.text) ")  + attachmentText : sender + attachmentText
+            let attachmentText = NSAttributedString(string: lastMessage.attachmentType, attributes: [.foregroundColor: UIColor.getAccentColor(fromType: .common), .font: GoogleSansFont.regular(with: 16)])
+            return text != "" ? sender + NSAttributedString(string: "\(text) ")  + attachmentText : sender + attachmentText
         } else {
-            return sender + NSAttributedString(string: lastMessage.text) + NSAttributedString(string: "")
+            return sender + NSAttributedString(string: text) + NSAttributedString(string: "")
         }
     }
     
     // Установка атрибутов удаления
     func setRemoveAttrs(removingFlag: Int) {
         if removingFlag > 0 {
-            messageText.textColor = .extendedRed
+            messageText.textColor = .extendedBackgroundRed
         }
     }
     
     // Установка непрочитанного сообщения
     func setupUnreadMessage(_ conversation: Conversation) {
         if conversation.isMuted {
-            self.unreadLabel.textColor = .adaptableWhite
-            self.unreadInView.backgroundColor = .adaptableDarkGrayVK
-            self.unreadCountView.backgroundColor = .adaptableDarkGrayVK
+            self.unreadLabel.textColor = .getThemeableColor(fromNormalColor: .white)
+            self.unreadInView.backgroundColor = .getThemeableColor(fromNormalColor: .darkGray)
+            self.unreadCountView.backgroundColor = .getThemeableColor(fromNormalColor: .darkGray)
             self.unreadCountView.setBorder(self.unreadCountView.roundedSize, width: 0, color: .adaptableDarkGrayVK)
         } else {
-            self.unreadLabel.textColor = .adaptableWhite
-            self.unreadInView.backgroundColor = UIColor.systemBlue
-            self.unreadCountView.backgroundColor = UIColor.systemBlue
-            self.unreadCountView.setBorder(self.unreadCountView.roundedSize, width: 0, color: UIColor.systemBlue)
+            self.unreadLabel.textColor = .getThemeableColor(fromNormalColor: .white)
+            self.unreadInView.backgroundColor = UIColor.getAccentColor(fromType: .common)
+            self.unreadCountView.backgroundColor = UIColor.getAccentColor(fromType: .common)
+            self.unreadCountView.setBorder(self.unreadCountView.roundedSize, width: 0, color: UIColor.getAccentColor(fromType: .common))
             self.nameInterlocutor.attributedText = nameInterlocutor.attributedText
         }
         // Установка состояния сообщения
@@ -317,37 +320,27 @@ class MessageViewCell: TableViewCell {
             nameInterlocutor.attributedText = NSAttributedString(string: "\(conversation.interlocutor?.name ?? "") ")
         }
         if Constants.verifyingProfile(from: conversation.interlocutor?.id ?? 0) || conversation.interlocutor?.verified == 1 {
-            nameInterlocutor.attributedText = nameInterlocutor.attributedText! + setLabelImage(image: "done_16")!
+            nameInterlocutor.attributedText = nameInterlocutor.attributedText ?? NSAttributedString(string: "\(conversation.interlocutor?.name ?? "") ") + setLabelImage(image: "done_16")!
         } else {
             nameInterlocutor.attributedText = nameInterlocutor.attributedText
         }
         if conversation.isMuted {
-            self.nameInterlocutor.attributedText = nameInterlocutor.attributedText! + setLabelImage(image: "muted_16")!
+            self.nameInterlocutor.attributedText = nameInterlocutor.attributedText ?? NSAttributedString(string: "\(conversation.interlocutor?.name ?? "") ") + setLabelImage(image: "muted_16")!
         } else {
             self.nameInterlocutor.attributedText = nameInterlocutor.attributedText
+        }
+        if let imgStatusUrl = URL(string: conversation.interlocutor?.imageStatusUrl) {
+            statusImageView.kf.setImage(with: imgStatusUrl)
+        } else {
+            statusImageView.image = nil
         }
         if conversation.aggressiveTypingType == "text" {
             self.nameInterlocutor.attributedText = setLabelImage(image: "write_24")! + NSAttributedString(string: " ") + self.nameInterlocutor.attributedText!
         } else if conversation.aggressiveTypingType == "audioMessage" {
             self.nameInterlocutor.attributedText = setLabelImage(image: "music_mic_24")! + NSAttributedString(string: " ") + self.nameInterlocutor.attributedText!
         }
-        guard let photo100 = conversation.interlocutor?.photo100, photo100 != "" else { return }
-        if photo100.contains("vk.com/images/camera_") {
-            self.avatarInterlocutor.image = nil
-            self.avatarInterlocutor.backgroundColor = .systemBlue
-        } else {
-            KingfisherManager.shared.retrieveImage(with: URL(string: conversation.interlocutor?.photo100 ?? "")!, options: nil, progressBlock: nil) { [weak self] result in
-                guard let self = self else { return }
-                switch result {
-                case .success(let value):
-                    DispatchQueue.main.async {
-                        self.avatarInterlocutor.image = value.image
-                    }
-                case .failure(let error):
-                    print(error.failureReason ?? error.localizedDescription)
-                }
-            }
-        }
+        guard let photo100 = conversation.interlocutor?.photo100, let url = URL(string: photo100) else { return }
+        avatarInterlocutor.kf.setImage(with: url)
     }
     
     func setupGroupInterlocutor(_ conversation: Conversation) {
@@ -371,27 +364,8 @@ class MessageViewCell: TableViewCell {
         } else if conversation.aggressiveTypingType == "audioMessage" {
             self.nameInterlocutor.attributedText = setLabelImage(image: "music_mic_24")! + NSAttributedString(string: " ") + self.nameInterlocutor.attributedText!
         }
-        guard let photo100 = conversation.interlocutor?.photo100, photo100 != "" else { return }
-        if photo100.contains("vk.com/images/camera_") {
-            let lastIndex: Int = Int(String("\(conversation.peerId)".last ?? "0")) ?? 0
-            Conversation.getAvatarAcronymColor(at: lastIndex) { [weak self] (gradient) in
-                guard let self = self else { return }
-                self.avatarInterlocutor.image = nil
-                self.avatarInterlocutor.backgroundColor = .systemBlue
-            }
-        } else {
-            KingfisherManager.shared.retrieveImage(with: URL(string: conversation.interlocutor?.photo100 ?? "")!, options: nil, progressBlock: nil) { [weak self] result in
-                guard let self = self else { return }
-                switch result {
-                case .success(let value):
-                    DispatchQueue.main.async {
-                        self.avatarInterlocutor.image = value.image
-                    }
-                case .failure(let error):
-                    print(error.failureReason ?? error.localizedDescription)
-                }
-            }
-        }
+        guard let photo100 = conversation.interlocutor?.photo100, let url = URL(string: photo100) else { return }
+        avatarInterlocutor.kf.setImage(with: url)
     }
     
     func setupChatInterlocutor(_ conversation: Conversation) {
@@ -416,27 +390,8 @@ class MessageViewCell: TableViewCell {
         } else if conversation.aggressiveTypingType == "audioMessage" {
             self.nameInterlocutor.attributedText = setLabelImage(image: "music_mic_24")! + NSAttributedString(string: " ") + self.nameInterlocutor.attributedText!
         }
-        guard let photo100 = conversation.interlocutor?.photo100 else { return }
-        if photo100 == "" {
-            let lastIndex: Int = Int(String("\(conversation.peerId)".last ?? "0")) ?? 0
-            Conversation.getAvatarAcronymColor(at: lastIndex) { [weak self] (gradient) in
-                guard let self = self else { return }
-                self.avatarInterlocutor.image = nil
-                self.avatarInterlocutor.backgroundColor = .systemBlue
-            }
-        } else {
-            KingfisherManager.shared.retrieveImage(with: URL(string: conversation.interlocutor?.photo100 ?? "")!, options: nil, progressBlock: nil) { [weak self] result in
-                guard let self = self else { return }
-                switch result {
-                case .success(let value):
-                    DispatchQueue.main.async {
-                        self.avatarInterlocutor.image = value.image
-                    }
-                case .failure(let error):
-                    print(error.failureReason ?? error.localizedDescription)
-                }
-            }
-        }
+        guard let photo100 = conversation.interlocutor?.photo100, let url = URL(string: photo100) else { return }
+        avatarInterlocutor.kf.setImage(with: url)
     }
     
     @objc func onTapAvatar() {
@@ -449,7 +404,7 @@ func setLabelImage(image: String) -> NSMutableAttributedString? {
     if image == "online_mobile_composite_foreground_20" {
         imageAttachment.image = UIImage(named: image)?.withRenderingMode(.alwaysTemplate).tint(with: .adaptableGrayVK)?.resize(toWidth: 9)?.resize(toHeight: 14)
     } else if image == "done_16" || image == "logo_vkme_16" {
-        imageAttachment.image = UIImage(named: image)?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue)
+        imageAttachment.image = UIImage(named: image)?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .common))
     } else if image == "favorite_24" || image == "flash_16" {
         imageAttachment.image = UIImage(named: image)?.withRenderingMode(.alwaysTemplate).tint(with: .adaptableOrange)?.resize(toWidth: 16)?.resize(toHeight: 16)
     } else {
@@ -477,4 +432,48 @@ func setLabelImage(image: String) -> NSMutableAttributedString? {
     completeText.append(attachmentString)
     
     return completeText
+}
+func setLabelImage(image: UIImage?) -> NSMutableAttributedString? {
+    let imageAttachment = NSTextAttachment()
+    imageAttachment.image = image
+    imageAttachment.bounds = CGRect(x: 0, y: -4, width: 20, height: 20)
+    // Create string with attachment
+    let attachmentString = NSAttributedString(attachment: imageAttachment)
+    // Initialize mutable string
+    let completeText = NSMutableAttributedString(string: " ")
+    // Add image to mutable string
+    completeText.append(attachmentString)
+    
+    return completeText
+}
+func setLabelImage(imgStatusUrl: URL) -> NSMutableAttributedString? {
+    let imageAttachment = NSTextAttachment()
+    
+    KingfisherManager.shared.retrieveImage(with: imgStatusUrl) { result in
+        switch result {
+        case .success(let value):
+            imageAttachment.image = value.image
+            imageAttachment.bounds = CGRect(x: 0, y: -4, width: 20, height: 20)
+        case .failure(let error):
+            print(error.localizedDescription)
+        }
+    }
+
+    // Create string with attachment
+    let attachmentString = NSAttributedString(attachment: imageAttachment)
+
+    // Initialize mutable string
+    let completeText = NSMutableAttributedString(string: " ")
+    
+    // Add image to mutable string
+    completeText.append(attachmentString)
+    
+    let customAttribute = [NSAttributedString.Key.imagePath: imageAttachment]
+    completeText.addAttributes(customAttribute, range: NSRange(location: 0, length: completeText.length))
+    
+    return completeText
+}
+
+extension NSAttributedString.Key {
+    static let imagePath = NSAttributedString.Key(rawValue: "imagePath")
 }

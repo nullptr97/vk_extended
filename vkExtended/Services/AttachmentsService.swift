@@ -37,12 +37,12 @@ class AttachmentsService: NSObject {
         guard let attachments = feedItem.attachments else { return [] }
         
         return attachments.compactMap({ (attachment) -> FeedViewModel.FeedCellPhotoAttachment? in
-            if let photo = attachment.photo {
+            if let photo = attachment.photo, attachment.type == "photo" {
                 return FeedViewModel.FeedCellPhotoAttachment.init(photoUrlString: photo.srcBIG,
                                                                   photoMaxUrl: photo.srcMax,
                                                                   width: photo.width,
                                                                   height: photo.height)
-            } else if let doc = attachment.doc {
+            } else if let doc = attachment.doc, attachment.type == "doc" {
                 return FeedViewModel.FeedCellPhotoAttachment.init(gifUrl: doc.url,
                                                                   photoUrlString: doc.preview?.photo?.srcBIG ?? "",
                                                                   photoMaxUrl: doc.preview?.photo?.srcMax ?? "",
@@ -58,12 +58,12 @@ class AttachmentsService: NSObject {
         guard let attachments = wallItem.attachments else { return [] }
         
         return attachments.compactMap({ (attachment) -> FeedViewModel.FeedCellPhotoAttachment? in
-            if let photo = attachment.photo {
+            if let photo = attachment.photo, attachment.type == "photo" {
                 return FeedViewModel.FeedCellPhotoAttachment.init(photoUrlString: photo.srcBIG,
                                                                   photoMaxUrl: photo.srcMax,
                                                                   width: photo.width,
                                                                   height: photo.height)
-            } else if let doc = attachment.doc {
+            } else if let doc = attachment.doc, attachment.type == "doc" {
                 return FeedViewModel.FeedCellPhotoAttachment.init(gifUrl: doc.url,
                                                                   photoUrlString: doc.preview?.photo?.srcBIG ?? "",
                                                                   photoMaxUrl: doc.preview?.photo?.srcMax ?? "",
@@ -79,17 +79,89 @@ class AttachmentsService: NSObject {
         guard let attachments = repostItem.attachments else { return [] }
         
         return attachments.compactMap({ (attachment) -> FeedViewModel.FeedCellPhotoAttachment? in
-            if let photo = attachment.photo {
+            if let photo = attachment.photo, attachment.type == "photo" {
                 return FeedViewModel.FeedCellPhotoAttachment.init(photoUrlString: photo.srcBIG,
                                                                   photoMaxUrl: photo.srcMax,
                                                                   width: photo.width,
                                                                   height: photo.height)
-            } else if let doc = attachment.doc {
+            } else if let doc = attachment.doc, attachment.type == "doc" {
                 return FeedViewModel.FeedCellPhotoAttachment.init(gifUrl: doc.url,
                                                                   photoUrlString: doc.preview?.photo?.srcBIG ?? "",
                                                                   photoMaxUrl: doc.preview?.photo?.srcMax ?? "",
                                                                   width: doc.preview?.photo?.width ?? 0,
                                                                   height: doc.preview?.photo?.height ?? 0)
+            } else {
+                return nil
+            }
+        })
+    }
+    
+    func audioAttachments(feedItem: FeedItem) -> [FeedViewModel.FeedCellAudioAttachment] {
+        guard let attachments = feedItem.attachments else { return [] }
+        
+        return attachments.compactMap({ (attachment) -> FeedViewModel.FeedCellAudioAttachment? in
+            if let audio = attachment.audio, attachment.type == "audio" {
+                return FeedViewModel.FeedCellAudioAttachment(title: audio.title, author: audio.artist, url: audio.url, duration: audio.duration)
+            } else {
+                return nil
+            }
+        })
+    }
+    
+    func audioAttachments(wallItem: WallItem) -> [FeedViewModel.FeedCellAudioAttachment] {
+        guard let attachments = wallItem.attachments else { return [] }
+        
+        return attachments.compactMap({ (attachment) -> FeedViewModel.FeedCellAudioAttachment? in
+            if let audio = attachment.audio, attachment.type == "audio" {
+                return FeedViewModel.FeedCellAudioAttachment(title: audio.title, author: audio.artist, url: audio.url, duration: audio.duration)
+            } else {
+                return nil
+            }
+        })
+    }
+    
+    func audioAttachments(repostItem: RepostItem) -> [FeedViewModel.FeedCellAudioAttachment] {
+        guard let attachments = repostItem.attachments else { return [] }
+        
+        return attachments.compactMap({ (attachment) -> FeedViewModel.FeedCellAudioAttachment? in
+            if let audio = attachment.audio, attachment.type == "audio" {
+                return FeedViewModel.FeedCellAudioAttachment(title: audio.title, author: audio.artist, url: audio.url, duration: audio.duration)
+            } else {
+                return nil
+            }
+        })
+    }
+    
+    func eventAttachments(feedItem: FeedItem, profileFeed: ProfileRepresenatable) -> [FeedViewModel.FeedCellEventAttachment] {
+        guard let attachments = feedItem.attachments else { return [] }
+        
+        return attachments.compactMap({ (attachment) -> FeedViewModel.FeedCellEventAttachment? in
+            if let event = attachment.event, attachment.type == "event" {
+                return FeedViewModel.FeedCellEventAttachment(eventImageUrl: profileFeed.photo, eventName: profileFeed.name, buttonText: event.buttonText, id: event.id, isFavorite: event.isFavorite, text: event.text, memberStatus: event.memberStatus, time: event.time)
+            } else {
+                return nil
+            }
+        })
+    }
+    
+    func eventAttachments(wallItem: WallItem, profileWallItem: ProfileRepresenatable) -> [FeedViewModel.FeedCellEventAttachment] {
+        guard let attachments = wallItem.attachments else { return [] }
+        
+        return attachments.compactMap({ (attachment) -> FeedViewModel.FeedCellEventAttachment? in
+            if let event = attachment.event, attachment.type == "event" {
+                return FeedViewModel.FeedCellEventAttachment(eventImageUrl: profileWallItem.photo, eventName: profileWallItem.name, buttonText: event.buttonText, id: event.id, isFavorite: event.isFavorite, text: event.text, memberStatus: event.memberStatus, time: event.time)
+            } else {
+                return nil
+            }
+        })
+    }
+    
+    func eventAttachments(repostItem: RepostItem, profileRepost: ProfileRepresenatable) -> [FeedViewModel.FeedCellEventAttachment] {
+        guard let attachments = repostItem.attachments else { return [] }
+        
+        return attachments.compactMap({ (attachment) -> FeedViewModel.FeedCellEventAttachment? in
+            if let event = attachment.event, attachment.type == "event" {
+                return FeedViewModel.FeedCellEventAttachment(eventImageUrl: profileRepost.photo, eventName: profileRepost.name, buttonText: event.buttonText, id: event.id, isFavorite: event.isFavorite, text: event.text, memberStatus: event.memberStatus, time: event.time)
             } else {
                 return nil
             }

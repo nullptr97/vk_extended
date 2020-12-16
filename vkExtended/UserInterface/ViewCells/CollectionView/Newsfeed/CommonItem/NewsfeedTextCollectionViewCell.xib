@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17700" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="SF-Pro-Rounded-Semibold.otf">
+            <string>SFProRounded-Semibold</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="NewsfeedTextCollectionViewCell" id="gTV-IL-0wX" customClass="NewsfeedTextCollectionViewCell" customModule="vkExtended" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="233" height="133"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="233" height="133"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LxX-J1-j1Q">
+                        <rect key="frame" x="16" y="109" width="201" height="24"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="24" id="8Je-Qa-IaH"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" name="SFProRounded-Semibold" family="SF Pro Rounded" pointSize="15"/>
+                        <state key="normal" title="Развернуть пост"/>
+                        <connections>
+                            <action selector="onRevealPost:" destination="gTV-IL-0wX" eventType="touchUpInside" id="8RF-6A-Xmr"/>
+                        </connections>
+                    </button>
+                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" contentInsetAdjustmentBehavior="never" editable="NO" text="afsgsdgsdsgsdgsdgsdv" translatesAutoresizingMaskIntoConstraints="NO" id="sHl-ZY-v4A">
+                        <rect key="frame" x="16" y="0.0" width="201" height="109"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="textColor" systemColor="labelColor"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                        <dataDetectorType key="dataDetectorTypes" phoneNumber="YES" link="YES" address="YES" calendarEvent="YES" shipmentTrackingNumber="YES" flightNumber="YES" lookupSuggestion="YES"/>
+                    </textView>
+                </subviews>
+            </view>
+            <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="LxX-J1-j1Q" secondAttribute="bottom" id="6NY-rf-8Sy"/>
+                <constraint firstItem="sHl-ZY-v4A" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="Ltc-C2-KpO"/>
+                <constraint firstItem="LxX-J1-j1Q" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="16" id="bQa-Km-CYO"/>
+                <constraint firstAttribute="trailing" secondItem="LxX-J1-j1Q" secondAttribute="trailing" constant="16" id="dfq-XO-c40"/>
+                <constraint firstAttribute="trailing" secondItem="sHl-ZY-v4A" secondAttribute="trailing" constant="16" id="e4Q-04-Dvd"/>
+                <constraint firstItem="sHl-ZY-v4A" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="16" id="nQH-RF-q7M"/>
+                <constraint firstItem="LxX-J1-j1Q" firstAttribute="bottom" secondItem="sHl-ZY-v4A" secondAttribute="bottom" constant="24" id="ooA-Gf-Nu0"/>
+            </constraints>
+            <size key="customSize" width="233" height="133"/>
+            <connections>
+                <outlet property="newsTextView" destination="sHl-ZY-v4A" id="eTE-lM-PWr"/>
+                <outlet property="revealConstraint" destination="ooA-Gf-Nu0" id="pjn-BE-8xn"/>
+                <outlet property="revealPostButton" destination="LxX-J1-j1Q" id="D2q-bf-xXk"/>
+            </connections>
+            <point key="canvasLocation" x="167.39130434782609" y="91.40625"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

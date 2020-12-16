@@ -6,8 +6,11 @@
 //
 
 import Foundation
+import IGListKit
 
-struct PhotoViewModel {
+class PhotoViewModel: ListDiffable {
+    private var identifier: String = UUID().uuidString
+
     struct Cell: PhotoCellViewModel {
         var photoMaxUrl: String?
         var photoUrlString: String?
@@ -17,6 +20,25 @@ struct PhotoViewModel {
 
     var cell: [Cell]
     let footerTitle: String?
+    var count: Int
+    
+    init(cell: [Cell], footerTitle: String?, count: Int) {
+        self.cell = cell
+        self.footerTitle = footerTitle
+        self.count = count
+    }
+    
+    func diffIdentifier() -> NSObjectProtocol {
+        return identifier as NSString
+    }
+    
+    func isEqual(toDiffableObject object: ListDiffable?) -> Bool {
+        guard let object = object as? PhotoViewModel else {
+            return false
+        }
+        
+        return self.identifier == object.identifier
+    }
 }
 
 protocol PhotoCellViewModel {

@@ -103,8 +103,8 @@ final class DependenciesImpl: Dependencies {
         customBundleName ?? Bundle.main.infoDictionary?[String(kCFBundleNameKey)] as? String ?? "VKExtended"
     }()
     
-    func longPoll() -> LongPoll {
-        return LongPollImpl(operationMaker: self, connectionObserver: connectionObserver, getInfoDelay: 30)
+    func longPoll(session: Session) -> LongPoll {
+        return LongPollImpl(session: session, operationMaker: self, connectionObserver: connectionObserver, getInfoDelay: 30)
     }
     
     func longPollTask(data: LongPollTaskData) -> LongPollTask {
@@ -134,14 +134,6 @@ final class DependenciesImpl: Dependencies {
     
     func longPollTask(session: Session?, data: LongPollTaskData) -> LongPollTask {
         return LongPollTaskImpl(delayOnError: longPollTaskTimeout, data: data)
-    }
-    
-    func longPoll(session: Session) -> LongPoll {
-        return LongPollImpl(
-            operationMaker: self,
-            connectionObserver: connectionObserver,
-            getInfoDelay: 3
-        )
     }
     
     func token(token: String) -> InvalidatableToken {

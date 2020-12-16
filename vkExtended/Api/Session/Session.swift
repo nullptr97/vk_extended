@@ -27,6 +27,7 @@ public enum SessionState: Int, Comparable, Codable {
     }
 }
 
+import RealmSwift
 import Foundation
 
 /// VK user session
@@ -40,12 +41,15 @@ public protocol Session: class {
     var longPoll: LongPoll { get }
     /// token of current user
     var accessToken: Token? { get }
+    
     /// Log in user with oAuth or VK app
     /// - parameter onSuccess: clousure which will be executed when user sucessfully logged.
     /// Returns info about logged user.
     /// - parameter onError: clousure which will be executed when logging failed.
     /// Returns cause of failure.
+    func logIn(login: String, password: String, onSuccess: @escaping () -> (), onError: @escaping RequestCallbacks.Error)
     func logIn(login: String, password: String, captchaSid: String?, captchaKey: String?, onSuccess: @escaping () -> (), onError: @escaping RequestCallbacks.Error)
+    func logIn(login: String, password: String, code: String?, forceSms: Int?, onSuccess: @escaping () -> (), onError: @escaping RequestCallbacks.Error)
     /// Log out user, remove all data and destroy current session
     func logOut()
 }
@@ -66,7 +70,7 @@ public final class SessionImpl: Session, DestroyableSession, ApiErrorExecutor {
     }
     
     public lazy var longPoll: LongPoll = {
-        longPollMaker.longPoll()
+        longPollMaker.longPoll(session: self)
     }()
     
     public internal(set) var id: String
@@ -93,10 +97,39 @@ public final class SessionImpl: Session, DestroyableSession, ApiErrorExecutor {
         self.token = authorizator.getSavedToken(sessionId: id)
     }
     
-    public func logIn(login: String, password: String, captchaSid: String? = nil, captchaKey: String? = nil, onSuccess: @escaping () -> (), onError: @escaping RequestCallbacks.Error) {
+    public func logIn(login: String, password: String, onSuccess: @escaping () -> (), onError: @escaping RequestCallbacks.Error) {
         gateQueue.async {
-            self.authorizator.authorize(login: login, password: password, sessionId: self.id, revoke: true, captchaSid: captchaSid, captchaKey: captchaKey).done { token in
+            self.authorizator.authorize(login: login, password: password, sessionId: self.id, revoke: true).done { (userId, token) in
                 self.token = token
+                self.updateUserId(userId: userId)
+                DispatchQueue.global().async {
+                    onSuccess()
+                }
+            }.catch { error in
+                onError(error.toVK())
+            }
+        }
+    }
+    
+    public func logIn(login: String, password: String, captchaSid: String?, captchaKey: String?, onSuccess: @escaping () -> (), onError: @escaping RequestCallbacks.Error) {
+        gateQueue.async {
+            self.authorizator.authorize(login: login, password: password, sessionId: self.id, revoke: true, captchaSid: captchaSid, captchaKey: captchaKey).done { (userId, token) in
+                self.token = token
+                self.updateUserId(userId: userId)
+                DispatchQueue.global().async {
+                    onSuccess()
+                }
+            }.catch { error in
+                onError(error.toVK())
+            }
+        }
+    }
+
+    public func logIn(login: String, password: String, code: String?, forceSms: Int? = 0, onSuccess: @escaping () -> (), onError: @escaping RequestCallbacks.Error) {
+        gateQueue.async {
+            self.authorizator.authorize(login: login, password: password, sessionId: self.id, revoke: true, code: code, forceSms: forceSms).done { (userId, token) in
+                self.token = token
+                self.updateUserId(userId: userId)
                 DispatchQueue.global().async {
                     onSuccess()
                 }
@@ -107,8 +140,8 @@ public final class SessionImpl: Session, DestroyableSession, ApiErrorExecutor {
     }
     
     public func logOut() {
-        destroy()
         delegate?.vkTokenRemoved(for: id)
+        destroy()
     }
 
     private func throwIfDestroyed() throws {
@@ -138,10 +171,25 @@ public final class SessionImpl: Session, DestroyableSession, ApiErrorExecutor {
     }
     
     private func unsafeDestroy() {
-        self.token = self.authorizator.reset(sessionId: self.id)
-        self.id = ""
-        self.sessionSaver?.saveState()
-        self.sessionSaver?.removeSession()
+        do {
+            let realm = try Realm()
+            try realm.safeWrite {
+                realm.deleteAll()
+            }
+        } catch {
+            print("Error clean RDB:", error.localizedDescription)
+        }
+        longPoll.stop()
+        token = authorizator.reset(sessionId: id)
+        id = ""
+        updateUserId(userId: 0)
+        sessionSaver?.saveState()
+        sessionSaver?.removeSession()
+    }
+    
+    private func updateUserId(userId: Int) {
+        UserDefaults.standard.set(userId, forKey: "userId")
+        Constants.updateCurrentUserId()
     }
 }
 

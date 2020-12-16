@@ -158,6 +158,13 @@
                             <constraint firstAttribute="width" constant="28" id="VJ8-ry-MLu"/>
                         </constraints>
                     </imageView>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="jdw-77-bwP">
+                        <rect key="frame" x="8" y="4" width="28" height="32"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="28" id="UMs-8K-b08"/>
+                            <constraint firstAttribute="height" constant="32" id="xbp-Gr-uqh"/>
+                        </constraints>
+                    </imageView>
                 </subviews>
                 <constraints>
                     <constraint firstItem="Ifx-NR-VZH" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="07m-h3-ceB"/>
@@ -173,6 +180,7 @@
                     <constraint firstItem="rNB-wk-oNo" firstAttribute="leading" secondItem="Hkp-Ao-wH1" secondAttribute="trailing" constant="16" id="WGL-e1-wcR"/>
                     <constraint firstItem="2Yw-ZG-DA9" firstAttribute="leading" secondItem="PBG-Qy-rNF" secondAttribute="trailing" constant="16" id="Z6h-kJ-FqW"/>
                     <constraint firstItem="rNB-wk-oNo" firstAttribute="top" secondItem="Tdh-FE-8nd" secondAttribute="bottom" constant="4" id="a2K-ls-4dU"/>
+                    <constraint firstItem="jdw-77-bwP" firstAttribute="top" secondItem="Ifx-NR-VZH" secondAttribute="top" constant="-4" id="dTP-4d-OmL"/>
                     <constraint firstItem="PBG-Qy-rNF" firstAttribute="top" secondItem="Tdh-FE-8nd" secondAttribute="bottom" constant="4" id="hX9-9M-KLV"/>
                     <constraint firstAttribute="trailing" secondItem="2C9-OE-DV1" secondAttribute="trailing" constant="16" id="jGe-fx-jUl"/>
                     <constraint firstAttribute="trailing" secondItem="Tdh-FE-8nd" secondAttribute="trailing" constant="16" id="rLV-cL-p6k"/>
@@ -180,6 +188,7 @@
                     <constraint firstAttribute="trailing" secondItem="rNB-wk-oNo" secondAttribute="trailing" constant="16" id="w6c-FA-Ao7"/>
                     <constraint firstItem="PBG-Qy-rNF" firstAttribute="leading" secondItem="Ifx-NR-VZH" secondAttribute="trailing" constant="16" id="xsh-RY-Uhg"/>
                     <constraint firstItem="Ifx-NR-VZH" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="8" id="ypZ-ES-vsm"/>
+                    <constraint firstItem="jdw-77-bwP" firstAttribute="leading" secondItem="Ifx-NR-VZH" secondAttribute="leading" constant="-8" id="znW-zF-ODd"/>
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
@@ -194,6 +203,7 @@
                 <outlet property="nameInterlocutor" destination="Tdh-FE-8nd" id="dnd-jw-EKl"/>
                 <outlet property="nameInterlocutorPaddingConstraint" destination="rLV-cL-p6k" id="SIh-UJ-RA1"/>
                 <outlet property="onlineImageView" destination="Hkp-Ao-wH1" id="Jad-JK-KWU"/>
+                <outlet property="statusImageView" destination="jdw-77-bwP" id="DoE-vh-7f9"/>
                 <outlet property="typingLabel" destination="A1h-se-vej" id="aHR-du-ve7"/>
                 <outlet property="typingView" destination="PBG-Qy-rNF" id="CZE-qY-KWb"/>
                 <outlet property="unreadCountView" destination="2Yw-ZG-DA9" id="rbV-fF-hwG"/>

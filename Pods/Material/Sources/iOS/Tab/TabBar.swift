@@ -504,6 +504,7 @@ fileprivate extension TabBar {
     }
     
     line.frame = lineFrame(for: v)
+    line.cornerRadiusPreset = .cornerRadius1
     
     shouldNotAnimateLineView = false
   }

@@ -6,18 +6,49 @@
 //
 
 import Foundation
+import SwiftyJSON
 
 struct PhotoResponse: Decodable {
-    let count: Int?
-    let items: [PhotoItem]?
+    let count: Int
+    let items: [PhotoItem]
+    
+    init(from response: JSON) {
+        self.count = response["count"].intValue
+        self.items = response["items"].arrayValue.compactMap({ PhotoItem(from: $0) })
+    }
 }
 
 // MARK: - Item
 struct PhotoItem: Decodable {
-    let albumId, date, id, ownerId: Int?
+    let albumId, date, id, ownerId: Int
     let hasTags: Bool?
     let postId: Int?
     let sizes: [Size]
+    let text: String?
+    let likes: CountableLikeItem?
+    let reposts: CountableShareItem?
+    let comments: CountableCommentItem?
+    let canComment: Int?
+    let tags: Comments?
+    let lat, long: Double?
+    
+    init(from item: JSON) {
+        self.albumId = item["album_id"].intValue
+        self.date = item["date"].intValue
+        self.id = item["id"].intValue
+        self.ownerId = item["owner_id"].intValue
+        self.hasTags = item["has_tags"].boolValue
+        self.postId = item["post_id"].int
+        self.sizes = item["sizes"].arrayValue.compactMap { Size(size: $0) }
+        self.text = item["text"].string
+        self.likes = CountableLikeItem(from: item["likes"])
+        self.reposts = CountableShareItem(from: item["comments"])
+        self.comments = CountableCommentItem(from: item["reposts"])
+        self.canComment = item["can_comment"].int
+        self.tags = Comments(count: item["tags"]["count"].int)
+        self.lat = item["lat"].double
+        self.long = item["long"].double
+    }
     
     var height: Int {
          return getPropperSize().height ?? 1
@@ -41,7 +72,7 @@ struct PhotoItem: Decodable {
         } else if let fallBackSize = sizes.last {
              return fallBackSize
         } else {
-            return Size(height: 0, url: "wrong image", type: "wrong image", width: 0)
+            return Size(size: JSON())
         }
     }
     
@@ -51,16 +82,9 @@ struct PhotoItem: Decodable {
         } else if let fallBackSize = sizes.last {
              return fallBackSize
         } else {
-            return Size(height: 0, url: "wrong image", type: "wrong image", width: 0)
+            return Size(size: JSON())
         }
     }
-    
-    let text: String?
-    let likes: Likes?
-    let reposts, comments: Comments?
-    let canComment: Int?
-    let tags: Comments?
-    let lat, long: Double?
 }
 
 // MARK: - Comments

@@ -11,44 +11,57 @@ import MaterialComponents
 import Material
 import PureLayout
 import DRPLoadingSpinner
+import SwiftMessages
 
 open class FriendsViewController: BaseViewController, FriendsViewProtocol {
-    var presenter: FriendsPresenterProtocol?
+    internal var presenter: FriendsPresenterProtocol?
+    
     private let mainTable = UITableView(frame: .zero, style: .grouped)
-    private var friendViewModel = FriendViewModel.init(cell: [], footerTitle: nil)
-    private var importantFriendViewModel = FriendViewModel.init(cell: [], footerTitle: nil)
-    private var searchedFriendViewModel = FriendViewModel.init(cell: [], footerTitle: nil)
+    private var friendViewModel = FriendViewModel.init(cell: [], footerTitle: nil, count: 0)
+    private var importantFriendViewModel = FriendViewModel.init(cell: [], footerTitle: nil, count: 0)
+    private var searchedFriendViewModel = FriendViewModel.init(cell: [], footerTitle: nil, count: 0)
     private lazy var footerView = FooterView(frame: CGRect(origin: .zero, size: .custom(screenWidth, 44)))
-    private lazy var refreshControl = DRPRefreshControl()
-    private lazy var searchController = SearchBarController()
-    private var isSearched: Bool = false
+    private var searchBarIsEmpty: Bool {
+        guard let text = nativeSearchController.searchBar.text else { return false }
+        return text.isEmpty
+    }
+    private var isFiltering: Bool {
+        return nativeSearchController.isActive && !searchBarIsEmpty
+    }
 
     open override func viewDidLoad() {
         super.viewDidLoad()
-                
+        
+        navigationTitle = "Друзья"
+        let listButton = IconButton(image: UIImage(named: "list_outline_28")?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .common)), tintColor: .getAccentColor(fromType: .common))
+        
+        setNavigationItems(rightNavigationItems: [listButton])
+        
         FriendsRouter.initModule(self)
-        presenter?.start(request: .getFriend(userId: Constants.currentUserId))
-        
-        title = "Друзья"
-        setupButtons()
-        
+        presenter?.start(request: .getFriend())
         prepareTable()
         setupTable()
+        setupStatusView()
+    }
+    
+    open override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
     }
     
     // Подготовка таблицы
     func prepareTable() {
         view.addSubview(mainTable)
-        mainTable.autoPinEdge(toSuperviewSafeArea: .top, withInset: 56)
+        mainTable.autoPinEdge(toSuperviewSafeArea: .top, withInset: 16)
         mainTable.autoPinEdge(.bottom, to: .bottom, of: view)
         mainTable.autoPinEdge(.trailing, to: .trailing, of: view)
         mainTable.autoPinEdge(.leading, to: .leading, of: view)
-        mainTable.contentInset.bottom = 52
+        mainTable.contentInset.bottom = 0
+        mainTable.setFooter()
     }
     
     // Настройка таблицы
     func setupTable() {
-        mainTable.backgroundColor = .adaptableWhite
+        mainTable.backgroundColor = .getThemeableColor(fromNormalColor: .white)
         mainTable.keyboardDismissMode = .onDrag
         mainTable.allowsMultipleSelection = false
         mainTable.allowsMultipleSelectionDuringEditing = true
@@ -56,77 +69,63 @@ open class FriendsViewController: BaseViewController, FriendsViewProtocol {
         mainTable.delegate = self
         mainTable.dataSource = self
         mainTable.register(UINib(nibName: "FriendsTableViewCell", bundle: nil), forCellReuseIdentifier: "FriendsTableViewCell")
-        refreshControl.add(to: mainTable, target: self, selector: #selector(reloadFriends))
-        refreshControl.loadingSpinner.colorSequence = [.adaptableDarkGrayVK]
-        refreshControl.loadingSpinner.lineWidth = 2.5
-        refreshControl.loadingSpinner.rotationCycleDuration = 0.75
-        mainTable.tableFooterView = footerView
-        mainTable.tableHeaderView = searchController.searchBar
-        setupSearchBar()
-    }
-    
-    // Настройка поисковика
-    func setupSearchBar() {
-        searchController.searchBar.textField.backgroundColor = .adaptablePostColor
-        searchController.searchBar.textField.textColor = .adaptableDarkGrayVK
-        searchController.searchBar.textField.font = GoogleSansFont.medium(with: 18)
-        searchController.searchBar.textField.setCorners(radius: 12)
-        searchController.searchBar.placeholder = "Поиск диалогов"
-        searchController.searchBar.placeholderColor = .adaptableDarkGrayVK
-        searchController.searchBar.placeholderFont = GoogleSansFont.medium(with: 18)
-        searchController.searchBar.backgroundColor = .getThemeableColor(from: .white)
-        searchController.searchBar.clearButton.setImage(UIImage(named: "clear_16")?.withRenderingMode(.alwaysTemplate).tint(with: .adaptableDarkGrayVK), for: .normal)
-        searchController.searchBar.searchButton.setImage(UIImage(named: "search_outline_28")?.crop(toWidth: 22, toHeight: 36)?.withRenderingMode(.alwaysTemplate).tint(with: .adaptableDarkGrayVK), for: .normal)
-        searchController.searchBar.delegate = self
-    }
-    
-    // Настройка кнопок
-    func setupButtons() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            self.appBarViewController.navigationBar.trailingBarButtonItems = [UIBarButtonItem(image: UIImage(named: "list_outline_28")?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue), style: .plain, target: self, action: nil), UIBarButtonItem(image: UIImage(named: "user_add_outline_28")?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue), style: .plain, target: self, action: nil)]
+        
+        refreshControl.add(to: mainTable) { [weak self] in
+            guard let self = self else { return }
+            self.presenter?.start(request: .getFriend())
         }
+        
+        let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        longPressGestureRecognizer.minimumPressDuration = 0.25
+        mainTable.addGestureRecognizer(longPressGestureRecognizer)
+        nativeSearchController.setupSearchBar()
+        mainTable.tableHeaderView = nativeSearchController.searchBar
+        mainTable.tableFooterView = footerView
+        nativeSearchController.searchBar.delegate = self
+        nativeSearchController.searchResultsUpdater = self
     }
     
     // Отобразить данные
     func displayData(viewModel: FriendModel.ViewModel.ViewModelData) {
         switch viewModel {
-        case .displayFriend(friendViewModel: let friendsViewModel):
-            self.friendViewModel = sortedFriends(friendsViewModel: friendsViewModel)
-            self.importantFriendViewModel = friendsViewModel
-            footerView.footerTitle = friendsViewModel.cell.count > 0 ? "\(friendsViewModel.cell.count) \(getStringByDeclension(number: friendsViewModel.cell.count, arrayWords: Localization.instance.friendsCount))" : "Нет друзей"
-            mainTable.reloadData() 
-            refreshControl.endRefreshing()
-        case .displayFooterLoader:
-            footerView.footerTitle = nil
-        case .displayFooterError(message: let message):
-            footerView.footerTitle = message
+        case .displayAllFriend(importantFriendViewModel: let importantFriendViewModel, friendViewModel: let friendsViewModel):
+            self.friendViewModel = friendsViewModel
+            self.importantFriendViewModel = importantFriendViewModel
+
             mainTable.reloadData()
             refreshControl.endRefreshing()
+            mainTable.backgroundView = nil
+        case .displayFooterLoader:
+            break
+        case .displayFooterError(message: let messageError):
+            refreshControl.endRefreshing()
+            mainTable.reloadData()
+            break
         default:
             break
         }
     }
     
-    // Сортировка друзей аля "оригинальный вк"
-    func sortedFriends(friendsViewModel: FriendViewModel) -> FriendViewModel {
-        var sortedFriendsViewModel = friendsViewModel
-        var sortedIndex = 0
-        while sortedIndex < 5 {
-            sortedFriendsViewModel.cell.remove(at: 0)
-            sortedFriendsViewModel.cell.insert(friendsViewModel.cell[sortedIndex], at: friendsViewModel.cell.count - 1)
-            sortedIndex += 1
-        }
-        return sortedFriendsViewModel
+    // Обработка долгого нажатия на диалог
+    @objc func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer?) {
+        guard let point = gestureRecognizer?.location(in: mainTable), !mainTable.isEditing, let indexPath = mainTable.indexPathForRow(at: point), gestureRecognizer?.state == .began else { return }
+        
+        let friend = indexPath.section == 0 ? importantFriendViewModel.cell[indexPath.row] : friendViewModel.cell[indexPath.row]
+        initialActionSheet(title: friend.fullName, message: nil, actions: actions)
     }
-
-    // При обновлении страницы
-    @objc func reloadFriends() {
-        presenter?.start(request: .getFriend(userId: Constants.currentUserId))
+    
+    // При подгрузке дополнительных друзей
+    @objc func getNext() {
+        // presenter?.start(request: .getNextBatch)
+    }
+    
+    @objc func onNotificationCounterChanged(notification: Notification) {
+        guard let counters = notification.userInfo?["counters"] as? [Int] else { return }
     }
 }
 extension FriendsViewController: UITableViewDelegate, UITableViewDataSource {
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if isSearched {
+        if isFiltering {
             return searchedFriendViewModel.cell.count
         }
         return section == 0 ? (importantFriendViewModel.cell.count < 5 ? importantFriendViewModel.cell.count : 5) : friendViewModel.cell.count
@@ -135,11 +134,11 @@ extension FriendsViewController: UITableViewDelegate, UITableViewDataSource {
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FriendsTableViewCell", for: indexPath) as! FriendsTableViewCell
         cell.selectionStyle = .none
-        if isSearched {
+        if isFiltering {
             cell.setup(by: searchedFriendViewModel.cell[indexPath.row])
             return cell
         }
-        cell.setup(by: indexPath.section == 1 ? friendViewModel.cell[indexPath.row] : importantFriendViewModel.cell[indexPath.row])
+        cell.setup(by: indexPath.section == 0 ? importantFriendViewModel.cell[indexPath.row] : friendViewModel.cell[indexPath.row])
         return cell
     }
     
@@ -153,13 +152,13 @@ extension FriendsViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     public func numberOfSections(in tableView: UITableView) -> Int {
-        return isSearched ? 1 : 2
+        return isFiltering ? 1 : 2
     }
     
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard friendViewModel.cell.count > 0 && !isSearched else { return nil }
+        guard friendViewModel.cell.count > 0 && !isFiltering else { return nil }
         let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
-        returnedView.backgroundColor = .adaptableWhite
+        returnedView.backgroundColor = .getThemeableColor(fromNormalColor: .white)
         let label = UILabel()
         returnedView.addSubview(label)
         label.autoPinEdge(.top, to: .top, of: returnedView, withOffset: 12)
@@ -173,7 +172,7 @@ extension FriendsViewController: UITableViewDelegate, UITableViewDataSource {
             label.attributedText = attributedText
             
         case 1:
-            let attributedText = NSAttributedString(string: "Все друзья  ", attributes: [.font: GoogleSansFont.bold(with: 18), .foregroundColor: UIColor.adaptableBlack]) + NSAttributedString(string: " \(importantFriendViewModel.cell.count)", attributes: [.font: GoogleSansFont.medium(with: 13), .foregroundColor: UIColor.adaptableDarkGrayVK])
+            let attributedText = NSAttributedString(string: "Все друзья  ", attributes: [.font: GoogleSansFont.bold(with: 18), .foregroundColor: UIColor.adaptableBlack]) + NSAttributedString(string: " \(friendViewModel.cell.count)", attributes: [.font: GoogleSansFont.medium(with: 13), .foregroundColor: UIColor.adaptableDarkGrayVK])
             label.attributedText = attributedText
             
         default: label.text = ""
@@ -182,30 +181,46 @@ extension FriendsViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        guard friendViewModel.cell.count > 0, !isSearched else { return 0 }
+        guard friendViewModel.cell.count > 0, !isFiltering else { return 0 }
         return 44
     }
 }
-extension FriendsViewController: SearchBarDelegate {
-    public func searchBar(searchBar: SearchBar, didChange textField: UITextField, with text: String?) {
-        guard let pattern = text?.trimmed, 0 < pattern.utf16.count else {
-            isSearched = false
-            footerView.footerTitle = friendViewModel.cell.count > 0 ? "\(friendViewModel.cell.count) \(getStringByDeclension(number: friendViewModel.cell.count, arrayWords: Localization.instance.friendsCount))" : "Нет друзей"
+extension FriendsViewController: UISearchResultsUpdating, UISearchBarDelegate, UITextFieldDelegate {
+    public func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        
+    }
+    
+    public func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        
+    }
+    
+    public func updateSearchResults(for searchController: UISearchController) {
+        guard let pattern = searchController.searchBar.text?.trimmed, 0 < pattern.utf16.count else {
+            footerView.footerTitle = friendViewModel.cell.count > 0 ? "\(friendViewModel.cell.count) \(getStringByDeclension(number: friendViewModel.cell.count, arrayWords: Localization.friendsCount))" : "Нет друзей"
             mainTable.reloadData()
             return
         }
-        isSearched = true
 
         searchedFriendViewModel.cell = friendViewModel.cell.filter { cellModel in
             return cellModel.firstName!.contains(pattern) || cellModel.lastName!.contains(pattern) || "\(cellModel.firstName!) \(cellModel.lastName!)".contains(pattern)
         }
-        footerView.footerTitle = searchedFriendViewModel.cell.count > 0 ? "\(searchedFriendViewModel.cell.count) \(getStringByDeclension(number: searchedFriendViewModel.cell.count, arrayWords: Localization.instance.searchedCount))" : "По запросу \"\(pattern)\" никого не найдено"
-        mainTable.reloadData()
+        footerView.footerTitle = searchedFriendViewModel.cell.count > 0 ? "\(searchedFriendViewModel.cell.count) \(getStringByDeclension(number: searchedFriendViewModel.cell.count, arrayWords: Localization.searchedCount))" : "По запросу \"\(pattern)\" никого не найдено"
+        mainTable.reloadData { [weak self] in
+            guard let self = self else { return }
+            self.mainTable.layoutIfNeeded()
+        }
     }
-    
-    public func searchBar(searchBar: SearchBar, willClear textField: UITextField, with text: String?) {
-        isSearched = false
-        footerView.footerTitle = friendViewModel.cell.count > 0 ? "\(friendViewModel.cell.count) \(getStringByDeclension(number: friendViewModel.cell.count, arrayWords: Localization.instance.friendsCount))" : "Нет друзей"
-        mainTable.reloadData()
+}
+extension FriendsViewController {
+    // Получение доступных с другом действий
+    var actions: [MDCActionSheetAction] {
+        let deleteFriend = MDCActionSheetAction(title: "Удалить из друзей", image: UIImage(named: "delete_outline_28"), handler: { action in
+        })
+        let banFriend = MDCActionSheetAction(title: "Отправить в черный список", image: UIImage(named: "block_outline_28"), handler: { action in
+        })
+        banFriend.titleColor = .extendedBackgroundRed
+        banFriend.tintColor = .extendedBackgroundRed
+        
+        return [deleteFriend, banFriend]
     }
 }

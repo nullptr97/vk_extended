@@ -15,47 +15,63 @@ import PureLayout
 import DRPLoadingSpinner
 import MBProgressHUD
 import SwifterSwift
+import SwiftMessages
 
 open class ConversationsViewController: BaseViewController, ConversationsViewProtocol {
     var presenter: ConversationsPresenterProtocol?
-    private let mainTable = TableView(frame: .zero, style: .plain)
-    private lazy var refreshControl = DRPRefreshControl()
+    private let mainTable = UITableView(frame: .zero, style: .grouped)
     private var token: NotificationToken?
-    private lazy var searchController = SearchBarController()
-    var conversations = try! Realm().objects(Conversation.self).sorted(byKeyPath: "lastMessage.dateInteger", ascending: false).sorted(byKeyPath: "isImportantDialog", ascending: false).filter("isPrivateConversation = %@", false).filter("ownerId = %@", Constants.currentUserId)
+    var conversations = try! Realm().objects(Conversation.self).sorted(byKeyPath: "lastMessage.dateInteger", ascending: false).sorted(byKeyPath: "isImportantDialog", ascending: false).filter("isPrivateConversation = %@", false).filter("ownerId = %@", currentUserId)
     var selectedConversations = [Conversation]()
     private let swipeGesture: UIPanGestureRecognizer = {
         let gesture = UIPanGestureRecognizer()
         gesture.minimumNumberOfTouches = 2
         return gesture
     }()
+    private var isTableEditing: Bool = false
     
     deinit {
         print("Conversations deinited")
         token?.invalidate()
         NotificationCenter.default.removeObserver(self)
     }
-
-    open override func viewDidLoad() {
-        super.viewDidLoad()
+    
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+        super.init(nibName: nil, bundle: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(onConnectingLongPoll), name: NSNotification.Name("onConnectingLongPoll"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(onRefreshingLongPoll), name: NSNotification.Name("onRefreshingLongPoll"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(onConnectedLongPoll), name: NSNotification.Name("onConnectedLongPoll"), object: nil)
         
         ConversationsRouter.initModule(self)
-        presenter?.getConversations()
+        presenter?.getConversations(offset: 0)
         
-        title = "Мессенджер"
+        navigationTitle = "Мессенджер"
         prepareTable()
         setupTable()
+        setupStatusView()
+        
+        observeConversations()
+    }
+    
+    required public init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    open override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        let addButton = IconButton(image: UIImage(named: "write_outline_28")?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .common)), tintColor: .getAccentColor(fromType: .common))
+        setNavigationItems(rightNavigationItems: [addButton])
     }
     
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        let addButton = UIBarButtonItem(image: UIImage(named: "write_outline_28")?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue), style: .plain, target: self, action: nil)
-        setNavigationItems(rightNavigationItems: [addButton])
+    }
+    
+    open override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        guard let counters = UserDefaults.standard.array(forKey: "counters") as? [Int], counters[2] > 0 else { return }
     }
     
     open override func viewWillDisappear(_ animated: Bool) {
@@ -65,35 +81,39 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
     
     @objc func onRefreshingLongPoll() {
         DispatchQueue.main.async {
-            self.title = "Обновление"
+            self.navigationTitle = "Обновление"
         }
     }
     
     @objc func onConnectingLongPoll() {
         DispatchQueue.main.async {
-            self.title = "Соединение"
+            self.navigationTitle = "Соединение"
         }
     }
     
     @objc func onConnectedLongPoll() {
         DispatchQueue.main.async {
-            self.title = "Мессенджер"
+            self.navigationTitle = "Мессенджер"
         }
     }
     
     // Отслеживание изменений БД
     func observeConversations() {
-        token = conversations.observe { [weak mainTable, weak refreshControl] changes in
-            guard let tableView = mainTable, let refreshControl = refreshControl else { return }
+        conversations.safeObserve({ [weak self] changes in
+            guard let self = self else { return }
             
             switch changes {
             case .initial:
-                tableView.reloadData()
-                refreshControl.endRefreshing()
+                self.mainTable.reloadData()
             case .update(_, let deletions, let insertions, let updates):
-                tableView.applyChanges(with: deletions, with: insertions, with: updates, at: 0)
-            case .error: break
+                self.mainTable.applyChanges(with: deletions, with: insertions, with: updates, at: 0)
+            case .error(let error):
+                self.event(message: error.localizedDescription, isError: true)
             }
+        }) { [weak self] (token) in
+            guard let self = self else { return }
+
+            self.token = token
         }
     }
     
@@ -101,12 +121,12 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
     func prepareTable() {
         view.addSubview(mainTable)
         mainTable.separatorStyle = .none
-        mainTable.autoPinEdge(toSuperviewSafeArea: .top, withInset: 56)
+        mainTable.autoPinEdgesToSuperviewSafeArea(with: .top(12))
         mainTable.autoPinEdge(.bottom, to: .bottom, of: view)
         mainTable.autoPinEdge(.trailing, to: .trailing, of: view)
         mainTable.autoPinEdge(.leading, to: .leading, of: view)
-        mainTable.backgroundColor = .adaptableWhite
-        mainTable.contentInset.bottom = 52
+        mainTable.backgroundColor = .getThemeableColor(fromNormalColor: .white)
+        mainTable.setFooter()
         let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
         longPressGestureRecognizer.minimumPressDuration = 0.25
         mainTable.addGestureRecognizer(longPressGestureRecognizer)
@@ -121,61 +141,31 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
         mainTable.delegate = self
         mainTable.dataSource = self
         mainTable.register(UINib(nibName: "MessageViewCell", bundle: nil), forCellReuseIdentifier: "MessageViewCell")
-        mainTable.tableHeaderView = searchController.searchBar
         swipeGesture.addTarget(self, action: #selector(onOpenPrivateConversation))
         mainTable.addGestureRecognizer(swipeGesture)
-        setupSearchBar()
-        refreshControl.add(to: mainTable, target: self, selector: #selector(reloadMessages))
-        refreshControl.loadingSpinner.colorSequence = [.adaptableDarkGrayVK]
-        refreshControl.loadingSpinner.lineWidth = 2.5
-        refreshControl.loadingSpinner.rotationCycleDuration = 0.75
-    }
-    
-    // Настройка поисковика
-    func setupSearchBar() {
-        searchController.searchBar.textField.backgroundColor = .adaptablePostColor
-        searchController.searchBar.textField.textColor = .adaptableDarkGrayVK
-        searchController.searchBar.textField.font = GoogleSansFont.medium(with: 18)
-        searchController.searchBar.textField.setCorners(radius: 12)
-        searchController.searchBar.placeholder = "Поиск диалогов"
-        searchController.searchBar.placeholderColor = .adaptableDarkGrayVK
-        searchController.searchBar.placeholderFont = GoogleSansFont.medium(with: 18)
-        searchController.searchBar.backgroundColor = .getThemeableColor(from: .white)
-        searchController.searchBar.clearButton.setImage(UIImage(named: "clear_16")?.withRenderingMode(.alwaysTemplate).tint(with: .adaptableDarkGrayVK), for: .normal)
-        searchController.searchBar.searchButton.setImage(UIImage(named: "search_outline_28")?.crop(toWidth: 22, toHeight: 36)?.withRenderingMode(.alwaysTemplate).tint(with: .adaptableDarkGrayVK), for: .normal)
-    }
-    
-    // Показать событие
-    func event(message: String, isError: Bool = false) {
-        MBProgressHUD.hide(for: view, animated: false)
-        let loadingNotification = MBProgressHUD.showAdded(to: self.view, animated: true)
-        loadingNotification.mode = .customView
-        loadingNotification.label.font = GoogleSansFont.semibold(with: 14)
-        loadingNotification.label.textColor = .adaptableDarkGrayVK
-        loadingNotification.label.text = message
-        if isError {
-            loadingNotification.customView = Self.errorIndicator
-            Self.errorIndicator.play()
-            loadingNotification.hide(animated: true, afterDelay: 3)
-        } else {
-            loadingNotification.customView = Self.doneIndicator
-            Self.doneIndicator.play()
-            loadingNotification.hide(animated: true, afterDelay: 1)
+        refreshControl.add(to: mainTable) { [weak self] in
+            guard let self = self else { return }
+            self.reloadMessages()
         }
+        nativeSearchController.setupSearchBar()
+        mainTable.tableHeaderView = nativeSearchController.searchBar
     }
     
     open func setTableViewEditing(_ editing: Bool, animated: Bool) {
         mainTable.setEditing(editing, animated: true)
+        isTableEditing = editing
         if !editing {
-            let addButton = UIBarButtonItem(image: UIImage(named: "write_outline_28")?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue), style: .plain, target: self, action: nil)
+            let addButton = IconButton(image: UIImage(named: "write_outline_28")?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .common)), tintColor: .getAccentColor(fromType: .common))
             setNavigationItems(leftNavigationItems: [], rightNavigationItems: [addButton])
         } else {
-            let closeButton = UIBarButtonItem(image: UIImage(named: "cancel_outline_28")?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue), style: .plain, target: self, action: #selector(onEndEditing))
-            let removeButton = UIBarButtonItem(image: UIImage(named: "delete_outline_28")?.withRenderingMode(.alwaysTemplate).tint(with: .systemBlue), style: .plain, target: self, action: #selector(onRemoveSelectedConversations))
+            let closeButton = IconButton(image: UIImage(named: "cancel_outline_28")?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .common)), tintColor: .getAccentColor(fromType: .common))
+            closeButton.addTarget(self, action: #selector(onEndEditing), for: .touchUpInside)
+            let removeButton = IconButton(image: UIImage(named: "delete_outline_28")?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .common)), tintColor: .getAccentColor(fromType: .common))
+            removeButton.addTarget(self, action: #selector(onRemoveSelectedConversations), for: .touchUpInside)
             setNavigationItems(leftNavigationItems: [closeButton], rightNavigationItems: [removeButton])
         }
     }
-    
+
     // Открыть приватные переписки
     @objc func onOpenPrivateConversation() {
         presenter?.onOpenPrivateConversations()
@@ -183,7 +173,7 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
     
     // Удалить выделенные переписки
     @objc func onRemoveSelectedConversations() {
-        showAlert(title: "Удаление чатов", message: "Вы точно хотите удалить выбранные чаты?", buttonTitles: ["Удалить", "Отмена"], highlightedButtonIndex: 1) { [weak self] (index) in
+        showAlert(title: "Удаление чатов", message: "Вы точно хотите удалить \(self.selectedConversations.count) \(getStringByDeclension(number: self.selectedConversations.count, arrayWords: Localization.conversationsCount))?", buttonTitles: ["Удалить", "Отмена"], highlightedButtonIndex: 1) { [weak self] (index) in
             if index == 0, let self = self {
                 self.presenter?.onRemoveMultipleConversations(by: self.selectedConversations.compactMap { $0.peerId })
                 self.onEndEditing()
@@ -195,14 +185,11 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
     // Остановка рефрешера
     func stopRefreshControl() {
         refreshControl.endRefreshing()
-        if token == nil {
-            observeConversations()
-        }
     }
     
     // При обновлении страницы
     @objc func reloadMessages() {
-        presenter?.getConversations()
+        presenter?.getConversations(offset: 0)
     }
     
     // При отмене редактирования
@@ -212,7 +199,7 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
         for cell in mainTable.cells {
             cell.setSelected(false, animated: true)
         }
-        title = "Мессенджер"
+        navigationTitle = "Мессенджер"
     }
     
     // Обработка долгого нажатия на диалог
@@ -224,7 +211,7 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
         } else if gestureRecognizer?.state == .began {
             let conversation = self.conversations[indexPath!.row]
             let messagesCount = conversation.unreadCount
-            let message = messagesCount == 0 ? "Нет новых сообщений" : "\(conversation.unreadCount) \(getStringByDeclension(number: conversation.unreadCount, arrayWords: Localization.instance.newMessagesCount))"
+            let message = messagesCount == 0 ? "Нет новых сообщений" : "\(conversation.unreadCount) \(getStringByDeclension(number: conversation.unreadCount, arrayWords: Localization.newMessagesCount))"
             self.initialActionSheet(title: conversation.interlocutor?.name ?? "---", message: message, actions: self.getActions(at: conversation, from: indexPath!))
         }
     }
@@ -242,30 +229,42 @@ extension ConversationsViewController: UITableViewDelegate, UITableViewDataSourc
         return cell
     }
     
+    public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if indexPath.row == conversations.count - 20 {
+            presenter?.getConversations(offset: indexPath.row)
+        }
+    }
+    
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
     }
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let cell = tableView.cellForRow(at: indexPath) as! MessageViewCell
-        guard selectedConversations.count < 25 else {
-            cell.setSelected(false, animated: true)
-            event(message: "Выбрано максимальное количество", isError: true)
-            return
+        if isTableEditing {
+            let cell = tableView.cellForRow(at: indexPath) as! MessageViewCell
+            guard selectedConversations.count < 25 else {
+                cell.setSelected(false, animated: true)
+                event(message: "Выбрано максимальное количество", isError: true)
+                return
+            }
+            let selectedConversation = conversations[indexPath.row]
+            selectedConversations.append(selectedConversation)
+            cell.setSelected(true, animated: true)
+            navigationTitle = "Выбрано: \(selectedConversations.count)"
+        } else {
+            tableView.deselectRow(at: indexPath, animated: true)
         }
-        let selectedConversation = conversations[indexPath.row]
-        selectedConversations.append(selectedConversation)
-        cell.setSelected(true, animated: true)
-        title = "Выбрано: \(selectedConversations.count)"
     }
     
     public func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        let cell = tableView.cellForRow(at: indexPath) as! MessageViewCell
-        for (index, conversation) in selectedConversations.enumerated() {
-            if conversations[indexPath.row].peerId == conversation.peerId {
-                selectedConversations.remove(at: index)
-                cell.setSelected(false, animated: true)
-                title = "Выбрано: \(selectedConversations.count)"
+        if isTableEditing {
+            let cell = tableView.cellForRow(at: indexPath) as! MessageViewCell
+            for (index, conversation) in selectedConversations.enumerated() {
+                if conversations[indexPath.row].peerId == conversation.peerId {
+                    selectedConversations.remove(at: index)
+                    cell.setSelected(false, animated: true)
+                    navigationTitle = "Выбрано: \(selectedConversations.count)"
+                }
             }
         }
     }
@@ -287,7 +286,7 @@ extension ConversationsViewController {
             self.setTableViewEditing(true, animated: true)
             self.selectedConversations.append(conversation)
             cell.setSelected(true, animated: true)
-            self.title = "Выбрано: \(self.selectedConversations.count)"
+            self.navigationTitle = "Выбрано: \(self.selectedConversations.count)"
         })
         let setImportantStatus = MDCActionSheetAction(title: !conversation.isImportantDialog ? "Пометить избранным" : "Убрать пометку избранного", image: UIImage(named: conversation.isImportantDialog ? "unfavorite_outline_28" : "favorite_outline_28"), handler: { action in
             self.setImportantStatus(at: conversation)
@@ -324,8 +323,8 @@ extension ConversationsViewController {
                 }
             }
         })
-        removeConversation.titleColor = .extendedRed
-        removeConversation.tintColor = .extendedRed
+        removeConversation.titleColor = .extendedBackgroundRed
+        removeConversation.tintColor = .extendedBackgroundRed
         var actions: [MDCActionSheetAction]
         if conversation.unreadStatus == .unreadIn || conversation.unreadStatus == .markedUnread {
             actions = [selectConversation, setImportantStatus, readConversation, snooze, hideConversation, removeConversation]

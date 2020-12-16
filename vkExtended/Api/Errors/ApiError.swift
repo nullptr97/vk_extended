@@ -35,6 +35,15 @@ public struct ApiError: Equatable {
         otherInfo = makeOtherInfo(from: json["error"].dictionaryValue)
     }
     
+    init?(errorJSON: JSON) {
+        guard let errorMessage = errorJSON["error_description"].string else {
+            return nil
+        }
+        
+        code = 0
+        message = errorMessage
+    }
+    
     // Only for unit tests
     init(code: Int, otherInfo: [String: String] = [:]) {
         self.code = code

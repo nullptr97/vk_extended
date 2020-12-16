@@ -139,6 +139,9 @@ public enum Parameter: String, Hashable {
     case feedType = "feed_type"
     case feed
     case photos
+    case funcV = "func_v"
+    case isOwner = "is_owner"
+    case photosCount = "photos_count"
     case chatId = "chat_id"
     case cropX = "crop_x"
     case cropY = "crop_y"
@@ -241,7 +244,7 @@ public enum Parameter: String, Hashable {
     case contacts
     case myContact
     case returnAll = "return_all"
-    case token = "access_token"
+    case token
     case deviceModel = "device_model"
     case systemVersion = "system_version"
     case noText = "no_text"

@@ -116,6 +116,7 @@ IB_DESIGNABLE
  */
 @property(nonatomic, strong, nullable) UIView *titleView;
 
+@property(nonatomic, strong, nullable) UILabel *titleLabel;
 /**
  The behavior that determines how to position the title view.
 

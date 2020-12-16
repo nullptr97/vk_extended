@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftyJSON
+import Alamofire
 
 class VKGeneralDelegate: NSObject {
     static let instance: VKGeneralDelegate = VKGeneralDelegate()
@@ -17,8 +18,8 @@ class VKGeneralDelegate: NSObject {
         super.init()
         VK.setUp(appId: Constants.appId, delegate: self)
         guard VK.sessions.default.state == .authorized else { return }
-        conversationServiceInstance.startObserving()
         startLongPoll()
+        conversationServiceInstance.startObserving()
     }
     
     func startLongPoll() {
@@ -96,6 +97,22 @@ class VKGeneralDelegate: NSObject {
             }
         })
     }
+    
+    func registerDevice(token: String) {
+        let parameters: Alamofire.Parameters = [
+            Parameter.token.rawValue: token,
+            Parameter.deviceModel.rawValue: UIDevice.current.model,
+            Parameter.deviceId.rawValue: UIDevice.current.identifierForVendor?.uuidString ?? .random(20),
+            Parameter.systemVersion.rawValue: UIDevice.current.systemVersion,
+            Parameter.settings.rawValue: Constants.pushSettings
+        ]
+        
+        Request.jsonRequest(method: ApiMethod.method(from: .account, with: ApiMethod.Account.registerDevice), postFields: parameters).done { response in
+            print(JSON(response))
+        }.catch { error in
+            print(error.localizedDescription)
+        }
+    }
 }
 extension VKGeneralDelegate: ExtendedVKDelegate {
     func vkNeedsScopes(for sessionId: String) -> String {
@@ -103,11 +120,11 @@ extension VKGeneralDelegate: ExtendedVKDelegate {
     }
     
     public func vkTokenCreated(for sessionId: String, info: [String: String]) {
-        
+        print(sessionId, info)
     }
     
     public func vkTokenUpdated(for sessionId: String, info: [String: String]) {
-        
+        print(sessionId, info)
     }
     
     public func vkTokenRemoved(for sessionId: String) {

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import IGListKit
 
 public enum FriendAction: String {
     case notFriend = "Добавить"
@@ -25,6 +26,19 @@ public enum FriendAction: String {
         case .isFriend:
             return "users_outline_28"
         }
+    }
+    
+    func setColors(from action: Self) -> (UIColor, UIColor) {
+        switch action {
+        case .isFriend, .requestSend:
+            return (.getAccentColor(fromType: .secondaryButton), .getAccentColor(fromType: .button))
+        default:
+            return (.getAccentColor(fromType: .button), .getThemeableColor(fromNormalColor: .white))
+        }
+    }
+    
+    func setTitle(from action: Self) -> String {
+        return action.rawValue
     }
 }
 
@@ -74,22 +88,17 @@ enum RelationType: String {
 enum ProfileModel {
     struct Request {
         enum RequestType {
-            case getProfile(userId: Int = Constants.currentUserId)
-            case getProfileInfo(userId: Int = Constants.currentUserId)
-            case getProfilePhotos(userId: Int = Constants.currentUserId)
-            case getProfileFriends(userId: Int = Constants.currentUserId)
-            case getProfileWall(userId: Int = Constants.currentUserId)
+            case getProfile(userId: Int = currentUserId)
+            case getFriends(userId: Int = currentUserId)
             case revealPostIds(postId: Int)
-            case getNextBatch(userId: Int = Constants.currentUserId)
+            case getNextBatch(userId: Int = currentUserId)
             case like(postId: Int, sourceId: Int, type: String)
             case unlike(postId: Int, sourceId: Int, type: String)
         }
     }
     struct Response {
         enum ResponseType {
-            case presentProfile(profile: ProfileResponse?, photos: PhotoResponse?, friends: FriendResponse?, wall: WallResponse?, revealdedPostId: [Int]?)
-            case presentProfileInfo(profile: ProfileResponse)
-            case presentProfilePhotos(photos: PhotoResponse)
+            case presentProfile(profile: ProfileResponse?, photos: PhotoResponse?, friends: FriendResponse?)
             case presentProfileFriends(friends: FriendResponse)
             case presentProfileWall(wall: WallResponse, revealdedPostIds: [Int])
             case presentFooterLoader
@@ -98,9 +107,7 @@ enum ProfileModel {
     }
     struct ViewModel {
         enum ViewModelData {
-            case displayProfile(profileViewModel: ProfileViewModel, photosViewModel: PhotoViewModel, friendsViewModel: FriendViewModel, wallViewModel: FeedViewModel)
-            case displayProfileInfo(profileViewModel: ProfileViewModel)
-            case displayProfilePhotos(photosViewModel: PhotoViewModel)
+            case displayProfile(profileViewModel: ProfileViewModel, photosViewModel: PhotoViewModel, friendsViewModel: FriendViewModel)
             case displayProfileFriends(friendsViewModel: FriendViewModel)
             case displayProfileWall(wallViewModel: FeedViewModel)
             case displayFooterLoader
@@ -110,28 +117,38 @@ enum ProfileModel {
 }
 
 struct ProfileViewModel {
-    struct Cell: ProfileCellViewModel {
+    class Cell: ProfileCellViewModel, ListDiffable {
+        private var identifier: String = UUID().uuidString
+        
+        var imageStatusUrl: String?
+
         var verified: Int?
         var counters: Counters?
         var occupation: Occupation?
         var isCurrentProfile: Bool
         var friendActionType: FriendAction
         var type: ProfileActionType
-        var id: Int?
-        var firstName: String?
-        var lastName: String?
-        var isClosed: Bool?
-        var canAccessClosed: Bool?
+        var id: Int
+        var firstNameNom, lastNameNom: String
+        var firstNameGen, lastNameGen: String
+        var firstNameDat, lastNameDat: String
+        var firstNameAcc, lastNameAcc: String
+        var firstNameIns, lastNameIns: String
+        var firstNameAbl, lastNameAbl: String
+        var isClosed: Bool
+        var canAccessClosed: Bool
         var canPost: Bool?
         var blacklisted: Bool?
         var deactivated: String?
-        var sex: Int?
+        var sex: Int
         var screenName: String?
         var bdate: String?
-        var isOnline: Bool?
-        var isMobile: Bool?
-        var photo100: String?
-        var photoMaxOrig: String?
+        var lastSeen: Int
+        var onlinePlatform: String
+        var isOnline: Bool
+        var isMobile: Bool
+        var photo100: String
+        var photoMaxOrig: String
         var status: String?
         var friendsCount: Int?
         var followersCount: Int?
@@ -144,6 +161,119 @@ struct ProfileViewModel {
         var contacts: Contacts?
         var connections: Connections?
         var personalInfo: [(String, Optional<String>)]?
+        
+        func getFullName(nameCase: NameCase, _ isShort: Bool = false) -> String {
+            switch nameCase {
+            case .nom:
+                return isShort ? "\(firstNameNom)" : "\(firstNameNom) \(lastNameNom)"
+            case .gen:
+                return isShort ? "\(firstNameGen)" : "\(firstNameGen) \(lastNameGen)"
+            case .dat:
+                return isShort ? "\(firstNameDat)" : "\(firstNameDat) \(lastNameDat)"
+            case .acc:
+                return isShort ? "\(firstNameAcc)" : "\(firstNameAcc) \(lastNameAcc)"
+            case .ins:
+                return isShort ? "\(firstNameIns)" : "\(firstNameIns) \(lastNameIns)"
+            case .abl:
+                return isShort ? "\(firstNameAbl)" : "\(firstNameAbl) \(lastNameAbl)"
+            }
+        }
+        
+        func getOnline() -> String? {
+            return isOnline ? "в сети \(onlinePlatform)" : StdService.instance.onlineTime(with: Date(timeIntervalSince1970: TimeInterval(lastSeen)), from: sex).string(from: Date(timeIntervalSince1970: TimeInterval(lastSeen)))
+        }
+        
+        init(imageStatusUrl: String?,
+             verified: Int?,
+             counters: Counters?,
+             occupation: Occupation?,
+             isCurrentProfile: Bool,
+             friendActionType: FriendAction,
+             type: ProfileActionType,
+             id: Int,
+             firstNameNom: String, lastNameNom: String,
+             firstNameGen: String, lastNameGen: String,
+             firstNameDat: String, lastNameDat: String,
+             firstNameAcc: String, lastNameAcc: String,
+             firstNameIns: String, lastNameIns: String,
+             firstNameAbl: String, lastNameAbl: String,
+             isClosed: Bool, canAccessClosed: Bool, canPost: Bool?,
+             blacklisted: Bool?,
+             deactivated: String?,
+             sex: Int,
+             screenName: String?,
+             bdate: String?,
+             lastSeen: Int, onlinePlatform: String,
+             isOnline: Bool, isMobile: Bool,
+             photo100: String, photoMaxOrig: String,
+             status: String?,
+             friendsCount: Int?, followersCount: Int?,
+             school: String?, work: String?, city: String?,
+             relation: RelationType?,
+             schools: [Schools], universities: [Universities],
+             contacts: Contacts?, connections: Connections?,
+             personalInfo: [(String, Optional<String>)]?) {
+            self.imageStatusUrl = imageStatusUrl
+            self.verified = verified
+            self.counters = counters
+            self.occupation = occupation
+            self.isCurrentProfile = isCurrentProfile
+            self.friendActionType = friendActionType
+            self.type = type
+            self.id = id
+            
+            self.firstNameNom = firstNameNom
+            self.lastNameNom = lastNameNom
+            self.firstNameGen = firstNameGen
+            self.lastNameGen = lastNameGen
+            self.firstNameDat = firstNameDat
+            self.lastNameDat = lastNameDat
+            self.firstNameAcc = firstNameAcc
+            self.lastNameAcc = lastNameAcc
+            self.firstNameIns = firstNameIns
+            self.lastNameIns = lastNameIns
+            self.firstNameAbl = firstNameAbl
+            self.lastNameAbl = lastNameAbl
+            
+            self.isClosed = isClosed
+            self.canAccessClosed = canAccessClosed
+            self.canPost = canPost
+            self.blacklisted = blacklisted
+            self.deactivated = deactivated
+            self.sex = sex
+            self.screenName = screenName
+            self.bdate = bdate
+            self.lastSeen = lastSeen
+            self.onlinePlatform = onlinePlatform
+            self.isOnline = isOnline
+            self.isMobile = isMobile
+            self.photo100 = photo100
+            self.photoMaxOrig = photoMaxOrig
+            self.status = status
+            self.friendsCount = friendsCount
+            self.followersCount = followersCount
+            self.school = school
+            self.work = work
+            self.city = city
+            self.relation = relation
+            self.schools = schools
+            self.universities = universities
+            self.contacts = contacts
+            self.connections = connections
+            self.personalInfo = personalInfo
+        }
+        
+        func diffIdentifier() -> NSObjectProtocol {
+            return identifier as NSString
+        }
+        
+        func isEqual(toDiffableObject object: ListDiffable?) -> Bool {
+            guard let object = object as? Cell else {
+                return false
+            }
+            
+            return self.identifier == object.identifier
+        }
     }
 
     var cell: Cell?
@@ -151,21 +281,38 @@ struct ProfileViewModel {
 }
 
 protocol ProfileCellViewModel {
-    var id: Int? { get }
-    var firstName: String? { get }
-    var lastName: String? { get }
-    var isClosed: Bool? { get }
-    var canAccessClosed: Bool? { get }
+    var id: Int { get }
+    
+    var imageStatusUrl: String? { get }
+    
+    var firstNameNom: String { get }
+    var firstNameGen: String { get }
+    var firstNameDat: String { get }
+    var firstNameAcc: String { get }
+    var firstNameIns: String { get }
+    var firstNameAbl: String { get }
+    
+    var lastNameNom: String { get }
+    var lastNameGen: String { get }
+    var lastNameDat: String { get }
+    var lastNameAcc: String { get }
+    var lastNameIns: String { get }
+    var lastNameAbl: String { get }
+    
+    var isClosed: Bool { get }
+    var canAccessClosed: Bool { get }
     var canPost: Bool? { get }
     var blacklisted: Bool? { get }
     var deactivated: String? { get }
-    var sex: Int? { get }
+    var sex: Int { get }
     var screenName: String? { get }
     var bdate: String? { get }
-    var isOnline: Bool? { get }
-    var isMobile: Bool? { get }
-    var photo100: String? { get }
-    var photoMaxOrig: String? { get }
+    var lastSeen: Int { get }
+    var onlinePlatform: String { get }
+    var isOnline: Bool { get }
+    var isMobile: Bool { get }
+    var photo100: String { get }
+    var photoMaxOrig: String { get }
     var status: String? { get }
     var verified: Int? { get }
     var counters: Counters? { get }
@@ -186,6 +333,8 @@ protocol ProfileCellViewModel {
     var contacts: Contacts? { get }
     var connections: Connections? { get }
     var personalInfo: [(String, Optional<String>)]? { get }
+    
+    func getFullName(nameCase: NameCase, _ isShort: Bool) -> String
 }
 
 enum ProfileActionType {

@@ -7,41 +7,51 @@
 
 import Foundation
 import UIKit
+import Kingfisher
 
 class GalleryCollectionViewCell: UICollectionViewCell {
     
     static let reuseId = "GalleryCollectionViewCell"
     
-    let myImageView: WebImageView = {
-       let imageView = WebImageView()
+    let photoImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFit
+        imageView.backgroundColor = .clear
+        return imageView
+    }()
+    
+    let blurImageView: UIImageView = {
+       let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
-        imageView.backgroundColor = .adaptableBackground
         return imageView
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        addSubview(myImageView)
-        // myImageView constraints
-        myImageView.autoPinEdgesToSuperviewEdges()
+        addSubview(blurImageView)
+        blurImageView.autoPinEdgesToSuperviewEdges()
+        blurImageView.blur(withStyle: .regular)
+        
+        addSubview(photoImageView)
+        photoImageView.autoPinEdgesToSuperviewEdges()
     }
     
     override func prepareForReuse() {
-        myImageView.image = nil
+        photoImageView.image = nil
+        blurImageView.image = nil
     }
     
     func set(imageUrl: String?) {
-        myImageView.set(imageURL: imageUrl)
+        guard let url = URL(string: imageUrl) else { return }
+        self.photoImageView.kf.setImage(with: url)
+        self.blurImageView.kf.setImage(with: url)
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        
-        myImageView.layer.masksToBounds = true
-        myImageView.layer.cornerRadius = 4
-        myImageView.clipsToBounds = true
     }
     
     required init?(coder aDecoder: NSCoder) {

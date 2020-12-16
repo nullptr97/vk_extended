@@ -14,7 +14,7 @@ class FooterView: UIView {
     private var counterLabel: UILabel = {
        let label = UILabel()
         label.font = GoogleSansFont.medium(with: 13)
-        label.textColor = .adaptableDarkGrayVK
+        label.textColor = .getThemeableColor(fromNormalColor: .darkGray)
         label.textAlignment = .center
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false

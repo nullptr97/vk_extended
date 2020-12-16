@@ -15,17 +15,17 @@ class ProfileFriendsTableViewCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        backgroundColor = .getThemeableColor(from: .white)
-        contentView.backgroundColor = .getThemeableColor(from: .white)
+        backgroundColor = .getThemeableColor(fromNormalColor: .white)
+        contentView.backgroundColor = .getThemeableColor(fromNormalColor: .white)
         
         contentView.addSubview(typeLabel)
         typeLabel.autoPinEdge(.top, to: .top, of: contentView, withOffset: 8)
         typeLabel.autoPinEdge(.leading, to: .leading, of: contentView, withOffset: 16)
         typeLabel.autoPinEdge(.trailing, to: .trailing, of: contentView, withOffset: -16)
         
-        typeLabel.textColor = .adaptableDarkGrayVK
+        typeLabel.textColor = .getThemeableColor(fromNormalColor: .darkGray)
         typeLabel.font = GoogleSansFont.semibold(with: 15)
-        typeLabel.attributedText = NSAttributedString(string: "Друзья   ", attributes: [.font: GoogleSansFont.semibold(with: 15), .foregroundColor: UIColor.getThemeableColor(from: .black)])
+        typeLabel.attributedText = NSAttributedString(string: "Друзья   ", attributes: [.font: GoogleSansFont.semibold(with: 15), .foregroundColor: UIColor.getThemeableColor(fromNormalColor: .black)])
         
         contentView.addSubview(performButton)
         performButton.autoPinEdge(.top, to: .top, of: contentView, withOffset: 8)
@@ -49,6 +49,6 @@ class ProfileFriendsTableViewCell: UITableViewCell {
     
     func setupCollection(friends: [FriendCellViewModel]) {
         friendsCollectionView.set(friends: friends)
-        typeLabel.attributedText = NSAttributedString(string: "Друзья   ", attributes: [.font: GoogleSansFont.semibold(with: 15), .foregroundColor: UIColor.getThemeableColor(from: .black)]) + NSAttributedString(string: "\(friends.count)", attributes: [.font: GoogleSansFont.semibold(with: 12), .foregroundColor: UIColor.adaptableDarkGrayVK])
+        typeLabel.attributedText = NSAttributedString(string: "Друзья   ", attributes: [.font: GoogleSansFont.semibold(with: 15), .foregroundColor: UIColor.getThemeableColor(fromNormalColor: .black)]) + NSAttributedString(string: "\(friends.count)", attributes: [.font: GoogleSansFont.semibold(with: 12), .foregroundColor: UIColor.adaptableDarkGrayVK])
     }
 }

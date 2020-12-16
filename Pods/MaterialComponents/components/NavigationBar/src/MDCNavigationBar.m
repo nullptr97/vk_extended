@@ -133,6 +133,7 @@ static NSArray<NSString *> *MDCNavigationBarNavigationItemKVOPaths(void) {
 @synthesize leadingItemsSupplementBackButton = _leadingItemsSupplementBackButton;
 @synthesize titleInsets = _titleInsets;
 @synthesize titleView = _titleView;
+@synthesize titleLabel = _titleLabel;
 @synthesize mdc_elevationDidChangeBlock = _mdc_elevationDidChangeBlock;
 @synthesize mdc_overrideBaseElevation = _mdc_overrideBaseElevation;
 

@@ -11,6 +11,12 @@ import PromiseKit
 import SwiftyJSON
 import RealmSwift
 
+extension Data {
+    func json(has response: Bool = true) -> JSON {
+        return response ? JSON(self)["response"] : JSON(self)
+    }
+}
+
 enum Response {
     case success(Data)
     case error(VKError)
@@ -41,6 +47,7 @@ enum Response {
 enum ErrorType: String {
     case incorrectLoginPassword = "invalid_client"
     case capthca = "need_captcha"
+    case needValidation = "need_validation"
 }
 
 enum AuthData {
@@ -81,48 +88,46 @@ struct Request {
         }
     }
     
-    static func dataRequest(method: String, parameters: Alamofire.Parameters, isExecute: Bool = false, hasEventMethod: Bool = false) -> Promise<Response> {
-            let requestGroup =  DispatchGroup()
-            requestGroup.enter()
-
-        let headers = [
-            "User-Agent": Constants.userAgent
-        ]
+    static func dataRequest(method: String, parameters: Alamofire.Parameters, hasEventMethod: Bool = false) -> Promise<Response> {
+        let requestGroup =  DispatchGroup()
+        requestGroup.enter()
         
-            let url = "https://api.vk.com/method/" + method
-            guard let token = VK.sessions.default.accessToken?.token else { fatalError("User authorization failed: no access_token passed") }
-            
-            var parameters: Alamofire.Parameters = parameters
-            let sortedKeys = Array(parameters.keys).sorted(by: <)
-
-            var stringForMD5 = "/method/\(method)?"
-            for key in sortedKeys {
-                stringForMD5 = stringForMD5 + key + "=\(parameters[key] ?? "")&"
-            }
-            if stringForMD5.last! == "&" {
-                stringForMD5.remove(at: stringForMD5.index(before: stringForMD5.endIndex))
-            }
-            stringForMD5 = stringForMD5 + Constants.clientSecret
-            parameters["v"] = 5.93
-            parameters["access_token"] = token
-            parameters["sig"] = MD5.MD5(stringForMD5)
-            
-            return Promise { seal in
-                Alamofire.request(url, method: .get, parameters: parameters, encoding: URLEncoding.default, headers: headers).response { (response) in
-                    if let error = response.error {
-                        seal.reject(error)
-                        requestGroup.leave()
-                        requestGroup.notify(queue: DispatchQueue.main, execute: {
-                            print("🔔 Method \(url) ❌")
-                        })
-                    } else if let data = response.data {
-                        seal.fulfill(Response(data, hasEvent: hasEventMethod))
-                        requestGroup.leave()
-                        requestGroup.notify(queue: DispatchQueue.main, execute: {
-                            print("🔔 Method \(url) ✅")
-                        })
-                    }
+        let headers = ["User-Agent" : Constants.userAgent]
+        
+        let url = "https://api.vk.com/method/" + method
+        guard let token = VK.sessions.default.accessToken?.token else { fatalError("User authorization failed: no access_token passed") }
+        
+        var parameters: Alamofire.Parameters = parameters
+        let sortedKeys = Array(parameters.keys).sorted(by: <)
+        
+        var stringForMD5 = "/method/\(method)?"
+        for key in sortedKeys {
+            stringForMD5 = stringForMD5 + key + "=\(parameters[key] ?? "")&"
+        }
+        if stringForMD5.last! == "&" {
+            stringForMD5.remove(at: stringForMD5.index(before: stringForMD5.endIndex))
+        }
+        stringForMD5 = stringForMD5 + Constants.clientSecret
+        parameters["v"] = 5.93
+        parameters["access_token"] = token
+        parameters["sig"] = MD5.MD5(stringForMD5)
+        
+        return Promise { seal in
+            Alamofire.request(url, method: .get, parameters: parameters, encoding: URLEncoding.default, headers: headers).response { (response) in
+                if let error = response.error {
+                    seal.reject(error)
+                    requestGroup.leave()
+                    requestGroup.notify(queue: DispatchQueue.main, execute: {
+                        print("🔔 Method \(url) ❌")
+                    })
+                } else if let data = response.data {
+                    seal.fulfill(Response(data, hasEvent: hasEventMethod))
+                    requestGroup.leave()
+                    requestGroup.notify(queue: DispatchQueue.main, execute: {
+                        print("🔔 Method \(url) ✅")
+                    })
                 }
             }
         }
+    }
 }

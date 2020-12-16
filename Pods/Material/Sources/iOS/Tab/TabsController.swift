@@ -323,7 +323,7 @@ fileprivate extension TabsController {
   /// Prepares the TabBar.
   func prepareTabBar() {
     tabBar._delegate = self
-    view.addSubview(tabBar)
+    // view.addSubview(tabBar)
     updateTabBarAlignment()
   }
   
@@ -479,7 +479,7 @@ fileprivate extension TabsController {
     
     tabBar.frame.origin.x = 0
     tabBar.frame.origin.y = .top == tabBarAlignment ? 0 : view.bounds.height - tabBar.bounds.height
-    tabBar.frame.size.width = view.bounds.width
+    /// tabBar.frame.size.width = view.bounds.width
   }
   
   /// Layout the rootViewController.
