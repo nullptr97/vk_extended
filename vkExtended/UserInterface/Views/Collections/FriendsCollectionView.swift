@@ -7,9 +7,11 @@
 
 import Foundation
 import UIKit
+import ViewAnimator
 
 class FriendsCollectionView: UICollectionView, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     var friends = [FriendCellViewModel]()
+    var isAnimated: Bool = false
 
     init() {
         let layout = UICollectionViewFlowLayout()
@@ -37,6 +39,13 @@ class FriendsCollectionView: UICollectionView, UICollectionViewDelegate, UIColle
     func set(friends: [FriendCellViewModel]) {
         self.friends = friends
         reloadData()
+        guard !isAnimated else { return }
+        performBatchUpdates({
+            UIView.animate(views: orderedVisibleCells, animations: [AnimationType.vector((CGVector(dx: 45, dy: 0)))]) { [weak self] in
+                guard let self = self else { return }
+                self.isAnimated = true
+            }
+        })
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

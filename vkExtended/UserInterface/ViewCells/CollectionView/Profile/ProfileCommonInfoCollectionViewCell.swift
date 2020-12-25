@@ -13,6 +13,7 @@ import Kingfisher
 protocol FriendActionDelegate: class {
     func action(for cell: UICollectionViewCell & ListBindable, with action: FriendAction)
     func openImagePopup(for cell: UICollectionViewCell & ListBindable, with userId: Int)
+    func openStatus(for cell: UICollectionViewCell & ListBindable, with status: String)
 }
 
 class ProfileCommonInfoCollectionViewCell: UICollectionViewCell, ListBindable {
@@ -32,11 +33,15 @@ class ProfileCommonInfoCollectionViewCell: UICollectionViewCell, ListBindable {
     @IBOutlet weak var buttonsConstraint: NSLayoutConstraint!
     @IBOutlet weak var avatarViewConstraint: NSLayoutConstraint!
     @IBOutlet weak var statusLabelHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var equalWidthFirstConstraint: NSLayoutConstraint!
+    @IBOutlet weak var equalWidthSecondConstraint: NSLayoutConstraint!
     
     weak var delegate: FriendActionDelegate?
+    weak var performDelegate: ServiceItemTapHandler?
 
     var friendAction: FriendAction?
     var userId: Int?
+    var status: String?
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -50,34 +55,14 @@ class ProfileCommonInfoCollectionViewCell: UICollectionViewCell, ListBindable {
         
         nameLabel.font = GoogleSansFont.bold(with: 20)
         etcInfoLabel.font = GoogleSansFont.regular(with: 16)
-                
-        userActionButton.setCorners(radius: 10)
-        messageButton.setCorners(radius: 10)
-        editProfileButton.setCorners(radius: 10)
-        fullInfoButton.setCorners(radius: 10)
+        
+        etcInfoLabel.isUserInteractionEnabled = true
+        etcInfoLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onOpenStatus)))
 
         userActionButton.backgroundColor = .getAccentColor(fromType: .button)
-        messageButton.backgroundColor = .getAccentColor(fromType: .button)
-        editProfileButton.backgroundColor = .getAccentColor(fromType: .secondaryButton)
-        fullInfoButton.backgroundColor = .getAccentColor(fromType: .secondaryButton)
-        
-        userActionButton.setTitleColor(.getThemeableColor(fromNormalColor: .white), for: .normal)
-        messageButton.setTitleColor(.getThemeableColor(fromNormalColor: .white), for: .normal)
-        editProfileButton.setTitleColor(.getAccentColor(fromType: .button), for: .normal)
-        fullInfoButton.setImage(UIImage(named: "info_circle_outline_28")?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .button)), for: .normal)
-        fullInfoButton.imageEdgeInsets = .identity(8)
-        
-        userActionButton.titleLabel?.font = GoogleSansFont.medium(with: 15)
-        messageButton.titleLabel?.font = GoogleSansFont.medium(with: 15)
-        editProfileButton.titleLabel?.font = GoogleSansFont.medium(with: 15)
-        
-        userActionButton.titleLabel?.adjustsFontSizeToFitWidth = true
-        messageButton.titleLabel?.adjustsFontSizeToFitWidth = true
-        editProfileButton.titleLabel?.adjustsFontSizeToFitWidth = true
-        
-        userActionButton.titleLabel?.allowsDefaultTighteningForTruncation = true
-        messageButton.titleLabel?.allowsDefaultTighteningForTruncation = true
-        editProfileButton.titleLabel?.allowsDefaultTighteningForTruncation = true
+        messageButton.setStyle(.primary, with: .medium)
+        editProfileButton.setStyle(.secondary, with: .medium)
+        fullInfoButton.setStyle(.secondary, with: .medium)
         
         nameLabel.isUserInteractionEnabled = true
         nameLabel.textContainerInset = .zero
@@ -92,19 +77,22 @@ class ProfileCommonInfoCollectionViewCell: UICollectionViewCell, ListBindable {
         editButtonStackView.isHidden = !hasCurrentUser
         buttonsStackView.isHidden = hasCurrentUser || hasDeactivated
         
+        equalWidthFirstConstraint.isActive = hasCurrentUser
+        equalWidthSecondConstraint.isActive = !hasCurrentUser
+        
         guard !hasCurrentUser else { return }
         
         messageButton.isEnabled = canMessage == .actionFriendWithMessage
         messageButton.alpha = canMessage == .actionFriendWithMessage ? 1 : 0.5
 
-        userActionButton.setTitle(friendAction.setTitle(from: friendAction), for: .normal)
-        userActionButton.backgroundColor = friendAction.setColors(from: friendAction).0
-        userActionButton.setTitleColor(friendAction.setColors(from: friendAction).1, for: .normal)
+        userActionButton.setStyle(friendAction.setStyle(from: friendAction), with: .medium)
+        userActionButton.title = friendAction.setTitle(from: friendAction)
     }
     
     func bindViewModel(_ viewModel: Any) {
         guard let viewModel = viewModel as? ProfileCommonInfoViewModel else { return }
         userId = viewModel.id
+        status = viewModel.status
         friendAction = viewModel.friendActionType
         
         if let url = URL(string: viewModel.photoMax) {
@@ -112,6 +100,7 @@ class ProfileCommonInfoCollectionViewCell: UICollectionViewCell, ListBindable {
                 guard let self = self else { return }
                 switch result {
                 case .success(let value):
+                    self.avatarImageView.fadeTransition(0.3)
                     self.avatarImageView.image = value.image
                     NotificationCenter.default.post(name: NSNotification.Name("loadProfileImage"), object: nil, userInfo: ["avatarAverageColor" : value.image.averageColor ?? .clear])
                 case .failure(let error):
@@ -148,7 +137,7 @@ class ProfileCommonInfoCollectionViewCell: UICollectionViewCell, ListBindable {
         if viewModel.counters?.friends ?? 0 > 0 {
             let button = FlatButton()
             button.title = " \(viewModel.counters?.friends ?? 0)"
-            button.image = UIImage(named: "users_outline_28")?.withRenderingMode(.alwaysTemplate).crop(toWidth: 18, toHeight: 18)?.tint(with: .getThemeableColor(fromNormalColor: .darkGray))
+            button.image = UIImage(named: "users_outline_28")?.withRenderingMode(.alwaysTemplate).crop(toWidth: 20, toHeight: 20)?.tint(with: .getThemeableColor(fromNormalColor: .darkGray))
             button.titleColor = .getThemeableColor(fromNormalColor: .darkGray)
             button.titleLabel?.font = GoogleSansFont.medium(with: 15)
             counters.addArrangedSubview(button)
@@ -157,7 +146,7 @@ class ProfileCommonInfoCollectionViewCell: UICollectionViewCell, ListBindable {
         if viewModel.counters?.followers ?? 0 > 0 {
             let button = FlatButton()
             button.title = " \(viewModel.counters?.followers ?? 0)"
-            button.image = UIImage(named: "followers_outline_20")?.withRenderingMode(.alwaysTemplate).crop(toWidth: 18, toHeight: 18)?.tint(with: .getThemeableColor(fromNormalColor: .darkGray))
+            button.image = UIImage(named: "followers_outline_20")?.withRenderingMode(.alwaysTemplate).crop(toWidth: 20, toHeight: 20)?.tint(with: .getThemeableColor(fromNormalColor: .darkGray))
             button.titleColor = .getThemeableColor(fromNormalColor: .darkGray)
             button.titleLabel?.font = GoogleSansFont.medium(with: 15)
             counters.addArrangedSubview(button)
@@ -170,10 +159,13 @@ class ProfileCommonInfoCollectionViewCell: UICollectionViewCell, ListBindable {
             } else {
                 button.title = " \(viewModel.counters?.groups ?? 0)"
             }
-            button.image = UIImage(named: "users_3_outline_28")?.withRenderingMode(.alwaysTemplate).crop(toWidth: 18, toHeight: 18)?.tint(with: .getThemeableColor(fromNormalColor: .darkGray))
+            button.image = UIImage(named: "users_3_outline_28")?.withRenderingMode(.alwaysTemplate).crop(toWidth: 20, toHeight: 20)?.tint(with: .getThemeableColor(fromNormalColor: .darkGray))
             button.titleColor = .getThemeableColor(fromNormalColor: .darkGray)
             button.titleLabel?.font = GoogleSansFont.medium(with: 15)
             counters.addArrangedSubview(button)
+            if viewModel.id == currentUserId {
+                button.addTarget(self, action: #selector(performGroup), for: .touchUpInside)
+            }
         }
         
         setupButtons(hasDeactivated: viewModel.deactivated, hasCurrentUser: currentUserId == viewModel.id, canMessage: viewModel.type, friendAction: viewModel.friendActionType)
@@ -187,6 +179,14 @@ class ProfileCommonInfoCollectionViewCell: UICollectionViewCell, ListBindable {
         } else {
             onlineImageView.image = nil
         }
+    }
+    
+    @objc func onOpenStatus() {
+        delegate?.openStatus(for: self, with: status ?? "")
+    }
+    
+    @objc func performGroup() {
+        performDelegate?.onTapGroups(for: self)
     }
 
     @IBAction func onAction(_ sender: FlatButton) {

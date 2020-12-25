@@ -32,18 +32,30 @@ enum ServiceCellType {
     }
 }
 
+protocol ServicesAppHandler: class {
+    func openMiniApp(from url: String)
+}
+
 class ServicesAppCollectionViewCell: UICollectionViewCell, ListBindable {
     @IBOutlet weak var bgView: UIView!
     @IBOutlet weak var appImageView: UIImageView!
     @IBOutlet weak var appTitleLabel: UILabel!
     
+    var isAnimated: Bool = false
+    
+    weak var miniAppDelegate: ServicesAppHandler?
+    var miniAppUrl: String?
+
     override func awakeFromNib() {
         super.awakeFromNib()
         
+        bgView.isUserInteractionEnabled = true
+        bgView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onOpenMiniApp)))
+        
         bgView.backgroundColor = .adaptableCard
-        bgView.drawBorder(12, width: 0.4, color: .adaptableDivider)
+        bgView.drawBorder(12, width: 0.4, color: .adaptableCard)
         appTitleLabel.textColor = .getThemeableColor(fromNormalColor: .darkGray)
-        appTitleLabel.font = GoogleSansFont.semibold(with: 14)
+        appTitleLabel.font = GoogleSansFont.medium(with: 13.5)
         appImageView.setCorners(radius: 4)
         appImageView.isHidden = true
     }
@@ -56,6 +68,17 @@ class ServicesAppCollectionViewCell: UICollectionViewCell, ListBindable {
 
     func bindViewModel(_ viewModel: Any) {
         guard let viewModel = viewModel as? SuperAppObjectViewModel else { return }
+        configureCell(by: viewModel.type, from: viewModel)
+        miniAppUrl = viewModel.miniApp?.webviewURL
+    }
+    
+    @objc func onOpenMiniApp() {
+        guard let url = miniAppUrl else { return }
+        miniAppDelegate?.openMiniApp(from: url)
+    }
+}
+extension ServicesAppCollectionViewCell {
+    func configureCell(by type: ServiceCellType, from viewModel: SuperAppObjectViewModel) {
         if let stringURL = viewModel.miniApp?.icon75, let url = URL(string: stringURL) {
             appImageView.isHidden = false
             appImageView.kf.setImage(with: url)
@@ -73,11 +96,6 @@ class ServicesAppCollectionViewCell: UICollectionViewCell, ListBindable {
         }
         appTitleLabel.text = viewModel.title?.uppercased()
         
-        configureCell(by: viewModel.type, from: viewModel)
-    }
-}
-extension ServicesAppCollectionViewCell {
-    func configureCell(by type: ServiceCellType, from viewModel: SuperAppObjectViewModel) {
         _ = bgView.subviews.map { if $0 != appImageView && $0 != appTitleLabel { $0.removeFromSuperview() } }
         switch type {
         case .music:
@@ -192,11 +210,19 @@ extension ServicesAppCollectionViewCell {
     }
     
     func configureWeatherView(with viewModel: SuperAppObjectViewModel) {
+        let weatherImageView = UIImageView()
+        bgView.addSubview(weatherImageView)
+        weatherImageView.autoPinEdge(.top, to: .bottom, of: appTitleLabel, withOffset: 10)
+        weatherImageView.autoPinEdge(.leading, to: .leading, of: bgView, withOffset: 10)
+        weatherImageView.autoSetDimensions(to: .identity(50.5))
+        
+        weatherImageView.kf.setImage(with: URL(string: viewModel.images?[1].url))
+        
         let tempLabel = UILabel()
         tempLabel.textColor = .getThemeableColor(fromNormalColor: .black)
         tempLabel.font = GoogleSansFont.medium(with: 28)
         bgView.addSubview(tempLabel)
-        tempLabel.autoPinEdge(.top, to: .bottom, of: appTitleLabel, withOffset: 12)
+        tempLabel.autoPinEdge(.top, to: .bottom, of: appTitleLabel, withOffset: 16)
         tempLabel.autoPinEdge(.trailing, to: .trailing, of: bgView, withOffset: -10)
         tempLabel.autoSetDimension(.width, toSize: 60)
         tempLabel.textAlignment = .right
@@ -207,8 +233,8 @@ extension ServicesAppCollectionViewCell {
         titleLabel.textColor = .getThemeableColor(fromNormalColor: .black)
         titleLabel.font = GoogleSansFont.medium(with: 15)
         bgView.addSubview(titleLabel)
-        titleLabel.autoPinEdge(.top, to: .bottom, of: appTitleLabel, withOffset: 12)
-        titleLabel.autoPinEdge(.leading, to: .leading, of: bgView, withOffset: 10)
+        titleLabel.autoPinEdge(.top, to: .bottom, of: appTitleLabel, withOffset: 16)
+        titleLabel.autoPinEdge(.leading, to: .trailing, of: weatherImageView, withOffset: 10)
         titleLabel.autoPinEdge(.trailing, to: .leading, of: tempLabel, withOffset: -10)
         
         titleLabel.text = viewModel.mainDescription
@@ -216,9 +242,24 @@ extension ServicesAppCollectionViewCell {
         let subtitleLabel = UILabel()
         bgView.addSubview(subtitleLabel)
         subtitleLabel.autoPinEdge(.top, to: .bottom, of: titleLabel, withOffset: 2)
-        subtitleLabel.autoPinEdge(.leading, to: .leading, of: bgView, withOffset: 10)
+        subtitleLabel.autoPinEdge(.leading, to: .trailing, of: weatherImageView, withOffset: 10)
         subtitleLabel.autoPinEdge(.trailing, to: .leading, of: tempLabel, withOffset: -10)
         
         subtitleLabel.attributedText = NSAttributedString(string: viewModel.shortDescription ?? "", attributes: [.font: GoogleSansFont.medium(with: 14), .foregroundColor: UIColor.getThemeableColor(fromNormalColor: .darkGray)]) + attributedSpace + NSAttributedString(string: viewModel.shortDescriptionAdditionalValue ?? "", attributes: [.font: GoogleSansFont.medium(with: 14), .foregroundColor: UIColor.getAccentColor(fromType: .common)])
+    }
+}
+extension Date {
+    var startOfDay : Date {
+        let calendar = Calendar.current
+        let unitFlags = Set<Calendar.Component>([.year, .month, .day])
+        let components = calendar.dateComponents(unitFlags, from: self)
+        return calendar.date(from: components)!
+   }
+
+    var endOfDay : Date {
+        var components = DateComponents()
+        components.day = 1
+        let date = Calendar.current.date(byAdding: components, to: self.startOfDay)
+        return (date?.addingTimeInterval(-1))!
     }
 }

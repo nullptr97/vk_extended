@@ -545,3 +545,40 @@ public extension UIColor {
         }
     }
 }
+extension UIColor {
+    struct Themeable {
+        static var dynamicBlue: UIColor {
+            return .color(from: 0x3F8AE0)
+        }
+        
+        static var dynamicGray: UIColor {
+            return .color(from: 0xA3ADB8)
+        }
+        
+        static var dynamicRed: UIColor {
+            return .color(from: 0xff3347)
+        }
+        
+        static var dynamicGreen: UIColor {
+            return .color(from: 0x4BB34B)
+        }
+        
+        static var dynamicOrange: UIColor {
+            return .color(from: 0xFFA000)
+        }
+        
+        static var dynamicViolet: UIColor {
+            if #available(iOS 13, *) {
+                return UIColor { (UITraitCollection: UITraitCollection) -> UIColor in
+                    if UITraitCollection.userInterfaceStyle == .dark {
+                        return .color(from: 0xA393F5)
+                    } else {
+                        return .color(from: 0x792EC0)
+                    }
+                }
+            } else {
+                return .color(from: 0x792EC0)
+            }
+        }
+    }
+}

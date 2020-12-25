@@ -8,6 +8,7 @@
 import UIKit
 import MaterialComponents
 import UserNotifications
+import AwesomeCache
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {

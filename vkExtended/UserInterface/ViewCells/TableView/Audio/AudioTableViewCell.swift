@@ -81,7 +81,7 @@ class AudioTableViewCell: TableViewCell {
             playingAnimationView.stop()
             overlayAvatarView.isHidden = true
         }
-        audioTitleLabel.text = audioViewModel.title
+        audioTitleLabel.attributedText = NSAttributedString(string: audioViewModel.title)
         audioArtistLabel.text = audioViewModel.artist
         audioTitleLabel.sizeToFit()
         audioArtistLabel.sizeToFit()

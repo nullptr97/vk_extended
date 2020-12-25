@@ -1,5 +1,6 @@
 PODS:
   - Alamofire (4.9.1)
+  - AwesomeCache (3.0.1)
   - DRPLoadingSpinner (1.3.1):
     - DRPLoadingSpinner/core (= 1.3.1)
   - DRPLoadingSpinner/core (1.3.1)
@@ -708,8 +709,10 @@ PODS:
   - SwiftMessages/App (8.0.3)
   - SwiftyJSON (4.3.0)
   - SwiftyXML (3.0.4)
+  - ViewAnimator (3.0.2)
 
 DEPENDENCIES:
+  - AwesomeCache (~> 3.0)
   - DRPLoadingSpinner
   - IBPCollectionViewCompositionalLayout
   - IGListKit (~> 4.0.0)
@@ -727,12 +730,15 @@ DEPENDENCIES:
   - SwiftMessages
   - SwiftyJSON (~> 4.0)
   - SwiftyXML (~> 3.0.0)
+  - ViewAnimator
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
+    - AwesomeCache
     - SloppySwiper
     - SwiftMessages
     - SwiftyXML
+    - ViewAnimator
   trunk:
     - Alamofire
     - DRPLoadingSpinner
@@ -758,6 +764,7 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
+  AwesomeCache: a1561c926b6cf812c5f3f4262ea22e20bf8323c1
   DRPLoadingSpinner: 725e530bf4ebe2cc351b1fbc94d24fe8ac3300fd
   IBPCollectionViewCompositionalLayout: 06cf9aa021fd80807385d5c49ece4364609a0c97
   IGListDiffKit: 665d6cf43ce726e676013db9c7d6c4294259b6b2
@@ -781,7 +788,8 @@ SPEC CHECKSUMS:
   SwiftMessages: 063ec9ffea3ffa7d17ba595157a9ec78e4fe045f
   SwiftyJSON: 6faa0040f8b59dead0ee07436cbf76b73c08fd08
   SwiftyXML: afa603d3ef7ce88ef19879d7324c05b5a5fe6672
+  ViewAnimator: 16435576cd44fca0b0d63147d5031fd3e91d295a
 
-PODFILE CHECKSUM: 811c49983f6d51ab7e14629289bea33129bcddd8
+PODFILE CHECKSUM: 3a41bd7aa0ace5caa6b91472a1dad6fecef4affc
 
 COCOAPODS: 1.10.0

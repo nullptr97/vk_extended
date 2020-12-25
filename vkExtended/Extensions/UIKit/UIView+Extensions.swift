@@ -8,6 +8,60 @@
 import Foundation
 import UIKit
 
+enum VKButtonStyle: Int, CaseIterable {
+    case primary = 1
+    case secondary = 2
+    case secondaryMuted = 3
+    case tertiary = 4
+    case outline = 5
+}
+
+enum VKButtonSize: Int, CaseIterable {
+    case small = 1
+    case medium = 2
+    case large = 3
+}
+
+extension UIButton {
+    func setStyle(_ style: VKButtonStyle, with size: VKButtonSize) {
+        setCorners(radius: 10)
+
+        titleLabel?.adjustsFontSizeToFitWidth = true
+        titleLabel?.allowsDefaultTighteningForTruncation = true
+        
+        switch size {
+        case .small:
+            contentEdgeInsets = .custom(5.5, 10, 6.5, 10)
+            titleLabel?.font = GoogleSansFont.medium(with: 14)
+        case .medium:
+            contentEdgeInsets = .custom(7.5, 16, 8.5, 16)
+            titleLabel?.font = GoogleSansFont.medium(with: 15)
+        case .large:
+            contentEdgeInsets = .custom(10.5, 20, 11.5, 20)
+            titleLabel?.font = GoogleSansFont.medium(with: 17)
+        }
+
+        switch style {
+        case .primary:
+            backgroundColor = traitCollection.userInterfaceStyle == .dark ? .color(from: 0xE1E3E6) : .color(from: 0x3F8AE0)
+            setTitleColor(.getThemeableColor(fromNormalColor: .white), for: .normal)
+        case .secondary:
+            backgroundColor = .getAccentColor(fromType: .secondaryButton)
+            setTitleColor(traitCollection.userInterfaceStyle == .dark ? .color(from: 0xE1E3E6) : .color(from: 0x3F8AE0), for: .normal)
+        case .secondaryMuted:
+            backgroundColor = traitCollection.userInterfaceStyle == .dark ? .color(from: 0x2C2D2E) : .color(from: 0xF2F3F5)
+            setTitleColor(traitCollection.userInterfaceStyle == .dark ? .color(from: 0xE1E3E6) : .color(from: 0x3F8AE0), for: .normal)
+        case .tertiary:
+            backgroundColor = .clear
+            setTitleColor(traitCollection.userInterfaceStyle == .dark ? .color(from: 0xE1E3E6) : .color(from: 0x3F8AE0), for: .normal)
+        case .outline:
+            drawBorder(10, width: 1, color: traitCollection.userInterfaceStyle == .dark ? .color(from: 0xE1E3E6) : .color(from: 0x3F8AE0))
+            backgroundColor = .clear
+            setTitleColor(traitCollection.userInterfaceStyle == .dark ? .color(from: 0xE1E3E6) : .color(from: 0x3F8AE0), for: .normal)
+        }
+    }
+}
+
 extension UIView {
     func prepareBackground() {
         self.backgroundColor = .getThemeableColor(fromNormalColor: .white)

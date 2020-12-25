@@ -61,6 +61,10 @@ public extension UIViewController {
     var fullscreenNavigationController: FullScreenNavigationController? {
         return navigationController as? FullScreenNavigationController
     }
+    
+    var main: DispatchQueue {
+        return .main
+    }
 }
 extension UISearchController {
     // Настройка поисковика
@@ -72,7 +76,7 @@ extension UISearchController {
         if #available(iOS 13.0, *) {
             searchBar.searchTextField.backgroundColor = .searchColor
             searchBar.searchTextField.textColor = .getThemeableColor(fromNormalColor: .black)
-            searchBar.searchTextField.font = GoogleSansFont.medium(with: 17)
+            searchBar.searchTextField.font = GoogleSansFont.regular(with: 17)
             searchBar.searchTextField.setCorners(radius: 10)
         }
         searchBar.setImage(UIImage(named: "search_outline_16")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(fromNormalColor: .darkGray)), for: .search, state: .normal)

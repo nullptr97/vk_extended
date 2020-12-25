@@ -28,6 +28,15 @@ public enum FriendAction: String {
         }
     }
     
+    func setStyle(from action: Self) -> VKButtonStyle {
+        switch action {
+        case .isFriend, .requestSend:
+            return .secondary
+        default:
+            return .primary
+        }
+    }
+    
     func setColors(from action: Self) -> (UIColor, UIColor) {
         switch action {
         case .isFriend, .requestSend:

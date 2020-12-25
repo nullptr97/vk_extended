@@ -18,7 +18,29 @@ import Kingfisher
     import Cocoa
 
     public typealias Image = NSImage
+
 #endif
+
+@objc protocol CachingPlayerItemDelegate {
+    
+    /// Is called when the media file is fully downloaded.
+    @objc optional func playerItem(_ playerItem: AudioItem)
+    
+    /// Is called every time a new portion of data is received.
+    @objc optional func playerItem(_ playerItem: AudioItem, didDownloadBytesSoFar bytesDownloaded: Int, outOf bytesExpected: Int)
+    
+    /// Is called after initial prebuffering is finished, means
+    /// we are ready to play.
+    @objc optional func playerItemReadyToPlay(_ playerItem: AudioItem)
+    
+    /// Is called when the data being downloaded did not arrive in time to
+    /// continue playback.
+    @objc optional func playerItemPlaybackStalled(_ playerItem: AudioItem)
+    
+    /// Is called on downloading error.
+    @objc optional func playerItem(_ playerItem: AudioItem, downloadingFailedWith error: Error)
+    
+}
 
 // MARK: - AudioQuality
 
@@ -62,6 +84,207 @@ public struct AudioItemURL {
 ///
 /// URLs can be remote or local.
 open class AudioItem: NSObject {
+
+    class ResourceLoaderDelegate: NSObject, AVAssetResourceLoaderDelegate, URLSessionDelegate, URLSessionDataDelegate, URLSessionTaskDelegate, URLSessionDownloadDelegate {
+        
+        var playingFromData = false
+        var mimeType: String? // is required when playing from Data
+        var session: URLSession?
+        var mediaData: Data?
+        var response: URLResponse?
+        var pendingRequests = Set<AVAssetResourceLoadingRequest>()
+        weak var owner: AudioItem?
+        
+        func resourceLoader(_ resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
+            
+            if session == nil {
+                guard let initialUrl = owner?.soundURLs[.high] else {
+                    fatalError("internal inconsistency")
+                }
+                
+                startDataRequest(with: initialUrl)
+            }
+            
+            pendingRequests.insert(loadingRequest)
+            processPendingRequests()
+            return true
+        }
+        
+        func startDataRequest(with url: URL) {
+            let configuration = URLSessionConfiguration.default
+            configuration.requestCachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+            session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
+            session?.downloadTask(with: url).resume()
+        }
+        
+        func resourceLoader(_ resourceLoader: AVAssetResourceLoader, didCancel loadingRequest: AVAssetResourceLoadingRequest) {
+            pendingRequests.remove(loadingRequest)
+        }
+        
+        // MARK: URLSession delegate
+        
+        func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+            mediaData?.append(data)
+            processPendingRequests()
+            owner?.delegate?.playerItem?(owner!, didDownloadBytesSoFar: mediaData!.count, outOf: Int(dataTask.countOfBytesExpectedToReceive))
+        }
+        
+        func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+            completionHandler(Foundation.URLSession.ResponseDisposition.allow)
+            mediaData = Data()
+            self.response = response
+            processPendingRequests()
+        }
+        
+        func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+            if let errorUnwrapped = error {
+                owner?.delegate?.playerItem?(owner!, downloadingFailedWith: errorUnwrapped)
+                return
+            }
+
+            processPendingRequests()
+            owner?.delegate?.playerItem?(owner!)
+        }
+        
+        func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+            guard let url = owner?.soundURLs[.high] else { return }
+            let destinationUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent(url.lastPathComponent)
+            if FileManager.default.fileExists(atPath: destinationUrl.path) {
+                print("The file already exists at path")
+            } else {
+                do {
+                    // after downloading your file you need to move it to your destination url
+                    try FileManager.default.moveItem(at: location, to: destinationUrl)
+                    print("File moved to \(destinationUrl)")
+                } catch {
+                    print(error)
+                }
+            }
+        }
+        
+        // MARK: -
+        
+        func processPendingRequests() {
+            
+            // get all fullfilled requests
+            let requestsFulfilled = Set<AVAssetResourceLoadingRequest>(pendingRequests.compactMap {
+                self.fillInContentInformationRequest($0.contentInformationRequest)
+                if self.haveEnoughDataToFulfillRequest($0.dataRequest!) {
+                    $0.finishLoading()
+                    return $0
+                }
+                return nil
+            })
+            
+            // remove fulfilled requests from pending requests
+            _ = requestsFulfilled.map { self.pendingRequests.remove($0) }
+            
+        }
+        
+        func fillInContentInformationRequest(_ contentInformationRequest: AVAssetResourceLoadingContentInformationRequest?) {
+            
+            // if we play from Data we make no url requests, therefore we have no responses, so we need to fill in contentInformationRequest manually
+            if playingFromData {
+                contentInformationRequest?.contentType = self.mimeType
+                contentInformationRequest?.contentLength = Int64(mediaData!.count)
+                contentInformationRequest?.isByteRangeAccessSupported = true
+                return
+            }
+            
+            guard let responseUnwrapped = response else {
+                // have no response from the server yet
+                return
+            }
+            
+            contentInformationRequest?.contentType = responseUnwrapped.mimeType
+            contentInformationRequest?.contentLength = responseUnwrapped.expectedContentLength
+            contentInformationRequest?.isByteRangeAccessSupported = true
+            
+        }
+        
+        func haveEnoughDataToFulfillRequest(_ dataRequest: AVAssetResourceLoadingDataRequest) -> Bool {
+            
+            let requestedOffset = Int(dataRequest.requestedOffset)
+            let requestedLength = dataRequest.requestedLength
+            let currentOffset = Int(dataRequest.currentOffset)
+            
+            guard let songDataUnwrapped = mediaData,
+                  songDataUnwrapped.count > currentOffset else {
+                // Don't have any data at all for this request.
+                return false
+            }
+            
+            let bytesToRespond = min(songDataUnwrapped.count - currentOffset, requestedLength)
+            let dataToRespond = songDataUnwrapped.subdata(in: Range(uncheckedBounds: (currentOffset, currentOffset + bytesToRespond)))
+            dataRequest.respond(with: dataToRespond)
+            
+            return songDataUnwrapped.count >= requestedLength + requestedOffset
+            
+        }
+        
+        deinit {
+            session?.invalidateAndCancel()
+        }
+    }
+    
+    fileprivate let docsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+    fileprivate let resourceLoaderDelegate = ResourceLoaderDelegate()
+    fileprivate var initialScheme: String?
+    var localURL: URL? {
+        guard let url = soundURLs[.high] else { return nil }
+        if FileManager.default.fileExists(atPath: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent(url.lastPathComponent).path) {
+            return docsPath.appendingPathComponent(url.lastPathComponent)
+        } else {
+            return nil
+        }
+    }
+
+    var isLoaded: Bool {
+        return localURL != nil
+    }
+    
+    weak var delegate: CachingPlayerItemDelegate?
+    
+    open func download() {
+        guard let url = soundURLs[.high], let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let scheme = components.scheme,
+              let urlWithCustomScheme = url.withScheme(cachingPlayerItemScheme) else {
+            fatalError("Urls without a scheme are not supported")
+        }
+        
+        self.initialScheme = scheme
+        
+        let asset = AVURLAsset(url: urlWithCustomScheme)
+        asset.resourceLoader.setDelegate(resourceLoaderDelegate, queue: .main)
+
+        resourceLoaderDelegate.owner = self
+
+        NotificationCenter.default.addObserver(self, selector: #selector(playbackStalledHandler), name: NSNotification.Name.AVPlayerItemPlaybackStalled, object: self)
+        
+        if resourceLoaderDelegate.session == nil {
+            resourceLoaderDelegate.startDataRequest(with: url)
+        }
+    }
+    
+    private let cachingPlayerItemScheme = "cachingPlayerItemScheme"
+    
+    // MARK: KVO
+    
+    override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        delegate?.playerItemReadyToPlay?(self)
+    }
+    
+    // MARK: Notification hanlers
+    
+    @objc func playbackStalledHandler() {
+        delegate?.playerItemPlaybackStalled?(self)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+        resourceLoaderDelegate.session?.invalidateAndCancel()
+    }
+    
     /// Returns the available qualities.
     public let soundURLs: [AudioQuality: URL]
     public let itemId: Int
@@ -232,5 +455,13 @@ open class AudioItem: NSObject {
                 }
             }
         }
+    }
+}
+
+fileprivate extension URL {
+    func withScheme(_ scheme: String) -> URL? {
+        var components = URLComponents(url: self, resolvingAgainstBaseURL: false)
+        components?.scheme = scheme
+        return components?.url
     }
 }

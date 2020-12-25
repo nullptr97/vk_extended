@@ -17,7 +17,7 @@ protocol MessageViewCellDelegate: class {
     func didTapAvatar(cell: MessageViewCell, with peerId: Int)
 }
 
-class MessageViewCell: TableViewCell {
+class MessageViewCell: UITableViewCell {
     @IBOutlet weak var avatarInterlocutor: UIImageView! {
         didSet {
             avatarInterlocutor.isUserInteractionEnabled = true
@@ -286,6 +286,8 @@ class MessageViewCell: TableViewCell {
         // Установка состояния сообщения
         switch conversation.unreadStatus {
         case .markedUnread:
+            unreadCountView.fadeTransition(0.2)
+            unreadInView.fadeTransition(0.2)
             messageTextPaddingContraint.constant = "\(conversation.unreadCount)".width(with: 24, font: GoogleSansFont.regular(with: 16)) + 48
             nameInterlocutorPaddingConstraint.constant = "\(conversation.unreadCount)".width(with: 24, font: GoogleSansFont.regular(with: 16)) + 48
             unreadCountView.isHidden = false
@@ -293,6 +295,8 @@ class MessageViewCell: TableViewCell {
             unreadLabel.text = " "
             unreadLabel.sizeToFit()
         case .unreadIn:
+            unreadCountView.fadeTransition(0.2)
+            unreadInView.fadeTransition(0.2)
             messageTextPaddingContraint.constant = "\(conversation.unreadCount)".width(with: 24, font: GoogleSansFont.regular(with: 16)) + 48
             nameInterlocutorPaddingConstraint.constant = "\(conversation.unreadCount)".width(with: 24, font: GoogleSansFont.regular(with: 16)) + 48
             unreadCountView.isHidden = false
@@ -300,11 +304,15 @@ class MessageViewCell: TableViewCell {
             unreadLabel.text = "\(conversation.unreadCount.k)"
             unreadLabel.sizeToFit()
         case .unreadOut:
+            unreadCountView.fadeTransition(0.2)
+            unreadInView.fadeTransition(0.2)
             unreadCountView.isHidden = true
             unreadInView.isHidden = false
             messageTextPaddingContraint.constant = 30
             nameInterlocutorPaddingConstraint.constant = 30
         case .read:
+            unreadCountView.fadeTransition(0.2)
+            unreadInView.fadeTransition(0.2)
             unreadInView.isHidden = true
             unreadCountView.isHidden = true
             unreadLabel.text = ""
@@ -403,7 +411,7 @@ func setLabelImage(image: String) -> NSMutableAttributedString? {
     let imageAttachment = NSTextAttachment()
     if image == "online_mobile_composite_foreground_20" {
         imageAttachment.image = UIImage(named: image)?.withRenderingMode(.alwaysTemplate).tint(with: .adaptableGrayVK)?.resize(toWidth: 9)?.resize(toHeight: 14)
-    } else if image == "done_16" || image == "logo_vkme_16" {
+    } else if image == "done_16" || image == "logo_vkme_16" || image == "download_outline_16" {
         imageAttachment.image = UIImage(named: image)?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .common))
     } else if image == "favorite_24" || image == "flash_16" {
         imageAttachment.image = UIImage(named: image)?.withRenderingMode(.alwaysTemplate).tint(with: .adaptableOrange)?.resize(toWidth: 16)?.resize(toHeight: 16)

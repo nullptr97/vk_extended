@@ -75,6 +75,10 @@
 	</dict>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Можно?</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Weather</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>VK</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>SF-Pro-Rounded-Black.otf</string>
@@ -129,9 +133,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Weather</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>VK</string>
 </dict>
 </plist>

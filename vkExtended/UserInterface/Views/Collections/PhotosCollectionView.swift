@@ -7,9 +7,11 @@
 
 import Foundation
 import UIKit
+import ViewAnimator
 
 class PhotosCollectionView: UICollectionView, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     var photos = [PhotoCellViewModel]()
+    var isAnimated: Bool = false
 
     init() {
         let layout = UICollectionViewFlowLayout()
@@ -37,6 +39,13 @@ class PhotosCollectionView: UICollectionView, UICollectionViewDelegate, UICollec
     func set(photos: [PhotoCellViewModel]) {
         self.photos = photos
         reloadData()
+        guard !isAnimated else { return }
+        performBatchUpdates({
+            UIView.animate(views: orderedVisibleCells, animations: [AnimationType.zoom(scale: 0.2)]) { [weak self] in
+                guard let self = self else { return }
+                self.isAnimated = true
+            }
+        })
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

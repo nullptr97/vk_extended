@@ -23,7 +23,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         vkDelegate = VKGeneralDelegate()
 
-        let rootViewController = FullScreenNavigationController(rootViewController: BottomNavigationViewController())
+        let rootViewController = VK.sessions.default.state == .authorized ? FullScreenNavigationController(rootViewController: BottomNavigationViewController()) : FullScreenNavigationController(rootViewController: LoginViewController())
         rootViewController.motionNavigationTransitionType = .zoom
         rootViewController.setNavigationBarHidden(true, animated: false)
         guard let windowScene = (scene as? UIWindowScene) else { return }

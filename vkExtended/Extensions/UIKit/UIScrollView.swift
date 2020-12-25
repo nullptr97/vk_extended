@@ -172,9 +172,11 @@ extension UITableView {
     
     func applyChanges(with deletions: [Int], with insertions: [Int], with updates: [Int], at section: Int) {
         beginUpdates()
-        deleteRows(at: deletions.map { IndexPath(row: $0, section: section) }, with: .none)
-        insertRows(at: insertions.map { IndexPath(row: $0, section: section) }, with: .none)
+        deleteRows(at: deletions.map { IndexPath(row: $0, section: section) }, with: .fade)
+        insertRows(at: insertions.map { IndexPath(row: $0, section: section) }, with: .fade)
+        UIView.setAnimationsEnabled(false)
         reloadRows(at: updates.map { IndexPath(row: $0, section: section) }, with: .none)
+        UIView.setAnimationsEnabled(true)
         endUpdates()
     }
     

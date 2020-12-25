@@ -218,6 +218,31 @@ class NewsfeedDividerViewModel: ListDiffable {
     }
 }
 
+class SuperAppItemViewModel: ListDiffable {
+    private var identifier: String = UUID().uuidString
+    let size: String
+    let object: SuperAppObjectViewModel
+    let type: String
+    
+    init(size: String, object: SuperAppObjectViewModel, type: String) {
+        self.size = size
+        self.object = object
+        self.type = type
+    }
+    
+    func diffIdentifier() -> NSObjectProtocol {
+        return identifier as NSString
+    }
+    
+    func isEqual(toDiffableObject object: ListDiffable?) -> Bool {
+        guard let object = object as? SuperAppItemViewModel else {
+            return false
+        }
+        
+        return self.identifier == object.identifier
+    }
+}
+
 class SuperAppObjectViewModel: ListDiffable {
     private var identifier: String = UUID().uuidString
     let miniApp: MiniApp?
@@ -337,6 +362,36 @@ class ServiceItemViewModel: ListDiffable {
     
     func isEqual(toDiffableObject object: ListDiffable?) -> Bool {
         guard let object = object as? ServiceItemViewModel else {
+            return false
+        }
+        
+        return self.identifier == object.identifier
+    }
+}
+
+class ServiceDateViewModel: ListDiffable {
+    private var identifier: String = UUID().uuidString
+    let title: String?
+    let text: String?
+    
+    let welcomeText: [String]?
+    let to: [Int]?
+    let from: [Int]?
+    
+    init(title: String?, text: String?, welcomeText: [String]?, to: [Int]?, from: [Int]?) {
+        self.title = title
+        self.text = text
+        self.welcomeText = welcomeText
+        self.to = to
+        self.from = from
+    }
+    
+    func diffIdentifier() -> NSObjectProtocol {
+        return identifier as NSString
+    }
+    
+    func isEqual(toDiffableObject object: ListDiffable?) -> Bool {
+        guard let object = object as? ServiceDateViewModel else {
             return false
         }
         

@@ -242,6 +242,8 @@
 		F56F32662587B02100597ACD /* ServicesAppCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = F56F32642587B02100597ACD /* ServicesAppCollectionViewCell.xib */; };
 		F56F32682587F0E400597ACD /* SlideAnimatedTransitioning.swift in Sources */ = {isa = PBXBuildFile; fileRef = F56F32672587F0E400597ACD /* SlideAnimatedTransitioning.swift */; };
 		F57104BF258916A20062B500 /* OfficialProfileGetter.txt in Resources */ = {isa = PBXBuildFile; fileRef = F57104BE258916A20062B500 /* OfficialProfileGetter.txt */; };
+		F5764384259494050031055A /* DialogView.xib in Resources */ = {isa = PBXBuildFile; fileRef = F5764383259494050031055A /* DialogView.xib */; };
+		F57643862594AE120031055A /* TextView.xib in Resources */ = {isa = PBXBuildFile; fileRef = F57643852594AE120031055A /* TextView.xib */; };
 		F5767EC6257BB4F500CF3902 /* DispatchQueue+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5767EC5257BB4F500CF3902 /* DispatchQueue+Extension.swift */; };
 		F5774490257E25EC004566E4 /* SheetPresentationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5774482257E25EC004566E4 /* SheetPresentationManager.swift */; };
 		F5774491257E25EC004566E4 /* SheetPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5774483257E25EC004566E4 /* SheetPresentationController.swift */; };
@@ -257,6 +259,13 @@
 		F577449B257E25EC004566E4 /* SheetPresentationOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F577448D257E25EC004566E4 /* SheetPresentationOptions.swift */; };
 		F577449C257E25EC004566E4 /* ViewEdgeConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = F577448E257E25EC004566E4 /* ViewEdgeConvertible.swift */; };
 		F577449D257E25EC004566E4 /* ConstantInsets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F577448F257E25EC004566E4 /* ConstantInsets.swift */; };
+		F57F313025925BF70012C8AD /* GroupsRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57F312B25925BF70012C8AD /* GroupsRouter.swift */; };
+		F57F313125925BF70012C8AD /* GroupsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57F312C25925BF70012C8AD /* GroupsViewController.swift */; };
+		F57F313225925BF70012C8AD /* GroupsProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57F312D25925BF70012C8AD /* GroupsProtocols.swift */; };
+		F57F313325925BF70012C8AD /* GroupsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57F312E25925BF70012C8AD /* GroupsInteractor.swift */; };
+		F57F313425925BF70012C8AD /* GroupsPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57F312F25925BF70012C8AD /* GroupsPresenter.swift */; };
+		F57F313825925DE90012C8AD /* GroupsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57F313625925DE90012C8AD /* GroupsTableViewCell.swift */; };
+		F57F313925925DE90012C8AD /* GroupsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = F57F313725925DE90012C8AD /* GroupsTableViewCell.xib */; };
 		F5800471256E570E00679083 /* UISpringTimingParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5800470256E570E00679083 /* UISpringTimingParameters.swift */; };
 		F5800475256E575B00679083 /* FullInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5800474256E575B00679083 /* FullInfoViewController.swift */; };
 		F580048A256E600E00679083 /* NewsfeedTabsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5800489256E600E00679083 /* NewsfeedTabsViewController.swift */; };
@@ -305,6 +314,10 @@
 		F5A18493257A377A00EBE3C2 /* TopicNewsfeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A18492257A377A00EBE3C2 /* TopicNewsfeedViewController.swift */; };
 		F5A18496257A3E2500EBE3C2 /* TopicPageCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A18494257A3E2500EBE3C2 /* TopicPageCollectionViewCell.swift */; };
 		F5A18497257A3E2500EBE3C2 /* TopicPageCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = F5A18495257A3E2500EBE3C2 /* TopicPageCollectionViewCell.xib */; };
+		F5A5B820258A0CF3005EAB83 /* MKRefreshControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A5B81F258A0CF3005EAB83 /* MKRefreshControl.swift */; };
+		F5A5B84C258A4817005EAB83 /* ServiceTimeCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A5B84A258A4817005EAB83 /* ServiceTimeCollectionViewCell.swift */; };
+		F5A5B84D258A4817005EAB83 /* ServiceTimeCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = F5A5B84B258A4817005EAB83 /* ServiceTimeCollectionViewCell.xib */; };
+		F5A5B850258A609D005EAB83 /* MiniAppViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A5B84F258A609D005EAB83 /* MiniAppViewController.swift */; };
 		F5AE4A4A256C121800B7E400 /* RepostHeaderCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = F5AE4A44256C121700B7E400 /* RepostHeaderCollectionViewCell.xib */; };
 		F5AE4A4B256C121800B7E400 /* RepostHeaderCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5AE4A45256C121700B7E400 /* RepostHeaderCollectionViewCell.swift */; };
 		F5AE4A51256C14AA00B7E400 /* NewsfeedViewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5AE4A50256C14AA00B7E400 /* NewsfeedViewModels.swift */; };
@@ -322,15 +335,6 @@
 		F5F7AB69256EB1B90068B005 /* PhotosSectionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F7AB68256EB1B90068B005 /* PhotosSectionController.swift */; };
 		F5F7AB6D256EB33F0068B005 /* PhotosCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F7AB6B256EB33F0068B005 /* PhotosCollectionViewCell.swift */; };
 		F5F7AB6E256EB33F0068B005 /* PhotosCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = F5F7AB6C256EB33F0068B005 /* PhotosCollectionViewCell.xib */; };
-		F5F7AB80256EF0080068B005 /* UIScrollView+PullRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F7AB76256EF0080068B005 /* UIScrollView+PullRefresh.swift */; };
-		F5F7AB81256EF0080068B005 /* RefreshHeaderControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F7AB77256EF0080068B005 /* RefreshHeaderControl.swift */; };
-		F5F7AB82256EF0080068B005 /* CircleLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F7AB78256EF0080068B005 /* CircleLoadingView.swift */; };
-		F5F7AB83256EF0080068B005 /* RefreshFooterControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F7AB79256EF0080068B005 /* RefreshFooterControl.swift */; };
-		F5F7AB84256EF0080068B005 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F7AB7A256EF0080068B005 /* Protocols.swift */; };
-		F5F7AB85256EF0080068B005 /* RefreshContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F7AB7B256EF0080068B005 /* RefreshContentView.swift */; };
-		F5F7AB86256EF0080068B005 /* SimpleShapeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F7AB7C256EF0080068B005 /* SimpleShapeView.swift */; };
-		F5F7AB87256EF0080068B005 /* CircleProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F7AB7D256EF0080068B005 /* CircleProgressView.swift */; };
-		F5F7AB89256EF0090068B005 /* UIScrollView+Private.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F7AB7F256EF0080068B005 /* UIScrollView+Private.swift */; };
 		F5FB40D42576CB0800F0F5AE /* FeedbackEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FB40CE2576CB0700F0F5AE /* FeedbackEffect.swift */; };
 		F5FB40D52576CB0800F0F5AE /* VibrationFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FB40CF2576CB0700F0F5AE /* VibrationFeedback.swift */; };
 		F5FB40D62576CB0800F0F5AE /* URL+SoundEmitting.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FB40D02576CB0700F0F5AE /* URL+SoundEmitting.swift */; };
@@ -592,6 +596,8 @@
 		F56F32642587B02100597ACD /* ServicesAppCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ServicesAppCollectionViewCell.xib; sourceTree = "<group>"; };
 		F56F32672587F0E400597ACD /* SlideAnimatedTransitioning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideAnimatedTransitioning.swift; sourceTree = "<group>"; };
 		F57104BE258916A20062B500 /* OfficialProfileGetter.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OfficialProfileGetter.txt; sourceTree = "<group>"; };
+		F5764383259494050031055A /* DialogView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DialogView.xib; sourceTree = "<group>"; };
+		F57643852594AE120031055A /* TextView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TextView.xib; sourceTree = "<group>"; };
 		F5767EC5257BB4F500CF3902 /* DispatchQueue+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+Extension.swift"; sourceTree = "<group>"; };
 		F5774482257E25EC004566E4 /* SheetPresentationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SheetPresentationManager.swift; sourceTree = "<group>"; };
 		F5774483257E25EC004566E4 /* SheetPresentationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SheetPresentationController.swift; sourceTree = "<group>"; };
@@ -607,6 +613,13 @@
 		F577448D257E25EC004566E4 /* SheetPresentationOptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SheetPresentationOptions.swift; sourceTree = "<group>"; };
 		F577448E257E25EC004566E4 /* ViewEdgeConvertible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewEdgeConvertible.swift; sourceTree = "<group>"; };
 		F577448F257E25EC004566E4 /* ConstantInsets.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstantInsets.swift; sourceTree = "<group>"; };
+		F57F312B25925BF70012C8AD /* GroupsRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupsRouter.swift; sourceTree = "<group>"; };
+		F57F312C25925BF70012C8AD /* GroupsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupsViewController.swift; sourceTree = "<group>"; };
+		F57F312D25925BF70012C8AD /* GroupsProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupsProtocols.swift; sourceTree = "<group>"; };
+		F57F312E25925BF70012C8AD /* GroupsInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupsInteractor.swift; sourceTree = "<group>"; };
+		F57F312F25925BF70012C8AD /* GroupsPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupsPresenter.swift; sourceTree = "<group>"; };
+		F57F313625925DE90012C8AD /* GroupsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupsTableViewCell.swift; sourceTree = "<group>"; };
+		F57F313725925DE90012C8AD /* GroupsTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GroupsTableViewCell.xib; sourceTree = "<group>"; };
 		F5800470256E570E00679083 /* UISpringTimingParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UISpringTimingParameters.swift; sourceTree = "<group>"; };
 		F5800474256E575B00679083 /* FullInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullInfoViewController.swift; sourceTree = "<group>"; };
 		F5800489256E600E00679083 /* NewsfeedTabsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsfeedTabsViewController.swift; sourceTree = "<group>"; };
@@ -657,6 +670,10 @@
 		F5A18492257A377A00EBE3C2 /* TopicNewsfeedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicNewsfeedViewController.swift; sourceTree = "<group>"; };
 		F5A18494257A3E2500EBE3C2 /* TopicPageCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicPageCollectionViewCell.swift; sourceTree = "<group>"; };
 		F5A18495257A3E2500EBE3C2 /* TopicPageCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TopicPageCollectionViewCell.xib; sourceTree = "<group>"; };
+		F5A5B81F258A0CF3005EAB83 /* MKRefreshControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MKRefreshControl.swift; sourceTree = "<group>"; };
+		F5A5B84A258A4817005EAB83 /* ServiceTimeCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceTimeCollectionViewCell.swift; sourceTree = "<group>"; };
+		F5A5B84B258A4817005EAB83 /* ServiceTimeCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ServiceTimeCollectionViewCell.xib; sourceTree = "<group>"; };
+		F5A5B84F258A609D005EAB83 /* MiniAppViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniAppViewController.swift; sourceTree = "<group>"; };
 		F5AE4A44256C121700B7E400 /* RepostHeaderCollectionViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RepostHeaderCollectionViewCell.xib; sourceTree = "<group>"; };
 		F5AE4A45256C121700B7E400 /* RepostHeaderCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RepostHeaderCollectionViewCell.swift; sourceTree = "<group>"; };
 		F5AE4A50256C14AA00B7E400 /* NewsfeedViewModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsfeedViewModels.swift; sourceTree = "<group>"; };
@@ -675,16 +692,6 @@
 		F5F7AB6B256EB33F0068B005 /* PhotosCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosCollectionViewCell.swift; sourceTree = "<group>"; };
 		F5F7AB6C256EB33F0068B005 /* PhotosCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PhotosCollectionViewCell.xib; sourceTree = "<group>"; };
 		F5F7AB6F256EB67A0068B005 /* vkExtended.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = vkExtended.entitlements; sourceTree = "<group>"; };
-		F5F7AB75256EF0080068B005 /* JWRefreshControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JWRefreshControl.h; sourceTree = "<group>"; };
-		F5F7AB76256EF0080068B005 /* UIScrollView+PullRefresh.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIScrollView+PullRefresh.swift"; sourceTree = "<group>"; };
-		F5F7AB77256EF0080068B005 /* RefreshHeaderControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefreshHeaderControl.swift; sourceTree = "<group>"; };
-		F5F7AB78256EF0080068B005 /* CircleLoadingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircleLoadingView.swift; sourceTree = "<group>"; };
-		F5F7AB79256EF0080068B005 /* RefreshFooterControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefreshFooterControl.swift; sourceTree = "<group>"; };
-		F5F7AB7A256EF0080068B005 /* Protocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
-		F5F7AB7B256EF0080068B005 /* RefreshContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefreshContentView.swift; sourceTree = "<group>"; };
-		F5F7AB7C256EF0080068B005 /* SimpleShapeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleShapeView.swift; sourceTree = "<group>"; };
-		F5F7AB7D256EF0080068B005 /* CircleProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircleProgressView.swift; sourceTree = "<group>"; };
-		F5F7AB7F256EF0080068B005 /* UIScrollView+Private.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIScrollView+Private.swift"; sourceTree = "<group>"; };
 		F5FB40CE2576CB0700F0F5AE /* FeedbackEffect.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedbackEffect.swift; sourceTree = "<group>"; };
 		F5FB40CF2576CB0700F0F5AE /* VibrationFeedback.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VibrationFeedback.swift; sourceTree = "<group>"; };
 		F5FB40D02576CB0700F0F5AE /* URL+SoundEmitting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "URL+SoundEmitting.swift"; sourceTree = "<group>"; };
@@ -980,7 +987,7 @@
 				F56BB3262564F22900D7E1AA /* Media */,
 				3D592BC3253ED883002C45A4 /* Models */,
 				3D1E72E9254A021D00D4DFB3 /* Services */,
-				3D889C2F253E057000B63653 /* ViewController */,
+				3D889C2F253E057000B63653 /* Screens */,
 				3D889C14253E054E00B63653 /* UserInterface */,
 				3D889BE5253E03E400B63653 /* Main.storyboard */,
 				3D889BE8253E03E500B63653 /* Assets.xcassets */,
@@ -1046,9 +1053,10 @@
 			path = GoogleSansFont;
 			sourceTree = "<group>";
 		};
-		3D889C2F253E057000B63653 /* ViewController */ = {
+		3D889C2F253E057000B63653 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				F57F3129259258930012C8AD /* Groups */,
 				3D889C30253E057000B63653 /* Conversations */,
 				3D889C35253E057000B63653 /* Friends */,
 				F589DE2425793CBD0013DB1F /* Likes */,
@@ -1059,7 +1067,7 @@
 				F5F7AB57256E8A2D0068B005 /* SectionControllers */,
 				F580046A256E56B300679083 /* Services */,
 			);
-			path = ViewController;
+			path = Screens;
 			sourceTree = "<group>";
 		};
 		3D889C30253E057000B63653 /* Conversations */ = {
@@ -1200,7 +1208,6 @@
 			isa = PBXGroup;
 			children = (
 				F56C77342580C5FD00D0CE0B /* MessagePopup */,
-				F5F7AB74256EF0080068B005 /* JWRefreshControl */,
 				F56BB372256501E200D7E1AA /* Media */,
 				3DE05D722549C33C00841DB2 /* Collections */,
 				3DAE50692546EC3D00C8A982 /* FooterView.swift */,
@@ -1209,6 +1216,7 @@
 				3DAA5DCB2561A8670019D9D7 /* TableHeader.swift */,
 				F585BF222574004B0010F3F5 /* CaptchaView.xib */,
 				F585BF242574013B0010F3F5 /* CaptchaView.swift */,
+				F5A5B81F258A0CF3005EAB83 /* MKRefreshControl.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1255,6 +1263,7 @@
 		3DE05D762549C3BC00841DB2 /* TableView */ = {
 			isa = PBXGroup;
 			children = (
+				F57F313525925DA40012C8AD /* Groups */,
 				F558B0C62586244300141C12 /* NewsFeed */,
 				F5351144256C360100F8B236 /* Common */,
 				F58834192564405600A95522 /* Audio */,
@@ -1511,6 +1520,8 @@
 			isa = PBXGroup;
 			children = (
 				F56C77352580C61300D0CE0B /* PopupView.xib */,
+				F5764383259494050031055A /* DialogView.xib */,
+				F57643852594AE120031055A /* TextView.xib */,
 			);
 			path = MessagePopup;
 			sourceTree = "<group>";
@@ -1530,6 +1541,8 @@
 				F56F32642587B02100597ACD /* ServicesAppCollectionViewCell.xib */,
 				F52F6F74258931C0000789A6 /* ServiceItemCollectionViewCell.swift */,
 				F52F6F75258931C0000789A6 /* ServiceItemCollectionViewCell.xib */,
+				F5A5B84A258A4817005EAB83 /* ServiceTimeCollectionViewCell.swift */,
+				F5A5B84B258A4817005EAB83 /* ServiceTimeCollectionViewCell.xib */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -1589,11 +1602,33 @@
 			path = Other;
 			sourceTree = "<group>";
 		};
+		F57F3129259258930012C8AD /* Groups */ = {
+			isa = PBXGroup;
+			children = (
+				F57F312E25925BF70012C8AD /* GroupsInteractor.swift */,
+				F57F312F25925BF70012C8AD /* GroupsPresenter.swift */,
+				F57F312D25925BF70012C8AD /* GroupsProtocols.swift */,
+				F57F312B25925BF70012C8AD /* GroupsRouter.swift */,
+				F57F312C25925BF70012C8AD /* GroupsViewController.swift */,
+			);
+			path = Groups;
+			sourceTree = "<group>";
+		};
+		F57F313525925DA40012C8AD /* Groups */ = {
+			isa = PBXGroup;
+			children = (
+				F57F313625925DE90012C8AD /* GroupsTableViewCell.swift */,
+				F57F313725925DE90012C8AD /* GroupsTableViewCell.xib */,
+			);
+			path = Groups;
+			sourceTree = "<group>";
+		};
 		F580046A256E56B300679083 /* Services */ = {
 			isa = PBXGroup;
 			children = (
 				3D889C3A253E057000B63653 /* Base */,
 				F580046B256E56BB00679083 /* BottomPopup */,
+				F5A5B84E258A6085005EAB83 /* MiniApp */,
 				F584A7B8256FB05C002D5A7B /* Settings */,
 				F59AC8B6257FDB9000AD14F6 /* Testing */,
 			);
@@ -1810,6 +1845,14 @@
 			path = TopicNewsfeed;
 			sourceTree = "<group>";
 		};
+		F5A5B84E258A6085005EAB83 /* MiniApp */ = {
+			isa = PBXGroup;
+			children = (
+				F5A5B84F258A609D005EAB83 /* MiniAppViewController.swift */,
+			);
+			path = MiniApp;
+			sourceTree = "<group>";
+		};
 		F5AE4A42256C118800B7E400 /* CommonItem */ = {
 			isa = PBXGroup;
 			children = (
@@ -1912,23 +1955,6 @@
 				F5F7AB6C256EB33F0068B005 /* PhotosCollectionViewCell.xib */,
 			);
 			path = Photos;
-			sourceTree = "<group>";
-		};
-		F5F7AB74256EF0080068B005 /* JWRefreshControl */ = {
-			isa = PBXGroup;
-			children = (
-				F5F7AB75256EF0080068B005 /* JWRefreshControl.h */,
-				F5F7AB76256EF0080068B005 /* UIScrollView+PullRefresh.swift */,
-				F5F7AB77256EF0080068B005 /* RefreshHeaderControl.swift */,
-				F5F7AB78256EF0080068B005 /* CircleLoadingView.swift */,
-				F5F7AB79256EF0080068B005 /* RefreshFooterControl.swift */,
-				F5F7AB7A256EF0080068B005 /* Protocols.swift */,
-				F5F7AB7B256EF0080068B005 /* RefreshContentView.swift */,
-				F5F7AB7C256EF0080068B005 /* SimpleShapeView.swift */,
-				F5F7AB7D256EF0080068B005 /* CircleProgressView.swift */,
-				F5F7AB7F256EF0080068B005 /* UIScrollView+Private.swift */,
-			);
-			path = JWRefreshControl;
 			sourceTree = "<group>";
 		};
 		F5FB40CD2576CB0700F0F5AE /* FeedbackEffect */ = {
@@ -2038,6 +2064,7 @@
 				3D9F2D9B25473938003FCC0D /* ProfileMainInfoTableViewCell.xib in Resources */,
 				3D776DAE254F3D4800A579AC /* no_messages.json in Resources */,
 				F5AE4A4A256C121800B7E400 /* RepostHeaderCollectionViewCell.xib in Resources */,
+				F57F313925925DE90012C8AD /* GroupsTableViewCell.xib in Resources */,
 				F584A7B0256FAF28002D5A7B /* extended1.png in Resources */,
 				F5AE4A5D256C204300B7E400 /* NewsfeedAudioAttachmentsCollectionViewCell.xib in Resources */,
 				3D889C26253E055F00B63653 /* SF-Pro-Rounded-Black.otf in Resources */,
@@ -2051,7 +2078,9 @@
 				F52F6F77258931C0000789A6 /* ServiceItemCollectionViewCell.xib in Resources */,
 				F584A7B2256FAF28002D5A7B /* extended2@2x.png in Resources */,
 				F55F943625699990008C67A8 /* DividerCollectionViewCell.xib in Resources */,
+				F5A5B84D258A4817005EAB83 /* ServiceTimeCollectionViewCell.xib in Resources */,
 				F585BF7825741CA50010F3F5 /* ValidationViewController.xib in Resources */,
+				F57643862594AE120031055A /* TextView.xib in Resources */,
 				F584A7B3256FAF28002D5A7B /* extended1@3x.png in Resources */,
 				F57104BF258916A20062B500 /* OfficialProfileGetter.txt in Resources */,
 				3DAE50662546E61900C8A982 /* FriendsTableViewCell.xib in Resources */,
@@ -2068,6 +2097,7 @@
 				F5F7AB62256E98610068B005 /* ProfileCommonInfoCollectionViewCell.xib in Resources */,
 				F56C77362580C61300D0CE0B /* PopupView.xib in Resources */,
 				3D889C2A253E055F00B63653 /* SF-Pro-Rounded-Ultralight.otf in Resources */,
+				F5764384259494050031055A /* DialogView.xib in Resources */,
 				F56BB38425654F2C00D7E1AA /* PlayerViewController.xib in Resources */,
 				F56BB3242564EAFF00D7E1AA /* playing.json in Resources */,
 				F5F7AB6E256EB33F0068B005 /* PhotosCollectionViewCell.xib in Resources */,
@@ -2138,13 +2168,14 @@
 				F5774497257E25EC004566E4 /* PresentationLayout.swift in Sources */,
 				F558B0D92586629800141C12 /* FriendsInteractor.swift in Sources */,
 				3D659B4E254C88FB00EE98D6 /* ConnectionObserver.swift in Sources */,
+				F5A5B84C258A4817005EAB83 /* ServiceTimeCollectionViewCell.swift in Sources */,
 				3D22299825597B620066536D /* Session.swift in Sources */,
 				F56BB36B2564F27800D7E1AA /* AudioPlayerMode.swift in Sources */,
 				F589DE36257941BC0013DB1F /* LikesTabsPresenter.swift in Sources */,
 				F5FB40D52576CB0800F0F5AE /* VibrationFeedback.swift in Sources */,
 				3D2229A4255980B90066536D /* TokenStorage.swift in Sources */,
 				3DAE505D2546E40000C8A982 /* ProfileViewModel.swift in Sources */,
-				F5F7AB86256EF0080068B005 /* SimpleShapeView.swift in Sources */,
+				F57F313325925BF70012C8AD /* GroupsInteractor.swift in Sources */,
 				F56BB35C2564F27800D7E1AA /* PlayerEventProducer.swift in Sources */,
 				3D889C4D253E057000B63653 /* BottomNavigationViewController.swift in Sources */,
 				F58004B9256E690D00679083 /* SuggestionsRouter.swift in Sources */,
@@ -2166,7 +2197,6 @@
 				3DAE50602546E4D500C8A982 /* FriendViewModel.swift in Sources */,
 				F585BE672573DF1D0010F3F5 /* ApiRequest.swift in Sources */,
 				3D592BBF253ED843002C45A4 /* ConversationsRouter.swift in Sources */,
-				F5F7AB87256EF0080068B005 /* CircleProgressView.swift in Sources */,
 				3D592BEF253ED8F6002C45A4 /* Attachments.swift in Sources */,
 				3D592BB2253ECE8E002C45A4 /* MD5.swift in Sources */,
 				3D2229A125597FDD0066536D /* KeychainProvider.swift in Sources */,
@@ -2186,6 +2216,7 @@
 				F589DE2825793D0B0013DB1F /* BaseTabsViewController.swift in Sources */,
 				F56C77392580CCF400D0CE0B /* ImagePopup.swift in Sources */,
 				3D889C2D253E055F00B63653 /* Font.swift in Sources */,
+				F57F313425925BF70012C8AD /* GroupsPresenter.swift in Sources */,
 				3D2229BA25598ECB0066536D /* ExtendedDelegate.swift in Sources */,
 				F58004B6256E690D00679083 /* SuggestionsPresenter.swift in Sources */,
 				3DAE50552546E33600C8A982 /* ProfileResponse.swift in Sources */,
@@ -2200,6 +2231,7 @@
 				3D889C47253E057000B63653 /* ConversationsViewController.swift in Sources */,
 				F589DE35257941BC0013DB1F /* LikesTabsProtocols.swift in Sources */,
 				F56BB38325654F2C00D7E1AA /* PlayerViewController.swift in Sources */,
+				F57F313225925BF70012C8AD /* GroupsProtocols.swift in Sources */,
 				3D2229C4255995B90066536D /* VK.swift in Sources */,
 				3D889BE0253E03E400B63653 /* AppDelegate.swift in Sources */,
 				F535114B256C409100F8B236 /* RepostTextCollectionViewCell.swift in Sources */,
@@ -2241,6 +2273,7 @@
 				3D592BEB253ED8F6002C45A4 /* GroupModel.swift in Sources */,
 				F56BB3582564F27800D7E1AA /* NetworkEventProducer.swift in Sources */,
 				3DAE50652546E61900C8A982 /* FriendsTableViewCell.swift in Sources */,
+				F5A5B850258A609D005EAB83 /* MiniAppViewController.swift in Sources */,
 				3DABBA2C2544880700BB983C /* CaptchaViewController.swift in Sources */,
 				F56BB3652564F27800D7E1AA /* AudioPlayer+QualityAdjustmentEvent.swift in Sources */,
 				3D889C23253E055F00B63653 /* GoogleSansFont.swift in Sources */,
@@ -2250,6 +2283,7 @@
 				3D9F2D8F25472F15003FCC0D /* ProfileViewController.swift in Sources */,
 				F589DE33257941BC0013DB1F /* LikesTabsRouter.swift in Sources */,
 				3DE05D662549BBEF00841DB2 /* PhotoResponse.swift in Sources */,
+				F5A5B820258A0CF3005EAB83 /* MKRefreshControl.swift in Sources */,
 				3DA9A38A254A9BB500678E57 /* UIEdgeInsets+Extension.swift in Sources */,
 				F56BB35B2564F27800D7E1AA /* AudioItemEventProducer.swift in Sources */,
 				F56BB3612564F27800D7E1AA /* AudioPlayer+AudioItemEvent.swift in Sources */,
@@ -2271,8 +2305,10 @@
 				3D889C49253E057000B63653 /* FriendsViewController.swift in Sources */,
 				F577449B257E25EC004566E4 /* SheetPresentationOptions.swift in Sources */,
 				3D1E72992549E8EB00D4DFB3 /* ProfileFriendsTableViewCell.swift in Sources */,
+				F57F313025925BF70012C8AD /* GroupsRouter.swift in Sources */,
 				F5AE4A57256C1B2C00B7E400 /* NewsFeedAudioCollectionViewCell.swift in Sources */,
 				F55F942B2569633F008C67A8 /* NewsfeedTextCollectionViewCell.swift in Sources */,
+				F57F313125925BF70012C8AD /* GroupsViewController.swift in Sources */,
 				3D659B54254C8F2D00EE98D6 /* OperationConvertible.swift in Sources */,
 				3D0D1C10255FD96B0009E4A6 /* PrivateConversationsPresenter.swift in Sources */,
 				3DE05D6F2549C27800841DB2 /* ProfilePhotosTableViewCell.swift in Sources */,
@@ -2292,7 +2328,6 @@
 				3D2229C9255996220066536D /* Dependencies.swift in Sources */,
 				F512813625642DB1008BAC89 /* AudioInteractor.swift in Sources */,
 				3D889C4B253E057000B63653 /* BaseViewController.swift in Sources */,
-				F5F7AB82256EF0080068B005 /* CircleLoadingView.swift in Sources */,
 				F56BB3862565AA7500D7E1AA /* BufferSlider.swift in Sources */,
 				3D592BC6253ED8A8002C45A4 /* Conversation.swift in Sources */,
 				3D659B4A254C88C500EE98D6 /* Reachability.swift in Sources */,
@@ -2310,14 +2345,12 @@
 				3D776D98254F10BD00A579AC /* Realm.swift in Sources */,
 				3D592BAC253ECC0A002C45A4 /* Media.swift in Sources */,
 				3DD47376254EC926008BDB49 /* ConversationsService.swift in Sources */,
-				F5F7AB81256EF0080068B005 /* RefreshHeaderControl.swift in Sources */,
 				F5AE4A51256C14AA00B7E400 /* NewsfeedViewModels.swift in Sources */,
 				F568C976256CCE070069511F /* NewsfeedProtocols.swift in Sources */,
 				F585BE6A2573F3180010F3F5 /* BannedCollectionViewCell.swift in Sources */,
 				F5FB40D42576CB0800F0F5AE /* FeedbackEffect.swift in Sources */,
 				3D889C4C253E057000B63653 /* FullScreenNavigationController.swift in Sources */,
 				3D776DA0254F26F100A579AC /* LastMessage.swift in Sources */,
-				F5F7AB80256EF0080068B005 /* UIScrollView+PullRefresh.swift in Sources */,
 				F5800471256E570E00679083 /* UISpringTimingParameters.swift in Sources */,
 				3D1E72B02549FB8F00D4DFB3 /* NewsfeedCellLayoutCalculator.swift in Sources */,
 				F558B0E825868CF600141C12 /* ServicesSectionController.swift in Sources */,
@@ -2335,6 +2368,7 @@
 				F5774496257E25EC004566E4 /* UIViewAnimationOptionsHelpers.swift in Sources */,
 				F558B0E12586780600141C12 /* ServicesMenuPresenter.swift in Sources */,
 				F584A7BA256FB075002D5A7B /* UISettingsViewController.swift in Sources */,
+				F57F313825925DE90012C8AD /* GroupsTableViewCell.swift in Sources */,
 				F56BB35D2564F27800D7E1AA /* QualityAdjustmentEventProducer.swift in Sources */,
 				3DAE50712546F02F00C8A982 /* JSON.swift in Sources */,
 				3D1E72EE254A024700D4DFB3 /* StdService.swift in Sources */,
@@ -2368,20 +2402,16 @@
 				3D659B46254C868100EE98D6 /* LongPoll.swift in Sources */,
 				3D592BC1253ED843002C45A4 /* ConversationsInteractor.swift in Sources */,
 				3D592C01253EDA07002C45A4 /* UIImageView.swift in Sources */,
-				F5F7AB85256EF0080068B005 /* RefreshContentView.swift in Sources */,
 				F56BB3522564F27800D7E1AA /* BackgroundHandler.swift in Sources */,
 				F56BB35E2564F27800D7E1AA /* RetryEventProducer.swift in Sources */,
 				F55F943525699990008C67A8 /* DividerCollectionViewCell.swift in Sources */,
 				F577449C257E25EC004566E4 /* ViewEdgeConvertible.swift in Sources */,
-				F5F7AB84256EF0080068B005 /* Protocols.swift in Sources */,
 				3D2229CF25599E9E0066536D /* Atomic.swift in Sources */,
 				3DE05D61254979DF00841DB2 /* EdgeAligningView.swift in Sources */,
-				F5F7AB83256EF0080068B005 /* RefreshFooterControl.swift in Sources */,
 				3D592C02253EDA07002C45A4 /* UIDevice.swift in Sources */,
 				3D1E72AE2549FB8F00D4DFB3 /* NewsFeedViewModel.swift in Sources */,
 				3D2229B1255983DB0066536D /* FileManager+Extension.swift in Sources */,
 				3D889C50253E057000B63653 /* Constants.swift in Sources */,
-				F5F7AB89256EF0090068B005 /* UIScrollView+Private.swift in Sources */,
 				F55F943925699E1E008C67A8 /* NewsfeedPhotoAttachmentsCollectionViewCell.swift in Sources */,
 				3DA9A389254A9BB500678E57 /* UITextView+Extension.swift in Sources */,
 				3DA9A380254A91E700678E57 /* IBPCollectionViewCompositionalLayoutInteroperability.swift in Sources */,
@@ -2545,7 +2575,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = vkExtended/vkExtended.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 200.3;
+				CURRENT_PROJECT_VERSION = 200.5;
 				DEVELOPMENT_TEAM = XM253S3YUU;
 				INFOPLIST_FILE = vkExtended/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2571,7 +2601,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = vkExtended/vkExtended.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 200.3;
+				CURRENT_PROJECT_VERSION = 200.5;
 				DEVELOPMENT_TEAM = XM253S3YUU;
 				INFOPLIST_FILE = vkExtended/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (

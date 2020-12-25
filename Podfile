@@ -21,4 +21,6 @@ target 'vkExtended' do
   pod 'IGListKit', '~> 4.0.0'
   pod 'SwiftMessages'
   pod 'SloppySwiper'
+  pod "ViewAnimator"
+  pod "AwesomeCache", "~> 3.0"
 end

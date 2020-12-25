@@ -9,9 +9,10 @@ import UIKit
 import IGListKit
 
 protocol ServiceItemTapHandler: class {
-    func onTapMusic(for cell: ServiceItemCollectionViewCell)
-    func onTapSettings(for cell: ServiceItemCollectionViewCell)
-    func onTapDebug(for cell: ServiceItemCollectionViewCell)
+    func onTapMusic(for cell: UICollectionViewCell & ListBindable)
+    func onTapGroups(for cell: UICollectionViewCell & ListBindable)
+    func onTapSettings(for cell: UICollectionViewCell & ListBindable)
+    func onTapDebug(for cell: UICollectionViewCell & ListBindable)
 }
 
 class ServiceItemCollectionViewCell: UICollectionViewCell, ListBindable {
@@ -20,6 +21,8 @@ class ServiceItemCollectionViewCell: UICollectionViewCell, ListBindable {
     
     weak var delegate: ServiceItemTapHandler?
     var type: ServiceItemType?
+    
+    var isAnimated: Bool = false
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -41,6 +44,8 @@ class ServiceItemCollectionViewCell: UICollectionViewCell, ListBindable {
     @objc func onTapFromSelf() {
         guard let itemType = type else { return }
         switch itemType {
+        case .groups:
+            delegate?.onTapGroups(for: self)
         case .music:
             delegate?.onTapMusic(for: self)
         case .settings:

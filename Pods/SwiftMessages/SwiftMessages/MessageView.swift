@@ -19,9 +19,14 @@ open class MessageView: BaseView, Identifiable, AccessibleMessage {
     /// An optional button tap handler. The `button` is automatically
     /// configured to call this tap handler on `.TouchUpInside`.
     open var buttonTapHandler: ((_ button: UIButton) -> Void)?
+    open var secondButtonTapHandler: ((_ button: UIButton) -> Void)?
     
     @objc func buttonTapped(_ button: UIButton) {
         buttonTapHandler?(button)
+    }
+    
+    @objc func secondButtonTapped(_ button: UIButton) {
+        secondButtonTapHandler?(button)
     }
 
     /*
@@ -41,6 +46,16 @@ open class MessageView: BaseView, Identifiable, AccessibleMessage {
      MARK: - IB outlets
      */
     
+    @IBOutlet open var dismissButton: UIButton? {
+        didSet {
+            if let old = oldValue {
+                old.removeTarget(self, action: #selector(MessageView.buttonTapped(_:)), for: .touchUpInside)
+            }
+            if let button = button {
+                button.addTarget(self, action: #selector(MessageView.buttonTapped(_:)), for: .touchUpInside)
+            }
+        }
+    }
     /// An optional title label.
     @IBOutlet open var titleLabel: UILabel?
     
@@ -49,6 +64,9 @@ open class MessageView: BaseView, Identifiable, AccessibleMessage {
     
     /// An optional text field.
     @IBOutlet open var textField: UITextField?
+    
+    /// An optional text view.
+    @IBOutlet open var textView: UITextView?
     
     /// An optional icon image view.
     @IBOutlet open var backgroundImageView: UIImageView?
@@ -68,6 +86,17 @@ open class MessageView: BaseView, Identifiable, AccessibleMessage {
             }
             if let button = button {
                 button.addTarget(self, action: #selector(MessageView.buttonTapped(_:)), for: .touchUpInside)
+            }
+        }
+    }
+    
+    @IBOutlet open var secondButton: UIButton? {
+        didSet {
+            if let old = oldValue {
+                old.removeTarget(self, action: #selector(MessageView.secondButtonTapped(_:)), for: .touchUpInside)
+            }
+            if let button = secondButton {
+                button.addTarget(self, action: #selector(MessageView.secondButtonTapped(_:)), for: .touchUpInside)
             }
         }
     }
@@ -179,6 +208,10 @@ extension MessageView {
         case centeredView = "CenteredView"
         
         case popupView = "PopupView"
+        
+        case dialogView = "DialogView"
+        
+        case textView = "TextView"
     }
     
     /**
@@ -397,5 +430,3 @@ extension MessageView {
         
     }
 }
-
-

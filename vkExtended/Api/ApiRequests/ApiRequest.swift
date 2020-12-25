@@ -9,13 +9,14 @@ import Foundation
 import SwiftyJSON
 import Alamofire
 import PromiseKit
+import AwesomeCache
 
 let apiUrl = "https://api.vk.com/method/"
 let userAgent = ["User-Agent" : Constants.userAgent]
 let userAgentMac = ["User-Agent" : "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"]
 
 struct Api {
-    static func getParameters(method: String, _ parameters: inout Alamofire.Parameters, _ token: String) -> Alamofire.Parameters {
+    static func getParameters(method: String, _ parameters: inout Alamofire.Parameters, _ token: String, v: Double = 5.126) -> Alamofire.Parameters {
         let sortedKeys = Array(parameters.keys).sorted(by: <)
         
         var md5String = "/method/\(method)?"
@@ -27,7 +28,7 @@ struct Api {
         }
         md5String = md5String + Constants.clientSecret
         parameters["lang"] = "ru"
-        parameters["v"] = 5.126
+        parameters["v"] = v
         parameters["access_token"] = token
         parameters["sig"] = MD5.MD5(md5String)
         
@@ -61,15 +62,21 @@ struct Api {
         static func get(ownerId: Int = currentUserId, count: Int = 200) throws -> Promise<[AudioViewModel]> {
             guard let token = VK.sessions.default.accessToken?.token else { throw VKError.noAccessToken("Токен отсутствует, повторите авторизацию") }
             var parameters: Alamofire.Parameters = [Parameter.ownerId.rawValue : ownerId]
-            
+            let cache = try! Cache<NSData>(name: "audioCache")
             return firstly {
-                Alamofire.request(apiUrl + "audio.get", method: .get, parameters: Api.getParameters(method: "audio.get", &parameters, token), encoding: URLEncoding.default, headers: userAgent).responseData()
+                Alamofire.request(apiUrl + "audio.get", method: .get, parameters: Api.getParameters(method: "audio.get", &parameters, token, v: 5.89), encoding: URLEncoding.default, headers: userAgent).responseData()
             }.compactMap {
                 if let apiError = ApiError($0.data.json(has: false)) {
                     print("audio.get 👎🏻")
                     throw VKError.api(apiError)
                 } else {
                     print("audio.get 👍🏻")
+                    
+                    if cache["audio_from_id\(ownerId)"] != nil {
+                        cache.removeObjectForKey(key: "audio_from_id\(ownerId)")
+                    }
+                    cache["audio_from_id\(ownerId)"] = $0.data as NSData
+                    
                     return $0.data.json()["items"].arrayValue.compactMap { AudioViewModel(audio: $0) }
                 }
             }
@@ -83,64 +90,119 @@ struct Api {
     struct Docs {}
     
     struct Execute {
+        static func groupsGet(userId: Int = currentUserId, count: Int = 20, offset: Int = 0) throws -> Promise<GroupResponse> {
+            guard let token = VK.sessions.default.accessToken?.token else { throw VKError.noAccessToken("Токен отсутствует, повторите авторизацию") }
+            var parameters: Alamofire.Parameters = [
+                Parameter.fields.rawValue: Constants.groupFields,
+                Parameter.count.rawValue: 50,
+                Parameter.offset.rawValue: offset,
+                Parameter.userId.rawValue: userId
+            ]
+            
+            return firstly {
+                Alamofire.request(apiUrl + "execute.groupsGet", method: .post, parameters: Api.getParameters(method: "execute.groupsGet", &parameters, token), encoding: URLEncoding.default, headers: userAgent).responseData()
+            }.compactMap { response in
+                if let apiError = ApiError(response.data.json()) {
+                    print("execute.groupsGet 👎🏻")
+                    throw VKError.api(apiError)
+                } else {
+                    print("execute.groupsGet 👍🏻")
+                    return GroupResponse(from: response.data.json())
+                }
+            }
+        }
+        
         static func getProfilePage(code: String) throws -> Promise<(ProfileResponse, PhotoResponse?, FriendResponse?)> {
             guard let token = VK.sessions.default.accessToken?.token else { throw VKError.noAccessToken("Токен отсутствует, повторите авторизацию") }
             var parameters: Alamofire.Parameters = [Parameter.code.rawValue : code]
-            
+            let cache = try! Cache<NSData>(name: "profileCache")
             return firstly {
                 Alamofire.request(apiUrl + "execute", method: .post, parameters: Api.getParameters(method: "execute", &parameters, token), encoding: URLEncoding.default, headers: userAgent).responseData()
             }.compactMap {
                 if let apiError = ApiError($0.data.json(has: false)) {
-                    print("getProfilePage 👎🏻")
+                    print("execute.getProfilePage 👎🏻")
                     throw VKError.api(apiError)
                 } else {
-                    print("getProfilePage 👍🏻")
-                    guard $0.data.json()["profile"].arrayValue.first != nil else { throw VKError.emptyJSON("Объект пуст") }
-                    return (ProfileResponse(from: $0.data.json()["profile"].arrayValue.first!), PhotoResponse(from: $0.data.json()["photos"]), FriendResponse(from: $0.data.json()["friends"]))
+                    print("execute.getProfilePage 👍🏻")
+                    guard let profile = $0.data.json()["profile"].arrayValue.first else { throw VKError.emptyJSON("Объект пуст") }
+                    
+                    if cache["profile_from_id\(profile["id"].intValue)"] != nil {
+                        cache.removeObjectForKey(key: "profile_from_id\(profile["id"].intValue)")
+                    }
+                    cache["profile_from_id\(profile["id"].intValue)"] = $0.data as NSData
+                    
+                    return (ProfileResponse(from: profile), PhotoResponse(from: $0.data.json()["photos"]), FriendResponse(from: $0.data.json()["friends"]))
                 }
             }
         }
         
-        static func getFriendsAndLists(userId: Int = currentUserId, count: Int = 20, order: String = "hints") throws -> Promise<FriendResponse> {
+        static func getNewsfeedSmart(count: Int = 200) throws -> Promise<FeedResponse> {
             guard let token = VK.sessions.default.accessToken?.token else { throw VKError.noAccessToken("Токен отсутствует, повторите авторизацию") }
             var parameters: Alamofire.Parameters = [
                 Parameter.fields.rawValue: Constants.userFields,
-                Parameter.order.rawValue: order,
-                Parameter.userId.rawValue: userId,
-                Parameter.count.rawValue: count
+                Parameter.filters.rawValue: "post, photo_tag, photo",
+                Parameter.count.rawValue: 40
             ]
             
             return firstly {
-                Alamofire.request(apiUrl + "execute.getFriendsAndLists", method: .get, parameters: Api.getParameters(method: "execute.getFriendsAndLists", &parameters, token), encoding: URLEncoding.default, headers: userAgent).responseData()
-            }.compactMap {
-                if let apiError = ApiError($0.data.json(has: false)) {
-                    print("execute.getFriendsAndLists 👎🏻")
-                    throw VKError.api(apiError)
-                } else {
-                    print("execute.getFriendsAndLists 👍🏻")
-                    return FriendResponse(from: $0.data.json())
-                }
-            }
-        }
-        
-        static func getNewsfeedSmart(userId: Int = currentUserId, count: Int = 200, order: String = "hints") throws -> Promise<FriendResponse> {
-            guard let token = VK.sessions.default.accessToken?.token else { throw VKError.noAccessToken("Токен отсутствует, повторите авторизацию") }
-            var parameters: Alamofire.Parameters = [
-                Parameter.fields.rawValue: Constants.userFields,
-                Parameter.order.rawValue: order,
-                Parameter.userId.rawValue: userId,
-                Parameter.count.rawValue: count
-            ]
-            
-            return firstly {
-                Alamofire.request(apiUrl + "execute.getNewsfeedSmart", method: .get, parameters: Api.getParameters(method: "execute.getNewsfeedSmart", &parameters, token), encoding: URLEncoding.default, headers: userAgent).responseData()
-            }.compactMap {
-                if let apiError = ApiError($0.data.json(has: false)) {
+                Alamofire.request(apiUrl + "execute.getNewsfeedSmart", method: .post, parameters: Api.getParameters(method: "execute.getNewsfeedSmart", &parameters, token), encoding: URLEncoding.default, headers: userAgent).responseData()
+            }.compactMap { response in
+                if let apiError = ApiError(response.data.json()) {
                     print("execute.getNewsfeedSmart 👎🏻")
                     throw VKError.api(apiError)
                 } else {
                     print("execute.getNewsfeedSmart 👍🏻")
+                    return FeedResponse(from: response.data.json())
+                }
+            }
+        }
+        
+        static func profileFriendsBlock(userId: Int = currentUserId, count: Int = 20, offset: Int = 0) throws -> Promise<FriendResponse> {
+            guard let token = VK.sessions.default.accessToken?.token else { throw VKError.noAccessToken("Токен отсутствует, повторите авторизацию") }
+            var parameters: Alamofire.Parameters = [
+                Parameter.count.rawValue: count,
+                Parameter.userId.rawValue: userId,
+                Parameter.offset.rawValue: offset
+            ]
+            return firstly {
+                Alamofire.request(apiUrl + "execute.profileFriendsBlock", method: .get, parameters: Api.getParameters(method: "execute.profileFriendsBlock", &parameters, token), encoding: URLEncoding.default, headers: userAgent).responseData()
+            }.compactMap {
+                if let apiError = ApiError($0.data.json(has: false)) {
+                    print("execute.profileFriendsBlock 👎🏻")
+                    throw VKError.api(apiError)
+                } else {
+                    print("execute.profileFriendsBlock 👍🏻")
                     return FriendResponse(from: $0.data.json())
+                }
+            }
+        }
+        
+        static func wallGetWrapNew(ownerId: Int = currentUserId, offset: Int = 0) throws -> Promise<WallResponse> {
+            guard let token = VK.sessions.default.accessToken?.token else { throw VKError.noAccessToken("Токен отсутствует, повторите авторизацию") }
+            var parameters: Alamofire.Parameters = [
+                Parameter.ownerId.rawValue: ownerId,
+                Parameter.fields.rawValue: Constants.userFields,
+                Parameter.filter.rawValue: "all",
+                Parameter.extended.rawValue: 1,
+                Parameter.offset.rawValue: offset,
+                Parameter.count.rawValue: 20
+            ]
+            let cache = try! Cache<NSData>(name: "wallCache")
+            return firstly {
+                Alamofire.request(apiUrl + "execute.wallGetWrapNew", method: .post, parameters: Api.getParameters(method: "execute.wallGetWrapNew", &parameters, token), encoding: URLEncoding.default, headers: userAgent).responseData()
+            }.compactMap { response in
+                if let apiError = ApiError(response.data.json()) {
+                    print("execute.wallGetWrapNew 👎🏻")
+                    throw VKError.api(apiError)
+                } else {
+                    print("execute.wallGetWrapNew 👍🏻")
+                    
+                    if cache["wall_from_id\(ownerId)"] != nil {
+                        cache.removeObjectForKey(key: "wall_from_id\(ownerId)")
+                    }
+                    cache["wall_from_id\(ownerId)"] = response.data as NSData
+
+                    return WallResponse(from: response.data.json())
                 }
             }
         }
@@ -158,7 +220,7 @@ struct Api {
                 Parameter.count.rawValue: count,
                 Parameter.offset.rawValue: offset
             ]
-            
+            let cache = try! Cache<NSData>(name: "friendsCache")
             return firstly {
                 Alamofire.request(apiUrl + "friends.get", method: .post, parameters: Api.getParameters(method: "friends.get", &parameters, token), encoding: URLEncoding.default, headers: userAgent).responseData()
             }.compactMap {
@@ -167,6 +229,11 @@ struct Api {
                     throw VKError.api(apiError)
                 } else {
                     print("friends.get 👍🏻")
+                    
+                    if cache["friends_from_id\(userId)"] != nil {
+                        cache.removeObjectForKey(key: "friends_from_id\(userId)")
+                    }
+                    cache["friends_from_id\(userId)"] = $0.data as NSData
                     return FriendResponse(from: $0.data.json())
                 }
             }
@@ -404,7 +471,7 @@ struct Api {
                 parameters["latitude"] = lat
                 parameters["longitude"] = lon
             }
-
+            let cache = try! Cache<NSData>(name: "superAppCache")
             return firstly {
                 Alamofire.request(apiUrl + "superApp.get", method: .post, parameters: Api.getParameters(method: "superApp.get", &parameters, token), encoding: URLEncoding.default, headers: userAgent).responseData()
             }.compactMap { response in
@@ -413,6 +480,10 @@ struct Api {
                     throw VKError.api(apiError)
                 } else {
                     print("superApp.get 👍🏻")
+                    if cache["superApp"] != nil {
+                        cache.removeObjectForKey(key: "superApp")
+                    }
+                    cache["superApp"] = response.data as NSData
                     return SuperAppServices(from: response.data.json())
                 }
             }
@@ -430,7 +501,7 @@ struct Api {
                 Parameter.offset.rawValue: offset,
                 Parameter.count.rawValue: 20
             ]
-            
+            let cache = try! Cache<NSData>(name: "wallCache")
             return firstly {
                 Alamofire.request(apiUrl + "wall.get", method: .post, parameters: Api.getParameters(method: "wall.get", &parameters, token), encoding: URLEncoding.default, headers: userAgent).responseData()
             }.compactMap { response in
@@ -439,6 +510,12 @@ struct Api {
                     throw VKError.api(apiError)
                 } else {
                     print("wall.get 👍🏻")
+                    
+                    if cache["wall_from_id\(ownerId)"] != nil {
+                        cache.removeObjectForKey(key: "wall_from_id\(ownerId)")
+                    }
+                    cache["wall_from_id\(ownerId)"] = response.data as NSData
+
                     return WallResponse(from: response.data.json())
                 }
             }

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" userLabel="TextView" customClass="MessageView" customModule="SwiftMessages">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="769"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="asg-s8-nB9" userLabel="Background view" customClass="CornerRoundingView" customModule="vkExtended" customModuleProvider="target">
+                    <rect key="frame" x="8" y="44" width="398" height="725"/>
+                    <subviews>
+                        <view opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="700" id="oJz-Hq-Uf5" userLabel="Content view">
+                            <rect key="frame" x="0.0" y="0.0" width="398" height="725"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="700" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" text="bgagergerg" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NMY-QN-sd7">
+                                    <rect key="frame" x="24" y="16" width="350" height="21"/>
+                                    <accessibility key="accessibilityConfiguration">
+                                        <bool key="isElement" value="NO"/>
+                                    </accessibility>
+                                    <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" id="bOP-Al-kRa">
+                                    <rect key="frame" x="16" y="53" width="366" height="600"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
+                                    <color key="textColor" systemColor="labelColor"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                </textView>
+                                <stackView opaque="NO" contentMode="scaleToFill" distribution="equalCentering" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="vE8-fT-OBa">
+                                    <rect key="frame" x="16" y="665" width="366" height="44"/>
+                                    <subviews>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jwq-KP-NAw">
+                                            <rect key="frame" x="0.0" y="0.0" width="366" height="44"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="44" id="Lju-AP-dOy"/>
+                                            </constraints>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                                    <real key="value" value="10"/>
+                                                </userDefinedRuntimeAttribute>
+                                            </userDefinedRuntimeAttributes>
+                                        </button>
+                                    </subviews>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </stackView>
+                            </subviews>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstItem="NMY-QN-sd7" firstAttribute="leading" secondItem="oJz-Hq-Uf5" secondAttribute="leading" constant="24" id="0vf-SF-mwI"/>
+                                <constraint firstItem="bOP-Al-kRa" firstAttribute="top" secondItem="NMY-QN-sd7" secondAttribute="bottom" constant="16" id="AkX-Cg-JhG"/>
+                                <constraint firstAttribute="bottom" secondItem="vE8-fT-OBa" secondAttribute="bottom" constant="16" id="NVp-OC-V3Q"/>
+                                <constraint firstItem="vE8-fT-OBa" firstAttribute="top" secondItem="bOP-Al-kRa" secondAttribute="bottom" constant="12" id="OBc-Ti-Lzs"/>
+                                <constraint firstAttribute="trailing" secondItem="bOP-Al-kRa" secondAttribute="trailing" constant="16" id="SJR-WC-zZz"/>
+                                <constraint firstAttribute="trailing" secondItem="vE8-fT-OBa" secondAttribute="trailing" constant="16" id="UBi-DU-iys"/>
+                                <constraint firstItem="vE8-fT-OBa" firstAttribute="leading" secondItem="oJz-Hq-Uf5" secondAttribute="leading" constant="16" id="UlJ-XM-i7d"/>
+                                <constraint firstItem="bOP-Al-kRa" firstAttribute="leading" secondItem="oJz-Hq-Uf5" secondAttribute="leading" constant="16" id="Znl-aG-ae1"/>
+                                <constraint firstAttribute="trailing" secondItem="NMY-QN-sd7" secondAttribute="trailing" constant="24" id="ft6-Rc-kZb"/>
+                                <constraint firstItem="NMY-QN-sd7" firstAttribute="top" secondItem="oJz-Hq-Uf5" secondAttribute="top" constant="16" id="gin-Uv-wP1"/>
+                            </constraints>
+                        </view>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="bottom" secondItem="oJz-Hq-Uf5" secondAttribute="bottom" id="MZE-b8-ccg"/>
+                        <constraint firstItem="oJz-Hq-Uf5" firstAttribute="leading" secondItem="asg-s8-nB9" secondAttribute="leading" id="TEo-pi-73y"/>
+                        <constraint firstAttribute="trailing" secondItem="oJz-Hq-Uf5" secondAttribute="trailing" id="rJ8-Ja-uex"/>
+                        <constraint firstItem="oJz-Hq-Uf5" firstAttribute="top" secondItem="asg-s8-nB9" secondAttribute="top" id="vF0-mk-Zkb"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                            <real key="value" value="18"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstAttribute="bottomMargin" secondItem="asg-s8-nB9" secondAttribute="bottom" id="0gd-wJ-lAO"/>
+                <constraint firstAttribute="trailing" secondItem="asg-s8-nB9" secondAttribute="trailing" constant="8" id="UHA-xF-Xvt"/>
+                <constraint firstItem="asg-s8-nB9" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="topMargin" id="f8Z-fF-ysV"/>
+                <constraint firstItem="asg-s8-nB9" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" priority="950" id="kWS-Re-ZUO"/>
+                <constraint firstItem="asg-s8-nB9" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="8" id="o04-N8-z4R"/>
+            </constraints>
+            <nil key="simulatedTopBarMetrics"/>
+            <nil key="simulatedBottomBarMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <userDefinedRuntimeAttributes>
+                <userDefinedRuntimeAttribute type="boolean" keyPath="collapseLayoutMarginAdditions" value="YES"/>
+                <userDefinedRuntimeAttribute type="number" keyPath="topLayoutMarginAddition">
+                    <real key="value" value="10"/>
+                </userDefinedRuntimeAttribute>
+                <userDefinedRuntimeAttribute type="number" keyPath="leftLayoutMarginAddition">
+                    <real key="value" value="10"/>
+                </userDefinedRuntimeAttribute>
+                <userDefinedRuntimeAttribute type="number" keyPath="bottomLayoutMarginAddition">
+                    <real key="value" value="10"/>
+                </userDefinedRuntimeAttribute>
+                <userDefinedRuntimeAttribute type="number" keyPath="rightLayoutMarginAddition">
+                    <real key="value" value="10"/>
+                </userDefinedRuntimeAttribute>
+                <userDefinedRuntimeAttribute type="number" keyPath="bounceAnimationOffset">
+                    <real key="value" value="0.0"/>
+                </userDefinedRuntimeAttribute>
+            </userDefinedRuntimeAttributes>
+            <connections>
+                <outlet property="button" destination="Jwq-KP-NAw" id="hvR-3U-N6f"/>
+                <outlet property="textView" destination="bOP-Al-kRa" id="guH-vc-LGv"/>
+                <outlet property="titleLabel" destination="NMY-QN-sd7" id="g68-L6-Ezp"/>
+            </connections>
+            <point key="canvasLocation" x="131.8840579710145" y="65.290178571428569"/>
+        </view>
+    </objects>
+    <resources>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>
