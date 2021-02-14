@@ -103,7 +103,7 @@ class PrivateConversationsViewController: BaseViewController, PrivateConversatio
         mainTable.separatorStyle = .none
         mainTable.delegate = self
         mainTable.dataSource = self
-        mainTable.register(UINib(nibName: "MessageViewCell", bundle: nil), forCellReuseIdentifier: "MessageViewCell")
+        mainTable.register(UINib(nibName: "ConversationTableViewCell", bundle: nil), forCellReuseIdentifier: "ConversationTableViewCell")
         mainTable.tableHeaderView = searchController.searchBar
         mainTable.tableFooterView = footerView
         setupSearchBar()
@@ -144,10 +144,9 @@ extension PrivateConversationsViewController: UITableViewDelegate, UITableViewDa
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "MessageViewCell", for: indexPath) as! MessageViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ConversationTableViewCell", for: indexPath) as! ConversationTableViewCell
         cell.alternativeSetup(conversation: conversations[indexPath.row])
         cell.selectionStyle = .none
-        cell.delegate = self
         return cell
     }
     
@@ -161,11 +160,6 @@ extension PrivateConversationsViewController: UITableViewDelegate, UITableViewDa
     
     public func numberOfSections(in tableView: UITableView) -> Int {
         return 1
-    }
-}
-extension PrivateConversationsViewController: MessageViewCellDelegate {
-    func didTapAvatar(cell: MessageViewCell, with peerId: Int) {
-        self.presenter?.onTapPerformProfile(from: peerId)
     }
 }
 extension PrivateConversationsViewController {

@@ -14,7 +14,7 @@ struct Localization {
     static let pagesString: [String?] = ["интересная страница", "интересных страницы", "интересных страницы", nil]
     static let attachmentsString: [String?] = ["вложение", "вложения", "вложений", nil]
     static let docsString: [String?] = ["документ", "документа", "документов", nil]
-    static let forwardString: [String?] = ["пересланное сообщение", "пересланных сообщения", "пересланных сообщений", nil]
+    static let forwardString: [String?] = ["сообщение", "сообщения", "сообщений", nil]
     
     static let wallsCount: [String?] = ["запись", "записи", "записей", nil]
     static let audioCount: [String?] = ["аудио", "аудио", "аудио", nil]

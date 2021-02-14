@@ -68,7 +68,7 @@ public extension UIViewController {
 }
 extension UISearchController {
     // Настройка поисковика
-    func setupSearchBar() {
+    func setupSearchBar(from directionalLayoutMargins: UIKit.NSDirectionalEdgeInsets = .init(top: 16, leading: 12, bottom: -16, trailing: 12)) {
         UIBarButtonItem.appearance(whenContainedInInstancesOf: [UISearchBar.self]).setTitleTextAttributes([.foregroundColor: UIColor.getAccentColor(fromType: .common)], for: .normal)
         UILabel.appearance(whenContainedInInstancesOf: [UISearchBar.self]).textColor = .getThemeableColor(fromNormalColor: .darkGray)
         obscuresBackgroundDuringPresentation = false
@@ -78,13 +78,19 @@ extension UISearchController {
             searchBar.searchTextField.textColor = .getThemeableColor(fromNormalColor: .black)
             searchBar.searchTextField.font = GoogleSansFont.regular(with: 17)
             searchBar.searchTextField.setCorners(radius: 10)
+        } else {
+            let textFieldInsideSearchBar = searchBar.value(forKey: "searchField") as? UITextField
+            textFieldInsideSearchBar?.backgroundColor = .searchColor
+            textFieldInsideSearchBar?.textColor = .getThemeableColor(fromNormalColor: .black)
+            textFieldInsideSearchBar?.font = GoogleSansFont.regular(with: 17)
+            textFieldInsideSearchBar?.setCorners(radius: 10)
         }
         searchBar.setImage(UIImage(named: "search_outline_16")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(fromNormalColor: .darkGray)), for: .search, state: .normal)
         searchBar.setImage(UIImage(named: "clear_16")?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(fromNormalColor: .darkGray)), for: .clear, state: .normal)
         searchBar.setPositionAdjustment(UIOffset(horizontal: 6, vertical: 0), for: .search)
         searchBar.setPositionAdjustment(UIOffset(horizontal: -6, vertical: 0), for: .clear)
         searchBar.searchTextPositionAdjustment = UIOffset(horizontal: 4, vertical: 0)
-        searchBar.directionalLayoutMargins = .init(top: 16, leading: 8, bottom: -16, trailing: 8)
+        searchBar.directionalLayoutMargins = directionalLayoutMargins
     }
 }
 

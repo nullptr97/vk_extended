@@ -67,7 +67,6 @@ class ProfileMainInfoTableViewCell: UITableViewCell {
                 switch result {
                 case .success(let value):
                     self.avatarImageView.image = value.image
-                    NotificationCenter.default.post(name: NSNotification.Name("loadProfileImage"), object: nil, userInfo: ["avatarAverageColor" : value.image.averageColor ?? .clear])
                 case .failure(let error):
                     print(error.errorDescription ?? "Error load image")
                 }
@@ -101,7 +100,5 @@ class ProfileMainInfoTableViewCell: UITableViewCell {
     func setupButtons(hasCurrentUser: Bool, canMessage: ProfileActionType, friendAction: FriendAction) {
         userActionButton.isHidden = hasCurrentUser
         messageButton.isHidden = hasCurrentUser || canMessage == .actionFriend
-
-        userActionButton.setImage(UIImage(named: friendAction.setImage(from: friendAction))?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .common))?.resize(toWidth: 24)?.resize(toHeight: 24), for: .normal)
     }
 }

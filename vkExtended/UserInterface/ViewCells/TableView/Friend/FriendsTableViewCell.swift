@@ -17,6 +17,7 @@ class FriendsTableViewCell: TableViewCell {
     @IBOutlet weak var messageButton: UIButton!
     @IBOutlet weak var onlineImageView: UIImageView!
     @IBOutlet weak var stackHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var friendNameStackView: UIStackView!
     
     var firstAttributesName: [NSAttributedString.Key : Any] = [.font: GoogleSansFont.medium(with: 16), .foregroundColor: UIColor.adaptableBlack]
     var secondAttributesName: [NSAttributedString.Key : Any] = [.font: GoogleSansFont.bold(with: 16), .foregroundColor: UIColor.adaptableBlack]
@@ -57,23 +58,23 @@ class FriendsTableViewCell: TableViewCell {
     }
     
     func setup(by viewModel: FriendCellViewModel) {
+        let statusImageView = UIImageView()
+        statusImageView.autoSetDimensions(to: .identity(20))
+        statusImageView.tag = 0x1999
+        if friendNameStackView.arrangedSubviews.compactMap({ $0.viewWithTag(0x1999) }).isEmpty {
+            friendNameStackView.addArrangedSubview(statusImageView)
+        }
+        
         messageButton.isHidden = viewModel.canWriteMessage == 0
         if let urlString = viewModel.photo100, let url = URL(string: urlString) {
             avatarImageView.kf.setImage(with: url)
         }
+        friendNameLabel.attributedText = NSAttributedString(string: "\(viewModel.firstName!) ", attributes: firstAttributesName) + NSAttributedString(string: "\(viewModel.lastName!) ", attributes: secondAttributesName)
+        friendNameLabel.sizeToFit()
         if let imgStatusUrl = URL(string: viewModel.imageStatusUrl) {
-            KingfisherManager.shared.retrieveImage(with: imgStatusUrl) { [weak self] result in
-                guard let self = self else { return }
-                switch result {
-                case .success(let value):
-                    self.friendNameLabel.attributedText = NSAttributedString(string: "\(viewModel.firstName!) ", attributes: self.firstAttributesName) + NSAttributedString(string: "\(viewModel.lastName!)", attributes: self.secondAttributesName) + setLabelImage(image: value.image)!
-                case .failure(let error):
-                    print(error.localizedDescription)
-                }
-            }
+            statusImageView.kf.setImage(with: imgStatusUrl)
         } else {
-            friendNameLabel.attributedText = NSAttributedString(string: "\(viewModel.firstName!) ", attributes: firstAttributesName) + NSAttributedString(string: "\(viewModel.lastName!)", attributes: secondAttributesName)
-            friendNameLabel.sizeToFit()
+            statusImageView.image = nil
         }
         onlineImageView.isHidden = !(viewModel.isOnline ?? false)
         onlineImageView.image = UIImage(named: viewModel.isMobile ?? false ? "Online Mobile" : "Online")

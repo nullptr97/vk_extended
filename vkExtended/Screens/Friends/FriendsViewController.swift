@@ -16,7 +16,7 @@ import SwiftMessages
 open class FriendsViewController: BaseViewController, FriendsViewProtocol {
     internal var presenter: FriendsPresenterProtocol?
     
-    private let mainTable = UITableView(frame: .zero, style: .grouped)
+    private let mainTable = UITableView(frame: .zero, style: .plain)
     private var friendViewModel = FriendViewModel.init(cell: [], footerTitle: nil, count: 0)
     private var importantFriendViewModel = FriendViewModel.init(cell: [], footerTitle: nil, count: 0)
     private var searchedFriendViewModel = FriendViewModel.init(cell: [], footerTitle: nil, count: 0)
@@ -156,33 +156,24 @@ extension FriendsViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard friendViewModel.cell.count > 0 && !isFiltering else { return nil }
-        let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
+        guard friendViewModel.cell.count > 0 && !isFiltering && section > 0 else { return nil }
+        let returnedView = UIView()
         returnedView.backgroundColor = .getThemeableColor(fromNormalColor: .white)
-        let label = UILabel()
-        returnedView.addSubview(label)
-        label.autoPinEdge(.top, to: .top, of: returnedView, withOffset: 12)
-        label.autoPinEdge(.leading, to: .leading, of: returnedView, withOffset: 16)
-        label.autoPinEdge(.trailing, to: .trailing, of: returnedView, withOffset: -16)
-        label.autoPinEdge(.bottom, to: .bottom, of: returnedView, withOffset: -8)
-        label.autoSetDimension(.height, toSize: 22)
-        switch section {
-        case 0:
-            let attributedText = NSAttributedString(string: "Важные", attributes: [.font: GoogleSansFont.bold(with: 18), .foregroundColor: UIColor.adaptableBlack])
-            label.attributedText = attributedText
-            
-        case 1:
-            let attributedText = NSAttributedString(string: "Все друзья  ", attributes: [.font: GoogleSansFont.bold(with: 18), .foregroundColor: UIColor.adaptableBlack]) + NSAttributedString(string: " \(friendViewModel.cell.count)", attributes: [.font: GoogleSansFont.medium(with: 13), .foregroundColor: UIColor.adaptableDarkGrayVK])
-            label.attributedText = attributedText
-            
-        default: label.text = ""
-        }
+        
+        let dividerView = UIView()
+        dividerView.backgroundColor = .adaptableDivider
+        dividerView.add(to: returnedView)
+        dividerView.autoSetDimensions(to: .custom(screenWidth - 32, 0.5))
+        dividerView.autoPinEdge(.leading, to: .leading, of: returnedView, withOffset: 12)
+        dividerView.autoPinEdge(.trailing, to: .trailing, of: returnedView, withOffset: -12)
+        dividerView.autoAlignAxis(toSuperviewAxis: .horizontal)
+        
         return returnedView
     }
     
     public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        guard friendViewModel.cell.count > 0, !isFiltering else { return 0 }
-        return 44
+        guard friendViewModel.cell.count > 0, !isFiltering && section > 0 else { return 0 }
+        return 16
     }
 }
 extension FriendsViewController: UISearchResultsUpdating, UISearchBarDelegate, UITextFieldDelegate {

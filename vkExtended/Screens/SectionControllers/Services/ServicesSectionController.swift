@@ -11,7 +11,7 @@ import ViewAnimator
 
 class ServicesSectionController: ListBindingSectionController<SuperAppServices>, ListBindingSectionControllerDataSource {
     var results = [ListDiffable]()
-    var items: [(String, String, UIColor)] = [("music_outline_28", "Музыка", UIColor.Themeable.dynamicBlue), ("users_3_outline_28", "Сообщества", UIColor.Themeable.dynamicOrange), ("video_outline_28", "Видео", UIColor.Themeable.dynamicViolet), ("document_outline_28", "Файлы", UIColor.Themeable.dynamicOrange), ("settings_outline_28", "Настройки", UIColor.Themeable.dynamicRed), ("bug_outline_28", "Debug", UIColor.Themeable.dynamicGreen)]
+    var items: [(String, String, UIColor)] = [("music_outline_28", "Музыка", UIColor.Themeable.dynamicBlue), ("users_3_outline_28", "Сообщества", UIColor.Themeable.dynamicOrange), ("video_outline_28", "Видео", UIColor.Themeable.dynamicViolet), ("document_outline_28", "Файлы", UIColor.Themeable.dynamicOrange), ("like_outline_28", "Понравилось", UIColor.Themeable.dynamicRed), ("favorite_outline_28", "Закладки", UIColor.Themeable.dynamicOrange), ("statistics_outline_28", "Cтатистика", UIColor.Themeable.dynamicBlue), ("settings_outline_28", "Настройки", UIColor.Themeable.dynamicRed), ("bug_outline_28", "Debug", UIColor.Themeable.dynamicGreen)]
 
     override init() {
         super.init()
@@ -83,7 +83,7 @@ class ServicesSectionController: ListBindingSectionController<SuperAppServices>,
         switch viewModel {
         case is ServiceItemViewModel:
             height = 82
-            width = collectionContext.containerSize.width / 3
+            width = CGFloat(collectionContext.containerSize.width.int / 3)
         case is ServiceDateViewModel:
             height = 48
             width = collectionContext.containerSize.width

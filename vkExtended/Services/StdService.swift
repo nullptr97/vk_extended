@@ -84,6 +84,25 @@ class StdService: NSObject {
         }
     }
     
+    func messageDate(with date: Date) -> DateFormatter {
+        let currentTime: NSNumber = NSNumber(value: Date().timeIntervalSince1970)
+        let timestamp: NSNumber = NSNumber(value: date.timeIntervalSince1970)
+        
+        let dt = DateFormatter()
+        dt.locale = Locale(identifier: "ru_RU")
+        
+        if timestamp.doubleValue < currentTime.doubleValue && timestamp.doubleValue > currentTime.doubleValue - 86399 {
+            dt.dateFormat = "HH:mm"
+            return dt
+        } else if timestamp.doubleValue < currentTime.doubleValue - 86399 && timestamp.doubleValue > currentTime.doubleValue - 172799 {
+            dt.dateFormat = "Вчера 'в' HH:mm"
+            return dt
+        } else {
+            dt.dateFormat = "d MMM 'в' HH:mm"
+            return dt
+        }
+    }
+    
     func onlineTime(with date: Date, from sex: Int = 1) -> DateFormatter {
         let dt = DateFormatter()
         dt.locale = Locale(identifier: "ru_RU")

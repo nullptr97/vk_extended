@@ -410,11 +410,13 @@ class MessageViewCell: UITableViewCell {
 func setLabelImage(image: String) -> NSMutableAttributedString? {
     let imageAttachment = NSTextAttachment()
     if image == "online_mobile_composite_foreground_20" {
-        imageAttachment.image = UIImage(named: image)?.withRenderingMode(.alwaysTemplate).tint(with: .adaptableGrayVK)?.resize(toWidth: 9)?.resize(toHeight: 14)
+        imageAttachment.image = UIImage(named: image)?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(fromNormalColor: .darkGray))?.resize(toWidth: 9)?.resize(toHeight: 14)
     } else if image == "done_16" || image == "logo_vkme_16" || image == "download_outline_16" {
         imageAttachment.image = UIImage(named: image)?.withRenderingMode(.alwaysTemplate).tint(with: .getAccentColor(fromType: .common))
     } else if image == "favorite_24" || image == "flash_16" {
         imageAttachment.image = UIImage(named: image)?.withRenderingMode(.alwaysTemplate).tint(with: .adaptableOrange)?.resize(toWidth: 16)?.resize(toHeight: 16)
+    } else if image == "write_24" {
+        imageAttachment.image = UIImage(named: image)?.withRenderingMode(.alwaysTemplate).tint(with: .getThemeableColor(fromNormalColor: .darkGray))?.resize(toWidth: 12)?.resize(toHeight: 12)
     } else {
         imageAttachment.image = UIImage(named: image)
     }
@@ -427,6 +429,8 @@ func setLabelImage(image: String) -> NSMutableAttributedString? {
         imageAttachment.bounds = CGRect(x: -5, y: -3, width: 16, height: 16)
     } else if image == "favorite_24" {
         imageAttachment.bounds = CGRect(x: -4, y: -2, width: 16, height: 16)
+    } else if image == "write_24" {
+        imageAttachment.bounds = CGRect(x: -4, y: 0, width: 10, height: 10)
     } else if image == "download_outline_16" {
         imageAttachment.bounds = CGRect(x: 0, y: -3, width: 16, height: 16)
     } else {

@@ -7,10 +7,8 @@
 
 import UIKit
 import Alamofire
-import MBProgressHUD
-import SwiftMessages
 
-class ValidationViewController: BaseViewController {
+class ValidationViewController: UIViewController {
     let login: String
     let password: String
     let phoneMask: String
@@ -43,11 +41,8 @@ class ValidationViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        navigationController?.setNavigationBarHidden(false, animated: false)
         twoAuthCodeTextField.delegate = self
-        Self.activityIndicator.startAnimating()
-        
-        setupStatusView()
     }
     
     override func viewDidLayoutSubviews() {
@@ -72,20 +67,18 @@ class ValidationViewController: BaseViewController {
         }
     }
     
-    override func setupUI() {
-        super.setupUI()
-        
+    func setupUI() {
         stateLabel.textColor = .getThemeableColor(fromNormalColor: .darkGray)
-        stateLabel.font = GoogleSansFont.medium(with: 15)
+        stateLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         
         twoAuthCodeTextField.setBorder(10, width: 0.75, color: .getThemeableColor(fromNormalColor: .lightGray))
         
         authButton.setCorners(radius: 12)
-        authButton.titleLabel?.font = GoogleSansFont.bold(with: 16)
+        authButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .bold)
         authButton.backgroundColor = .getAccentColor(fromType: .common)
         
         alternateAuthButton.setCorners(radius: 12)
-        alternateAuthButton.titleLabel?.font = GoogleSansFont.bold(with: 16)
+        alternateAuthButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .bold)
         alternateAuthButton.backgroundColor = .getThemeableColor(fromNormalColor: .white)
         alternateAuthButton.setTitleColor(.getAccentColor(fromType: .common), for: .normal)
     }
@@ -96,7 +89,7 @@ class ValidationViewController: BaseViewController {
                 guard let self = self else { return }
                 self.observeSuccess()
                 if forceSms == 1 {
-                    let text = NSAttributedString(string: "Мы отправили SMS c кодом подтверждения на номер", attributes: [.font: GoogleSansFont.medium(with: 15), .foregroundColor: UIColor.getThemeableColor(fromNormalColor: .darkGray)]) + attributedNewLine + NSAttributedString(string: self.phoneMask, attributes: [.font: GoogleSansFont.medium(with: 15), .foregroundColor: UIColor.getThemeableColor(fromNormalColor: .black)])
+                    let text = NSAttributedString(string: "Мы отправили SMS c кодом подтверждения на номер", attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .medium), .foregroundColor: UIColor.getThemeableColor(fromNormalColor: .darkGray)]) + attributedNewLine + NSAttributedString(string: self.phoneMask, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .medium), .foregroundColor: UIColor.getThemeableColor(fromNormalColor: .black)])
                     
                     self.stateLabel.attributedText = text
                     self.timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateTimer), userInfo: nil, repeats: true)
@@ -124,13 +117,12 @@ class ValidationViewController: BaseViewController {
     
     func observeSuccess() {
         main.async {
-            self.event(message: "Успешно", isError: false)
             self.main.asyncAfter(deadline: .now() + 1) {
                 self.postNotification(name: .onLogin)
                 guard let window = self.view.window else { return }
                 
                 UIView.transition(with: window, duration: 0.5, options: .transitionFlipFromRight) {
-                    window.rootViewController = BottomNavigationViewController()
+                    window.rootViewController = TabBarViewController()
                 }
             }
         }
@@ -143,13 +135,8 @@ class ValidationViewController: BaseViewController {
                 break
             case .needValidation(validationType: let type, phoneMask: let mask):
                 self.twoAuthCodeTextField.setBorder(10, width: 0.75, color: .extendedBackgroundRed)
-                self.event(message: "Неверный код подтверждения", isError: true)
             default:
-                if let message = error.toApi()?.message {
-                    self.event(message: message, isError: true)
-                } else {
-                    self.event(message: error.localizedDescription, isError: true)
-                }
+                break
             }
         }
     }
@@ -161,9 +148,6 @@ class ValidationViewController: BaseViewController {
     
     @IBAction func onAlternateAuth(_ sender: Any) {
         guard let code = twoAuthCodeTextField.text else { return }
-        main.async {
-            self.event(message: "Отправка кода в SMS", isError: false)
-        }
         auth(code: code, forceSms: 1)
     }
 }
@@ -173,8 +157,8 @@ extension ValidationViewController: UITextFieldDelegate {
     }
     
     func textFieldDidChangeSelection(_ textField: UITextField) {
-        authButton.isHidden = textField.isEmpty || textField.text?.count ?? 0 < 6
-        alternateAuthButton.isHidden = textField.isEmpty ? false : textField.text?.count ?? 0 == 6
+        authButton.isHidden = textField.text?.isEmpty ?? true || textField.text?.count ?? 0 < 6
+        alternateAuthButton.isHidden = textField.text?.isEmpty ?? true ? false : textField.text?.count ?? 0 == 6
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {

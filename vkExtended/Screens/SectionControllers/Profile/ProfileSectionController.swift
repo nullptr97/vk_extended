@@ -116,7 +116,6 @@ extension ProfileSectionController: FriendActionDelegate {
         status2Config.preferredStatusBarStyle = .default
         
         HapticFeedback.selection.generateFeedback()
-        SwiftMessages.show(config: status2Config, view: status2)
 
         try! Api.Status.getImagePopup(userId: userId).done { imagePopup in
             status2.button?.setStyle(.primary, with: .large)
@@ -125,6 +124,7 @@ extension ProfileSectionController: FriendActionDelegate {
             status2.configurePopup(title: imagePopup.popup.title, body: imagePopup.popup.text, backgoroundImageUrl: imagePopup.popup.background.light.images.to(index: 1)?.url, imageUrl: imagePopup.popup.photo.images.to(index: 1)?.url, buttonTitle: "Закрыть") { (button) in
                 SwiftMessages.hide()
             }
+            SwiftMessages.show(config: status2Config, view: status2)
         }.catch { error in
             SwiftMessages.hide()
         }

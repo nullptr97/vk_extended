@@ -37,10 +37,11 @@ class FriendsCollectionViewCell: UICollectionViewCell, ListBindable {
         performButton.transform = CGAffineTransform(rotationAngle: .pi + (.pi / 2))
         
         contentView.addSubview(friendsCollectionView)
-        friendsCollectionView.autoPinEdge(.top, to: .bottom, of: typeLabel, withOffset: 4)
+        friendsCollectionView.backgroundColor = .clear
+        friendsCollectionView.autoPinEdge(.top, to: UIDevice.type.rawValue <= 6 ? .top : .bottom, of: UIDevice.type.rawValue <= 6 ? contentView : typeLabel, withOffset: UIDevice.type.rawValue >= 6 ? 4 : 22)
+        friendsCollectionView.autoPinEdge(.bottom, to: .bottom, of: contentView, withOffset: UIDevice.type.rawValue >= 6 ? -8 : 0)
         friendsCollectionView.autoPinEdge(.leading, to: .leading, of: contentView, withOffset: 0)
         friendsCollectionView.autoPinEdge(.trailing, to: .trailing, of: contentView, withOffset: 0)
-        friendsCollectionView.autoPinEdge(.bottom, to: .bottom, of: contentView, withOffset: -8)
         friendsCollectionView.autoSetDimension(.height, toSize: UIScreen.main.bounds.width / 4)
         friendsCollectionView.contentInset.left = 12
     }

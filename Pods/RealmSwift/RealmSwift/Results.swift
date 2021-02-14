@@ -82,7 +82,7 @@ extension Decimal128: AddableType {}
  */
 @frozen public struct Results<Element: RealmCollectionValue>: Equatable {
 
-    internal let rlmResults: RLMResults<AnyObject>
+    public let rlmResults: RLMResults<AnyObject>
 
     /// A human-readable description of the objects represented by the results.
     public var description: String {
@@ -110,10 +110,10 @@ extension Decimal128: AddableType {}
 
     // MARK: Initializers
 
-    internal init(_ rlmResults: RLMResults<AnyObject>) {
+    public init(_ rlmResults: RLMResults<AnyObject>) {
         self.rlmResults = rlmResults
     }
-    internal init(objc rlmResults: RLMResults<AnyObject>) {
+    public init(objc rlmResults: RLMResults<AnyObject>) {
         self.rlmResults = rlmResults
     }
 

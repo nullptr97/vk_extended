@@ -13,10 +13,10 @@ public enum FriendAction: String {
     case notFriendWithNoRequest = "Подписаться"
     case requestSend = "Заявка отправлена"
     case incomingRequest = "Подписан на Вас"
-    case isFriend = "У Вас в друзьях"
+    case isFriend = "В друзьях"
     
-    func setImage(from action: Self) -> String {
-        switch action {
+    var image: String {
+        switch self {
         case .notFriend, .notFriendWithNoRequest:
             return "user_add_outline_28"
         case .requestSend:
@@ -28,8 +28,8 @@ public enum FriendAction: String {
         }
     }
     
-    func setStyle(from action: Self) -> VKButtonStyle {
-        switch action {
+    var style: VKButtonStyle {
+        switch self {
         case .isFriend, .requestSend:
             return .secondary
         default:
@@ -37,17 +37,8 @@ public enum FriendAction: String {
         }
     }
     
-    func setColors(from action: Self) -> (UIColor, UIColor) {
-        switch action {
-        case .isFriend, .requestSend:
-            return (.getAccentColor(fromType: .secondaryButton), .getAccentColor(fromType: .button))
-        default:
-            return (.getAccentColor(fromType: .button), .getThemeableColor(fromNormalColor: .white))
-        }
-    }
-    
-    func setTitle(from action: Self) -> String {
-        return action.rawValue
+    var title: String {
+        return rawValue
     }
 }
 

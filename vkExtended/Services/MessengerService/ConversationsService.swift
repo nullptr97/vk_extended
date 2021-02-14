@@ -14,18 +14,53 @@ class ConversationService: NSObject {
     static let instance: ConversationService = ConversationService()
     let userServiceInstance = UserService.instance
     let serviceQueue = DispatchQueue(label: "messageServiceQueue", qos: .default, attributes: .concurrent, autoreleaseFrequency: .inherit, target: nil)
-    
+    private var pool = Notice.ObserverPool()
+
     func startObserving() {
-        NotificationCenter.default.addObserver(self, selector: #selector(receiveMessages(_:)), name: .onMessagesReceived, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(editMessages(_:)), name: .onMessagesEdited, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(userTyping(_:)), name: .onTyping, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(setRead(_:)), name: .onOutMessagesRead, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(setRead(_:)), name: .onInMessagesRead, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(deleteMessage(_:)), name: .onSetMessageFlags, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(restoreMessage(_:)), name: .onResetMessageFlags, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(removeConversation(_:)), name: .onRemoveConversation, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(friendOnline(_:)), name: .onFriendOnline, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(friendOffline(_:)), name: .onFriendOffline, object: nil)
+        Notice.Center.default.observe(name: .messagesReceived) { [weak self] receivedMessage in
+            guard let self = self else { return }
+            self.receiveMessages(from: receivedMessage.updateEventJSON["updates"])
+        }.invalidated(by: pool)
+        
+        Notice.Center.default.observe(name: .editMessage) { [weak self] receivedMessage in
+            guard let self = self else { return }
+            self.editMessages(from: receivedMessage.updateEventJSON["updates"])
+        }.invalidated(by: pool)
+
+        Notice.Center.default.observe(name: .typing) { [weak self] receivedMessage in
+            guard let self = self else { return }
+            self.userTyping(from: receivedMessage.updateEventJSON["updates"])
+        }.invalidated(by: pool)
+        
+        Notice.Center.default.observe(name: .readMessage) { [weak self] receivedMessage in
+            guard let self = self else { return }
+            self.readMessage(from: receivedMessage.updateEventJSON["updates"])
+        }.invalidated(by: pool)
+        
+        Notice.Center.default.observe(name: .removeMessage) { [weak self] receivedMessage in
+            guard let self = self else { return }
+            self.removeMessage(from: receivedMessage.updateEventJSON["updates"])
+        }.invalidated(by: pool)
+        
+        Notice.Center.default.observe(name: .restoreMessage) { [weak self] receivedMessage in
+            guard let self = self else { return }
+            self.restoreMessage(from: receivedMessage.updateEventJSON["updates"])
+        }.invalidated(by: pool)
+        
+        Notice.Center.default.observe(name: .removeConversation) { [weak self] receivedMessage in
+            guard let self = self else { return }
+            self.removeConversation(from: receivedMessage.updateEventJSON["updates"])
+        }.invalidated(by: pool)
+        
+        Notice.Center.default.observe(name: .friendOnline) { [weak self] receivedMessage in
+            guard let self = self else { return }
+            self.friendOnline(from: receivedMessage.updateEventJSON["updates"])
+        }.invalidated(by: pool)
+        
+        Notice.Center.default.observe(name: .friendOffline) { [weak self] receivedMessage in
+            guard let self = self else { return }
+            self.friendOffline(from: receivedMessage.updateEventJSON["updates"])
+        }.invalidated(by: pool)
     }
     
     static func messageTime(time: Int) -> String {
@@ -69,24 +104,15 @@ class ConversationService: NSObject {
         serviceQueue.async {
             autoreleasepool {
                 let realm = try! Realm()
-                let ids = items.map { item in
-                    item["conversation"]["peer"]["id"].intValue
-                }
-                let missingConversations = realm.objects(Conversation.self).filter("NOT peerId IN %@", ids)
+                var ids: [Int] = items.map { $0["conversation"]["peer"]["id"].intValue }
+                let conversationsPeerIds: [Int] = realm.objects(Conversation.self).map { $0.peerId }
+                ids.append(contentsOf: conversationsPeerIds)
+                let mPeerIds = ids.withoutDuplicates()
+                 
+                let missingConversations = realm.objects(Conversation.self).filter("NOT peerId IN %@", mPeerIds)
                 try! realm.write {
                     realm.delete(missingConversations)
-                }
-            }
-        }
-    }
-    
-    func removeFakeSendingConversations() {
-        serviceQueue.async {
-            autoreleasepool {
-                let realm = try! Realm()
-                let missingConversations = realm.objects(Conversation.self).filter("isSending == %@", true)
-                try! realm.write {
-                    realm.delete(missingConversations)
+                    print("missed conversation from peedId \(missingConversations.map { $0.peerId }) removed")
                 }
             }
         }
@@ -150,35 +176,35 @@ class ConversationService: NSObject {
         return profileRepresenatable!
     }
     
-    @objc func receiveMessages(_ notification: Notification) {
-        guard let longPollUpdates = notification.userInfo?["updates"] as? JSON else { return }
-        let parameters: Alamofire.Parameters = [Parameter.messageIds.rawValue: longPollUpdates[1].intValue, Parameter.extended.rawValue: 1]
-        Request.jsonRequest(method: ApiMethod.method(from: .messages, with: ApiMethod.Messages.getById), postFields: parameters).done { (response) in
-            guard let response = response as? JSON, let item = response["items"].arrayValue.first else { return }
+    func receiveMessages(from longPollUpdates: JSON) {
+        try! Api.Messages.getMessageById(messageIds: longPollUpdates[1].intValue.string).done() { [weak self] item in
+            guard let self = self else { return }
             self.serviceQueue.async {
                 autoreleasepool {
                     let realm = try! Realm()
-                    realm.beginWrite()
-                    guard let conversation = realm.object(ofType: Conversation.self, forPrimaryKey: self.userServiceInstance.getNewPeerId(by: item["peer_id"].intValue)) else {
+                    guard let conversation = realm.objects(Conversation.self).filter({ $0.peerId == self.userServiceInstance.getNewPeerId(by: item["peer_id"].intValue) }).first else {
                         self.getNewConversation(by: self.userServiceInstance.getNewPeerId(by: item["peer_id"].intValue))
                         return
                     }
-                    conversation.isTyping = false
-                    conversation.lastMessageId = longPollUpdates[1].intValue
-                    if longPollUpdates[3].intValue != self.userServiceInstance.getNewPeerId(by: item["from_id"].intValue) {
-                        conversation.unreadCount = 0
-                        conversation.inRead = longPollUpdates[1].intValue
-                    } else {
-                        conversation.unreadCount += 1
-                        conversation.outRead = longPollUpdates[1].intValue
+                    try! realm.safeWrite {
+                        conversation.isTyping = false
+                        conversation.lastMessageId = longPollUpdates[1].intValue
+                        if longPollUpdates[3].intValue != self.userServiceInstance.getNewPeerId(by: item["from_id"].intValue) && item["out"].intValue == 1 {
+                            conversation.nullableCounter()
+                            conversation.inRead = longPollUpdates[1].intValue
+                        } else if longPollUpdates[3].intValue != self.userServiceInstance.getNewPeerId(by: item["from_id"].intValue) && item["out"].intValue == 0 {
+                            conversation.increaseCounter()
+                            conversation.outRead = longPollUpdates[1].intValue
+                        } else if longPollUpdates[3].intValue == self.userServiceInstance.getNewPeerId(by: item["from_id"].intValue) {
+                            conversation.nullableCounter()
+                            conversation.inRead = longPollUpdates[1].intValue
+                            conversation.outRead = longPollUpdates[1].intValue
+                        }
+                        conversation.lastMessage = LastMessage(lastMessage: item)
                     }
-                    conversation.lastMessage = LastMessage(lastMessage: item)
-                    print(conversation.lastMessageId, conversation.inRead, conversation.outRead ,conversation.unreadStatus)
-                    
-                    try! realm.commitWrite()
                 }
             }
-        }.catch { (error) in
+        }.catch { error in
             print(error.localizedDescription)
         }
     }
@@ -193,43 +219,33 @@ class ConversationService: NSObject {
         }
     }
     
-    @objc func editMessages(_ notification: Notification) {
+    func editMessages(from longPollUpdates: JSON) {
         serviceQueue.async {
             autoreleasepool {
                 let realm = try! Realm()
-                guard let longPollUpdates = notification.userInfo?["updates"] as? JSON else { return }
-                guard let conversation = realm.object(ofType: Conversation.self, forPrimaryKey: self.userServiceInstance.getNewPeerId(by: longPollUpdates[2].intValue)) else { return }
-                // guard let message = realm.objects(Message.self).filter("id == %@", longPollUpdates[0].intValue).first else { return }
+                guard let conversation = realm.objects(Conversation.self).filter({ $0.peerId == self.userServiceInstance.getNewPeerId(by: longPollUpdates[3].intValue) }).first else { return }
                 try! realm.safeWrite {
-                    conversation.lastMessage?.text = longPollUpdates[5].stringValue
-                    // message.text = longPollUpdates[5].stringValue
+                    conversation.lastMessage?.text = longPollUpdates[6].stringValue
                 }
             }
         }
     }
     
-    @objc func setRead(_ notification: Notification) {
-        if let userInfo = notification.userInfo {
-            serviceQueue.async {
-                autoreleasepool {
-                    if let updates = userInfo["in_message"] as? JSON {
-                        self.setReadStatus(userId: updates[1].intValue, messageId: updates[2].intValue)
-                    } else if let updates = userInfo["out_message"] as? JSON {
-                        self.setReadStatus(userId: updates[1].intValue, messageId: updates[2].intValue)
-                    }
-                }
+    func readMessage(from longPollUpdates: JSON) {
+        serviceQueue.async {
+            autoreleasepool {
+                self.setReadStatus(userId: longPollUpdates[1].intValue, messageId: longPollUpdates[2].intValue)
             }
         }
     }
     
-    @objc func userTyping(_ notification: Notification) {
-        guard let longPollUpdates = notification.userInfo?["updates"] as? JSON else { return }
+    func userTyping(from longPollUpdates: JSON) {
         serviceQueue.async {
             autoreleasepool {
                 let realm = try! Realm()
                 realm.beginWrite()
-                guard let conversationObject = realm.object(ofType: Conversation.self, forPrimaryKey: longPollUpdates[1].intValue) else { return }
-                conversationObject.isTyping = true
+                guard let conversation = realm.objects(Conversation.self).filter({ $0.peerId == self.userServiceInstance.getNewPeerId(by: longPollUpdates[1].intValue) }).first else { return }
+                conversation.isTyping = true
                 try! realm.commitWrite()
             }
         }
@@ -237,71 +253,54 @@ class ConversationService: NSObject {
             autoreleasepool {
                 let realm = try! Realm()
                 realm.beginWrite()
-                guard let conversationObject = realm.object(ofType: Conversation.self, forPrimaryKey: longPollUpdates[1].intValue) else { return }
-                conversationObject.isTyping = false
+                guard let conversation = realm.objects(Conversation.self).filter({ $0.peerId == self.userServiceInstance.getNewPeerId(by: longPollUpdates[1].intValue) }).first else { return }
+                conversation.isTyping = false
                 try! realm.commitWrite()
             }
         })
     }
     
-     @objc func deleteMessage(_ notification: Notification) {
-        if let userInfo = notification.userInfo {
-            if let updates = userInfo["set_flags"] as? JSON {
-                serviceQueue.async {
-                    autoreleasepool {
-                        for flag in Constants.removeMessageFlags {
-                            if flag == updates[2].intValue {
-                                let realm = try! Realm()
-                                guard let conversationObject = realm.objects(Conversation.self).filter( { $0.peerId == updates[3].intValue }).first else { return }
-                                //guard let messageObject = realm.objects(Message.self).filter("id == %@", updates[0].intValue).first else { return }
-                                
-                                try! realm.write {
-                                    conversationObject.isRemoved = true
-                                    conversationObject.removingFlag = updates[2].intValue
-                                    //guard !messageObject.isInvalidated else { return }
-                                    //messageObject.isRemoved = true
-                                    //messageObject.removingFlag = updates[1].intValue
-                                }
-                                realm.refresh()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-     }
-    
-    @objc func restoreMessage(_ notification: Notification) {
-        if let userInfo = notification.userInfo {
-            if let updates = userInfo["reset_flags"] as? JSON {
-                serviceQueue.async {
-                    autoreleasepool {
+     func removeMessage(from longPollUpdates: JSON) {
+        serviceQueue.async {
+            autoreleasepool {
+                for flag in Constants.removeMessageFlags {
+                    if flag == longPollUpdates[2].intValue {
                         let realm = try! Realm()
-                        guard let conversationObject = realm.objects(Conversation.self).filter( { $0.peerId == updates[3].intValue }).first else { return }
-                        //guard let messageObject = realm.objects(Message.self).filter("id == %@", updates[0].intValue).first else { return }
+                        guard let conversation = realm.objects(Conversation.self).filter({ $0.peerId == self.userServiceInstance.getNewPeerId(by: longPollUpdates[3].intValue) }).first else { return }
                         
                         try! realm.write {
-                            conversationObject.isRemoved = false
-                            conversationObject.removingFlag = 0
-                            //guard !messageObject.isInvalidated else { return }
-                            //messageObject.isRemoved = true
-                            //messageObject.removingFlag = updates[1].intValue
+                            conversation.isRemoved = true
+                            conversation.removingFlag = longPollUpdates[2].intValue
                         }
                         realm.refresh()
                     }
                 }
             }
         }
-    }
+     }
     
-    @objc func removeConversation(_ notification: Notification) {
+    func restoreMessage(from longPollUpdates: JSON) {
         serviceQueue.async {
             autoreleasepool {
                 let realm = try! Realm()
-                guard let removeJSON = notification.userInfo?["remove_conversation"] as? JSON else { return }
-                guard let conversationObject = realm.object(ofType: Conversation.self, forPrimaryKey: removeJSON[1].intValue) else { return }
+                guard let conversation = realm.objects(Conversation.self).filter({ $0.peerId == self.userServiceInstance.getNewPeerId(by: longPollUpdates[3].intValue) }).first else { return }
+                
                 try! realm.write {
-                    realm.delete(conversationObject)
+                    conversation.isRemoved = false
+                    conversation.removingFlag = 0
+                }
+                realm.refresh()
+            }
+        }
+    }
+    
+    func removeConversation(from longPollUpdates: JSON) {
+        serviceQueue.async {
+            autoreleasepool {
+                let realm = try! Realm()
+                guard let conversation = realm.objects(Conversation.self).filter({ $0.peerId == self.userServiceInstance.getNewPeerId(by: longPollUpdates[1].intValue) }).first else { return }
+                try! realm.safeWrite {
+                    realm.delete(conversation)
                 }
                 realm.refresh()
             }
@@ -309,13 +308,13 @@ class ConversationService: NSObject {
     }
     
     
-    @objc func friendOnline(_ notification: Notification) {
-        guard let peerId = (notification.userInfo?["updates"] as? JSON)?[1].intValue else { return }
-        guard let isMobile = (notification.userInfo?["updates"] as? JSON)?[2].intValue == 7 ? false : true else { return }
+    func friendOnline(from longPollUpdates: JSON) {
+        let peerId = longPollUpdates[1].intValue
+        guard let isMobile = longPollUpdates[2].intValue == 7 ? false : true else { return }
         serviceQueue.asyncAfter(deadline: .now() + 1, execute: {
             autoreleasepool {
                 let realm = try! Realm()
-                guard let conversation = realm.object(ofType: Conversation.self, forPrimaryKey: self.userServiceInstance.getNewPeerId(by: peerId * -1)) else { return }
+                guard let conversation = realm.objects(Conversation.self).filter({ $0.peerId == self.userServiceInstance.getNewPeerId(by: peerId * -1) }).first else { return }
                 try! realm.safeWrite {
                     conversation.interlocutor?.isOnline = true
                     conversation.interlocutor?.isMobile = isMobile
@@ -324,12 +323,12 @@ class ConversationService: NSObject {
         })
     }
     
-    @objc func friendOffline(_ notification: Notification) {
-        guard let peerId = (notification.userInfo?["updates"] as? JSON)?[1].intValue else { return }
+    func friendOffline(from longPollUpdates: JSON) {
+        let peerId = longPollUpdates[1].intValue
         serviceQueue.asyncAfter(deadline: .now() + 1, execute: { [self] in
             autoreleasepool {
                 let realm = try! Realm()
-                guard let conversation = realm.object(ofType: Conversation.self, forPrimaryKey: self.userServiceInstance.getNewPeerId(by: peerId * -1)) else { return }
+                guard let conversation = realm.objects(Conversation.self).filter({ $0.peerId == self.userServiceInstance.getNewPeerId(by: peerId * -1) }).first else { return }
                 try! realm.safeWrite {
                     conversation.interlocutor?.isOnline = false
                     conversation.interlocutor?.isMobile = false

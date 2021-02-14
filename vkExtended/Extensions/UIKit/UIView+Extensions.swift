@@ -31,13 +31,13 @@ extension UIButton {
         
         switch size {
         case .small:
-            contentEdgeInsets = .custom(5.5, 10, 6.5, 10)
+            contentEdgeInsets = .custom(5.5, 5, 6.5, 5)
             titleLabel?.font = GoogleSansFont.medium(with: 14)
         case .medium:
-            contentEdgeInsets = .custom(7.5, 16, 8.5, 16)
+            contentEdgeInsets = .custom(7.5, 8, 8.5, 8)
             titleLabel?.font = GoogleSansFont.medium(with: 15)
         case .large:
-            contentEdgeInsets = .custom(10.5, 20, 11.5, 20)
+            contentEdgeInsets = .custom(10.5, 12, 11.5, 12)
             titleLabel?.font = GoogleSansFont.medium(with: 17)
         }
 
@@ -64,7 +64,7 @@ extension UIButton {
 
 extension UIView {
     func prepareBackground() {
-        self.backgroundColor = .getThemeableColor(fromNormalColor: .white)
+        backgroundColor = .getThemeableColor(fromNormalColor: .white)
     }
     // Добавление блюра к View
     func setBlurBackground(style: UIBlurEffect.Style, frame: CGRect = .zero) {
@@ -72,22 +72,22 @@ extension UIView {
         let blurView = UIVisualEffectView(effect: blurEffect)
         blurView.frame = frame == .zero ? bounds : frame
         blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        self.insertSubview(blurView, at: 0)
+        insertSubview(blurView, at: 0)
     }
 
     // Добавление блюра к View
     func blurry() {
         let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.light)
         let blurView = UIVisualEffectView(effect: blurEffect)
-        blurView.frame = self.bounds
+        blurView.frame = bounds
         blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        self.addSubview(blurView)
+        addSubview(blurView)
     }
     
     // Задать скругления
     func setCorners(radius: CGFloat) {
-        self.layer.masksToBounds = true
-        self.layer.cornerRadius = radius
+        layer.masksToBounds = true
+        layer.cornerRadius = radius
     }
     
     // Задать скругления
@@ -107,63 +107,79 @@ extension UIView {
     
     // Сделать круглым
     func setRounded(with border: CGFloat = 0) {
-        self.layer.masksToBounds = true
-        self.layer.cornerRadius = self.bounds.size.height / 2
+        layer.masksToBounds = true
+        layer.cornerRadius = bounds.size.height / 2
         if border > 0 {
-            self.layer.shouldRasterize = false
-            self.layer.rasterizationScale = 2
-            self.layer.borderWidth = border
-//            self.layer.borderColor = UIColor.adaptableDivider.cgColor
+            layer.shouldRasterize = false
+            layer.rasterizationScale = 2
+            layer.borderWidth = border
+//            layer.borderColor = UIColor.adaptableDivider.cgColor
         }
     }
     
     // Сделать обводку
     func setBorder(_ radius: CGFloat, width: CGFloat, color: UIColor = UIColor.clear) {
-        self.layer.masksToBounds = true
-        self.layer.cornerRadius = CGFloat(radius)
-        self.layer.shouldRasterize = false
-        self.layer.rasterizationScale = 2
-        self.layer.borderWidth = width
-        self.layer.borderColor = color.cgColor
+        layer.masksToBounds = true
+        layer.cornerRadius = CGFloat(radius)
+        layer.shouldRasterize = false
+        layer.rasterizationScale = 2
+        layer.borderWidth = width
+        layer.borderColor = color.cgColor
     }
     
     func drawBorder(_ radius: CGFloat, width: CGFloat, color: UIColor = UIColor.clear, isOnlyTopCorners: Bool = false) {
-        self.layer.masksToBounds = true
-        self.layer.cornerRadius = CGFloat(radius)
-        if isOnlyTopCorners {
-            self.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        layer.masksToBounds = true
+        layer.cornerRadius = CGFloat(radius)
+        layer.maskedCorners = isOnlyTopCorners ?
+            [.layerMinXMinYCorner, .layerMaxXMinYCorner] :
+            [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        layer.borderWidth = width
+        layer.shouldRasterize = false
+        layer.borderColor = color.cgColor
+        clipsToBounds = true
+    }
+    
+    func addWrapper(from width: CGFloat = 2, colors: Set<UIColor> = [.getAccentColor(fromType: .common), .getAccentColor(fromType: .common)]) {
+        fadeTransition(0.3)
+        let externalBorderLayer = CAGradientLayer()
+        externalBorderLayer.frame = bounds
+        externalBorderLayer.cornerRadius = externalBorderLayer.frame.height / 2
+        externalBorderLayer.startPoint = CGPoint(x: 0.0, y: 0.5)
+        externalBorderLayer.endPoint = CGPoint(x: 1.0, y: 0.5)
+        externalBorderLayer.colors = colors.map { $0.cgColor }
+        
+        let shape = CAShapeLayer()
+        shape.lineWidth = 8
+        shape.path = UIBezierPath(roundedRect: self.bounds, byRoundingCorners: [.topLeft, .bottomLeft, .topRight, .bottomRight], cornerRadii: CGSize(width: frame.size.height / 2, height: frame.size.height / 2)).cgPath
+        shape.strokeColor = UIColor.getAccentColor(fromType: .common).cgColor
+        shape.fillColor = UIColor.clear.cgColor
+        externalBorderLayer.mask = shape
+        
+        let internalBorderLayer = CALayer()
+        internalBorderLayer.frame = CGRect(x: width, y: width, width: frame.size.width - (width * 2), height: frame.size.height - (width * 2))
+        internalBorderLayer.borderColor = UIColor.getThemeableColor(fromNormalColor: .white).cgColor
+        internalBorderLayer.borderWidth = width
+        internalBorderLayer.cornerRadius = internalBorderLayer.frame.height / 2
+
+        layer.addSublayer(externalBorderLayer)
+        layer.addSublayer(internalBorderLayer)
+    }
+    
+    func removeWrapper() {
+        guard let layers = layer.sublayers, !layers.isEmpty else { return }
+        fadeTransition(0.3)
+        _ = layers.compactMap { layer in
+            layer.removeFromSuperlayer()
         }
-        self.layer.shouldRasterize = false
-        self.layer.rasterizationScale = 2
-        self.layer.borderWidth = width
-        self.layer.borderColor = color.cgColor
-        self.clipsToBounds = true
+    }
+    
+    func add<T: UIView>(to view: T) {
+        view.addSubview(self)
     }
     
     var roundedSize: CGFloat {
-        let round = self.bounds.size.height / 2
+        let round = bounds.size.height / 2
         return round
-    }
-    
-    func hideViewWithAnimation() {
-        UIView.transition(with: self, duration: 0.3, options: .transitionCrossDissolve, animations: {
-            self.alpha = 0
-        }, completion: { _ in
-            self.isHidden = true
-        })
-    }
-    
-    func showViewWithAnimation() {
-        self.isHidden = false
-        UIView.transition(with: self, duration: 0.3, options: .transitionCrossDissolve, animations: {
-            self.alpha = 1
-        })
-    }
-    
-    func changeColorViewWithAnimation(color: UIColor) {
-        UIView.transition(with: self, duration: 0.3, options: .transitionCrossDissolve, animations: {
-            self.backgroundColor = color
-        })
     }
     
     func dropShadow(color: UIColor, opacity: Float = 0.5, offSet: CGSize, radius: CGFloat = 1, cornerRadius: CGFloat, scale: Bool = true) {
@@ -172,7 +188,7 @@ extension UIView {
         layer.shadowOpacity = opacity
         layer.shadowOffset = offSet
         layer.shadowRadius = radius
-        layer.shadowPath = UIBezierPath(roundedRect: self.bounds, cornerRadius: cornerRadius).cgPath
+        layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).cgPath
         layer.shouldRasterize = true
         layer.rasterizationScale = scale ? UIScreen.main.scale : 1
     }

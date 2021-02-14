@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17700" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
     <device id="retina6_1" orientation="portrait" appearance="dark"/>
     <dependencies>
         <deployment identifier="iOS"/>
@@ -8,6 +8,11 @@
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <array key="SF-Pro-Rounded-Bold.otf">
+            <string>SFProRounded-Bold</string>
+        </array>
+    </customFonts>
     <scenes>
         <!--View Controller-->
         <scene sceneID="EHf-IW-A2E">
@@ -17,19 +22,39 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ext_logo" translatesAutoresizingMaskIntoConstraints="NO" id="gK4-R1-BPD">
-                                <rect key="frame" x="79" y="320" width="256" height="256"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yJe-zN-3Iq">
+                                <rect key="frame" x="109" y="420" width="196" height="56"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="extended2.png" translatesAutoresizingMaskIntoConstraints="NO" id="AAt-5d-sYC">
+                                        <rect key="frame" x="0.0" y="0.0" width="56" height="56"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="56" id="Fab-Nx-7IO"/>
+                                            <constraint firstAttribute="width" constant="56" id="Q8P-2h-qat"/>
+                                        </constraints>
+                                    </imageView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Extended" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8Sx-GT-oab">
+                                        <rect key="frame" x="68" y="10.5" width="128" height="35"/>
+                                        <fontDescription key="fontDescription" name="SFProRounded-Bold" family="SF Pro Rounded" pointSize="30"/>
+                                        <color key="textColor" name="Adaptable Text Color"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="256" id="Qzw-pt-ADK"/>
-                                    <constraint firstAttribute="height" constant="256" id="zlH-pJ-QXf"/>
+                                    <constraint firstItem="AAt-5d-sYC" firstAttribute="leading" secondItem="yJe-zN-3Iq" secondAttribute="leading" id="GGo-jQ-k5l"/>
+                                    <constraint firstItem="8Sx-GT-oab" firstAttribute="centerY" secondItem="AAt-5d-sYC" secondAttribute="centerY" id="I8P-OD-hL9"/>
+                                    <constraint firstAttribute="trailing" secondItem="8Sx-GT-oab" secondAttribute="trailing" id="a6W-a9-j3M"/>
+                                    <constraint firstItem="AAt-5d-sYC" firstAttribute="top" secondItem="yJe-zN-3Iq" secondAttribute="top" id="fjG-Rb-I30"/>
+                                    <constraint firstItem="8Sx-GT-oab" firstAttribute="leading" secondItem="AAt-5d-sYC" secondAttribute="trailing" constant="12" id="m7k-eX-nwf"/>
+                                    <constraint firstAttribute="bottom" secondItem="AAt-5d-sYC" secondAttribute="bottom" id="wYq-Ac-7tk"/>
                                 </constraints>
-                            </imageView>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="Adaptable White"/>
                         <constraints>
-                            <constraint firstItem="gK4-R1-BPD" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="hfP-33-aeY"/>
-                            <constraint firstItem="gK4-R1-BPD" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="tvZ-kf-kx9"/>
+                            <constraint firstItem="yJe-zN-3Iq" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="1Oh-P1-0aD"/>
+                            <constraint firstItem="yJe-zN-3Iq" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="Jud-zo-uYA"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -39,9 +64,12 @@
         </scene>
     </scenes>
     <resources>
-        <image name="ext_logo" width="711" height="178"/>
+        <image name="extended2.png" width="341" height="341"/>
+        <namedColor name="Adaptable Text Color">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </namedColor>
         <namedColor name="Adaptable White">
-            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.097999997437000275" green="0.097999997437000275" blue="0.10199999809265137" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>

@@ -7,7 +7,6 @@
 
 import UIKit
 import Material
-import SwiftyXML
 import Alamofire
 
 class FullInfoViewController: UIViewController {
@@ -28,9 +27,6 @@ class FullInfoViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .getThemeableColor(fromNormalColor: .white)
-        
-//        prepareToolbar()
-//        setupToolbar(title: "Подробная информация", subtitle: "")
         
         view.addSubview(statusImageView)
         statusImageView.autoPinEdge(.top, to: .top, of: view, withOffset: 24)

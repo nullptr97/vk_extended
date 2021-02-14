@@ -106,9 +106,6 @@ class Conversation: Object {
     // Stored removing messages
     @objc dynamic var isRemoved: Bool = false
     @objc dynamic var removingFlag: Int = 0
-    // Aggressive Typing
-    @objc dynamic var isAggressiveTypingActive: Bool = false
-    @objc dynamic var aggressiveTypingType: String = "none"
     // Private conversation
     @objc dynamic var isPrivateConversation: Bool = false
     
@@ -125,7 +122,6 @@ class Conversation: Object {
         self.canWriteReason = conversation["can_write"]["reason"].intValue
         self.isMarkedUnread = conversation["is_marked_unread"].boolValue
         self.isImportantDialog = UserDefaults.standard.bool(forKey: "importantStateFrom\(self.peerId)")
-        self.isAggressiveTypingActive = UserDefaults.standard.bool(forKey: "permanent_typing_from\(self.peerId)")
         self.isPrivateConversation = UserDefaults.standard.bool(forKey: "privateConversationFrom\(self.peerId)")
         self.membersCount = conversation["chat_settings"]["members_count"].intValue
         self.title = conversation["chat_settings"]["title"].stringValue
@@ -133,7 +129,6 @@ class Conversation: Object {
         self.state = conversation["chat_settings"]["state"].stringValue
         self.activeIds.append(contentsOf: conversation["chat_settings"]["active_ids"].arrayValue.map { $0.intValue })
         self.isGroupChannel = conversation["chat_settings"]["is_group_channel"].boolValue
-        self.aggressiveTypingType = self.isAggressiveTypingActive ? UserDefaults.standard.string(forKey: "permanent_typing_type_from\(self.peerId)") ?? "none" : "none"
         self.disabledUntil = conversation["push_settings"].dictionary?["disabled_until"]?.intValue ?? 0
         self.disabledForever = conversation["push_settings"].dictionary?["disabled_forever"]?.boolValue ?? false
         self.noSound = conversation["push_settings"].dictionary?["no_sound"]?.boolValue ?? false
@@ -151,6 +146,19 @@ class Conversation: Object {
             self.interlocutor = ConversationInterlocutor(conversation: conversation, chatJSON: representable)
         }
     }
+    
+    var conversationType: ConversationPeerType {
+        switch type {
+        case "user":
+            return .user
+        case "group":
+            return .group
+        case "chat":
+            return .chat
+        default:
+            fatalError("Unknown conversation peer type")
+        }
+    }
 
     var isOutgoing: Bool {
         return lastMessage?.out == 1 ? true : false
@@ -165,13 +173,21 @@ class Conversation: Object {
             return .unreadIn
         } else if outRead < lastMessageId {
             return .unreadOut
-        }else if (inRead == lastMessageId) && (outRead == lastMessageId) {
+        } else if (inRead == lastMessageId) && (outRead == lastMessageId) {
             return .read
         } else if isMarkedUnread {
             return .markedUnread
         } else {
             return .read
         }
+    }
+    
+    func increaseCounter() {
+        unreadCount += 1
+    }
+    
+    func nullableCounter() {
+        unreadCount = 0
     }
     
     class func getSenderShortName(from name: String) -> String {

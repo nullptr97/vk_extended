@@ -13,6 +13,7 @@ public indirect enum VKError: Error {
     case unknown(Error)
     case noAccessToken(String)
     case emptyJSON(String)
+    case fullStack
     
     // MARK: - Errors from VK API
     case api(ApiError)

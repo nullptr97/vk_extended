@@ -34,12 +34,13 @@ class CaptchaViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        navigationController?.setNavigationBarHidden(false, animated: false)
+
         reauthButton.setCorners(radius: 12)
-        reauthButton.titleLabel?.font = GoogleSansFont.bold(with: 16)
+        reauthButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .bold)
         reauthButton.backgroundColor = .getAccentColor(fromType: .common)
         
-        captchaEnterTextField.font = GoogleSansFont.regular(with: 15)
+        captchaEnterTextField.font = UIFont.systemFont(ofSize: 15, weight: .regular)
         captchaEnterTextField.keyboardType = .default
         
         capthcaImageView.kf.setImage(with: URL(string: captchaImgUrl))

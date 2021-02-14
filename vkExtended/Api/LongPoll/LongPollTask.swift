@@ -25,28 +25,21 @@ final class LongPollTaskImpl: Operation, LongPollTask {
     
     override func main() {
         update(ts: startTs)
-//        semaphore.wait()
+        semaphore.wait()
     }
     
-    private func update(ts: String, hasErrored: Bool = false) {
+    private func update(ts: String) {
         guard !isCancelled else { return }
-        if hasErrored && UserDefaults.standard.bool(forKey: "isReachable") {
-            NotificationCenter.default.post(name: NSNotification.Name("onConnectingLongPoll"), object: nil)
-        }
-        Alamofire.request("https://\(server)?act=a_check&key=\(lpKey)&ts=\(ts)&wait=25&mode=234").downloadProgress(closure: { (progress) in
-            if progress.isFinished && hasErrored {
-                NotificationCenter.default.post(name: NSNotification.Name("onRefreshingLongPoll"), object: nil)
-            }
-        }).responseJSON { (response) in
-            switch response.result {
+        
+        Alamofire.request("https://\(server)?act=a_check&key=\(lpKey)&ts=\(ts)&wait=25&mode=234").responseData(queue: DispatchQueue.global(qos: .userInteractive)) { [weak self] dataResponse in
+            guard let self = self else { return }
+            switch dataResponse.result {
             case .success(let data):
-                if hasErrored {
-                    NotificationCenter.default.post(name: NSNotification.Name("onConnectedLongPoll"), object: nil)
-                }
-                
                 let json = JSON(data)
                 if let errorCode = json["failed"].int {
                     self.handleError(code: errorCode, response: json)
+                    
+                    try! self.reloadMessages()
                 } else {
                     let newTs = json["ts"].stringValue
                     let updates: [Any] = json["updates"].array ?? []
@@ -64,13 +57,16 @@ final class LongPollTaskImpl: Operation, LongPollTask {
                 
                 self.repeatQueue.asyncAfter(deadline: .now() + self.delayOnError, execute: {
                     guard !self.isCancelled else { return }
-                    self.update(ts: ts, hasErrored: true)
+                    self.update(ts: ts)
+                    
+                    try! self.reloadMessages()
                 })
             }
         }
     }
     
     func handleError(code: Int, response: JSON) {
+        print("longpoll error: \(code)")
         switch code {
         case 1:
             guard let newTs = response["ts"].string else {
@@ -82,7 +78,7 @@ final class LongPollTaskImpl: Operation, LongPollTask {
             onError(.historyMayBeLost)
             
             repeatQueue.async { [weak self] in
-                self?.update(ts: newTs, hasErrored: true)
+                self?.update(ts: newTs)
             }
         case 2, 3:
             onError(.connectionInfoLost)
@@ -90,6 +86,14 @@ final class LongPollTaskImpl: Operation, LongPollTask {
         default:
             onError(.unknown)
             semaphore.signal()
+        }
+    }
+    
+    func reloadMessages() throws {
+        try Api.Messages.getConversations().done { conversations in
+            ConversationService.instance.updateDb(by: conversations)
+        }.catch { error in
+            print("reload messages error with \(error.localizedDescription)")
         }
     }
     

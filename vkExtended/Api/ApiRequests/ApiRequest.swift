@@ -10,6 +10,7 @@ import SwiftyJSON
 import Alamofire
 import PromiseKit
 import AwesomeCache
+import RealmSwift
 
 let apiUrl = "https://api.vk.com/method/"
 let userAgent = ["User-Agent" : Constants.userAgent]
@@ -355,7 +356,29 @@ struct Api {
                     throw VKError.api(apiError)
                 } else {
                     print("messages.getConversations 👍🏻")
+                    ConversationService.instance.removeMissingConversations(by: response.data.json()["items"].arrayValue)
+                    UserDefaults.standard.set(response.data.json()["count"].intValue, forKey: "conversations_count")
                     return response.data.json()
+                }
+            }
+        }
+        
+        static func getMessageById(messageIds: String, extended: Int = 1) throws -> Promise<JSON> {
+            guard let token = VK.sessions.default.accessToken?.token else { throw VKError.noAccessToken("Токен отсутствует, повторите авторизацию") }
+            var parameters: Alamofire.Parameters = [
+                Parameter.messageIds.rawValue: messageIds,
+                Parameter.extended.rawValue: extended,
+            ]
+            
+            return firstly {
+                Alamofire.request(apiUrl + "messages.getById", method: .post, parameters: Api.getParameters(method: "messages.getById", &parameters, token), encoding: URLEncoding.default, headers: userAgent).responseData()
+            }.compactMap { response in
+                if let apiError = ApiError(response.data.json()) {
+                    print("messages.getById 👎🏻")
+                    throw VKError.api(apiError)
+                } else {
+                    print("messages.getById 👍🏻")
+                    return response.data.json()["items"].arrayValue.first
                 }
             }
         }

@@ -41,7 +41,7 @@ class NewsHeaderCollectionViewCell: CollectionViewCell, ListBindable {
         ownerNameLabel.text = viewModel.name
         timePostLabel.text = viewModel.date
         
-        ownerNameLabel.sizeToFit()
+        //ownerNameLabel.sizeToFit()
         timePostLabel.sizeToFit()
     }
 }

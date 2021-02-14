@@ -242,15 +242,15 @@ extension ProfileViewController {
         
         switch friendAction {
         case .requestSend:
-            actions.append(MDCActionSheetAction(title: "Отписаться", image: UIImage(named: friendAction.setImage(from: friendAction)), handler: { action in
+            actions.append(MDCActionSheetAction(title: "Отписаться", image: UIImage(named: friendAction.image), handler: { action in
                 
             }))
         case .incomingRequest:
-            actions.append(MDCActionSheetAction(title: "Добавить в друзья", image: UIImage(named: friendAction.setImage(from: friendAction)), handler: { action in
+            actions.append(MDCActionSheetAction(title: "Добавить в друзья", image: UIImage(named: friendAction.image), handler: { action in
                 
             }))
         case .isFriend:
-            actions.append(MDCActionSheetAction(title: "Удалить из друзей", image: UIImage(named: friendAction.setImage(from: friendAction)), handler: { action in
+            actions.append(MDCActionSheetAction(title: "Удалить из друзей", image: UIImage(named: friendAction.image), handler: { action in
                 
             }))
         default: break

@@ -21,6 +21,7 @@ extension Notification.Name {
     static let onResetMessageFlags = Notification.Name(rawValue: "VK.Messages.ResetFlag")
     static let onInMessagesRead = Notification.Name(rawValue: "VK.Messages.InMessagesRead")
     static let onOutMessagesRead = Notification.Name(rawValue: "VK.Messages.OutMessagesRead")
+    static let onMessagesRead = Notification.Name(rawValue: "VK.Messages.MessageRead")
     static let onFriendOnline = Notification.Name(rawValue: "VK.Friends.Online")
     static let onFriendOffline = Notification.Name(rawValue: "VK.Friends.Offline")
     static let onTyping = Notification.Name(rawValue: "VK.Messages.Typing")

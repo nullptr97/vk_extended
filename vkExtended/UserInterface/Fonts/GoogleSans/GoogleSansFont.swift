@@ -16,6 +16,7 @@ enum FontsNames: String {
     case heavy = "SFProRounded-Heavy"
     case regular = "SFProRounded-Regular"
     case thin = "SFProRounded-Thin"
+    case italic = "SFProRounded-Italic"
 }
 
 public struct GoogleSansFont: FontType {
@@ -57,6 +58,11 @@ public struct GoogleSansFont: FontType {
     /// Bold font.
     public static var bold: UIFont {
         return bold(with: Font.pointSize)
+    }
+    
+    /// Italic font.
+    public static var italic: UIFont {
+        return italic(with: Font.pointSize)
     }
     
     /**
@@ -149,5 +155,18 @@ public struct GoogleSansFont: FontType {
         }
         
         return Font.boldSystemFont(ofSize: size)
+    }
+    
+    /**
+     Italic with size font.
+     - Parameter with size: A CGFLoat for the font size.
+     - Returns: A UIFont.
+     */
+    public static func italic(with size: CGFloat) -> UIFont {
+        if let f = UIFont(name: FontsNames.italic.rawValue, size: size) {
+            return f
+        }
+        
+        return Font.italicSystemFont(ofSize: size)
     }
 }

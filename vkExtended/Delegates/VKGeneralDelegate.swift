@@ -10,7 +10,6 @@ import SwiftyJSON
 import Alamofire
 
 class VKGeneralDelegate: NSObject {
-    static let instance: VKGeneralDelegate = VKGeneralDelegate()
     private let center = NotificationCenter.default
     private let conversationServiceInstance = ConversationService.instance
 
@@ -23,8 +22,7 @@ class VKGeneralDelegate: NSObject {
     }
     
     func startLongPoll() {
-        VK.sessions.default.longPoll.start(version: LongPollVersion.third, onReceiveEvents: { [weak self] events in
-            guard let self = self else { return }
+        VK.sessions.default.longPoll.start(version: LongPollVersion.third, onReceiveEvents: { events in
             _ = events.map { event in
                 switch event {
                 case .forcedStop:
@@ -34,36 +32,32 @@ class VKGeneralDelegate: NSObject {
                 case .type1(data: let data):
                     print("Event 1", data)
                 case .type2(data: let data):
-                    let userInfo: [AnyHashable: JSON] = ["set_flags": data]
-                    self.center.post(name: .onSetMessageFlags, object: nil, userInfo: userInfo)
+                    let event = NoticeLongPollEvent(updateEventJSON: ["updates": data])
+                    Notice.Center.default.post(name: .removeMessage, with: event)
                     print("Event 2", data)
                 case .type3(data: let data):
-                    let userInfo: [AnyHashable: JSON] = ["reset_flags": data]
-                    self.center.post(name: .onResetMessageFlags, object: nil, userInfo: userInfo)
+                    let event = NoticeLongPollEvent(updateEventJSON: ["updates": data])
+                    Notice.Center.default.post(name: .restoreMessage, with: event)
                     print("Event 3", data)
                 case .type4(data: let data):
-                    let userInfo: [AnyHashable: JSON] = ["updates": data]
-                    self.center.post(name: .onMessagesReceived, object: nil, userInfo: userInfo)
+                    let event = NoticeLongPollEvent(updateEventJSON: ["updates": data])
+                    Notice.Center.default.post(name: .messagesReceived, with: event)
                     print("Event 4", data)
                 case .type5(data: let data):
-                    let userInfo: [AnyHashable: JSON] = ["updates": data]
-                    self.center.post(name: .onMessagesEdited, object: nil, userInfo: userInfo)
+                    let event = NoticeLongPollEvent(updateEventJSON: ["updates": data])
+                    Notice.Center.default.post(name: .editMessage, with: event)
                     print("Event 5", data)
-                case .type6(data: let data):
-                    let userInfo: [AnyHashable: JSON] = ["in_message": data]
-                    self.center.post(name: .onInMessagesRead, object: nil, userInfo: userInfo)
-                    print("Event 6", data)
-                case .type7(data: let data):
-                    let userInfo: [AnyHashable: JSON] = ["out_message": data]
-                    self.center.post(name: .onOutMessagesRead, object: nil, userInfo: userInfo)
-                    print("Event 7", data)
+                case .type6(data: let data), .type7(data: let data):
+                    let event = NoticeLongPollEvent(updateEventJSON: ["updates": data])
+                    Notice.Center.default.post(name: .readMessage, with: event)
+                    print("Event 6/7", data)
                 case .type8(data: let data):
-                    let userInfo: [AnyHashable: JSON] = ["updates": data]
-                    self.center.post(name: .onFriendOnline, object: nil, userInfo: userInfo)
+                    let event = NoticeLongPollEvent(updateEventJSON: ["updates": data])
+                    Notice.Center.default.post(name: .friendOnline, with: event)
                     print("Event 8", data)
                 case .type9(data: let data):
-                    let userInfo: [AnyHashable: JSON] = ["updates": data]
-                    self.center.post(name: .onFriendOffline, object: nil, userInfo: userInfo)
+                    let event = NoticeLongPollEvent(updateEventJSON: ["updates": data])
+                    Notice.Center.default.post(name: .friendOffline, with: event)
                     print("Event 9", data)
                 case .type10(data: let data):
                     print("Event 10", data)
@@ -72,8 +66,8 @@ class VKGeneralDelegate: NSObject {
                 case .type12(data: let data):
                     print("Event 12", data)
                 case .type13(data: let data):
-                    let userInfo: [AnyHashable: JSON] = ["remove_conversation": data]
-                    self.center.post(name: .onRemoveConversation, object: nil, userInfo: userInfo)
+                    let event = NoticeLongPollEvent(updateEventJSON: ["updates": data])
+                    Notice.Center.default.post(name: .removeConversation, with: event)
                     print("Event 13", data)
                 case .type14(data: let data):
                     print("Event 14", data)
@@ -82,8 +76,8 @@ class VKGeneralDelegate: NSObject {
                 case .type52(data: let data):
                     print("Event 52", data)
                 case .type61(data: let data):
-                    let userInfo: [AnyHashable: JSON] = ["updates": data]
-                    self.center.post(name: .onTyping, object: nil, userInfo: userInfo)
+                    let event = NoticeLongPollEvent(updateEventJSON: ["updates": data])
+                    Notice.Center.default.post(name: .typing, with: event)
                     print("Event 61", data)
                 case .type62(data: let data):
                     print("Event 62", data)

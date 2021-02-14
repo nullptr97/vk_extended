@@ -85,8 +85,8 @@ class ProfileCommonInfoCollectionViewCell: UICollectionViewCell, ListBindable {
         messageButton.isEnabled = canMessage == .actionFriendWithMessage
         messageButton.alpha = canMessage == .actionFriendWithMessage ? 1 : 0.5
 
-        userActionButton.setStyle(friendAction.setStyle(from: friendAction), with: .medium)
-        userActionButton.title = friendAction.setTitle(from: friendAction)
+        userActionButton.setStyle(friendAction.style, with: .medium)
+        userActionButton.title = friendAction.title
     }
     
     func bindViewModel(_ viewModel: Any) {
@@ -100,9 +100,7 @@ class ProfileCommonInfoCollectionViewCell: UICollectionViewCell, ListBindable {
                 guard let self = self else { return }
                 switch result {
                 case .success(let value):
-                    self.avatarImageView.fadeTransition(0.3)
                     self.avatarImageView.image = value.image
-                    NotificationCenter.default.post(name: NSNotification.Name("loadProfileImage"), object: nil, userInfo: ["avatarAverageColor" : value.image.averageColor ?? .clear])
                 case .failure(let error):
                     print(error.errorDescription ?? "Error load image")
                 }

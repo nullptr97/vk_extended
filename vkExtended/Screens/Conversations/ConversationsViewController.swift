@@ -22,6 +22,7 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
     private let mainTable = UITableView(frame: .zero, style: .grouped)
     private var token: NotificationToken?
     var conversations = try! Realm().objects(Conversation.self).sorted(byKeyPath: "lastMessage.dateInteger", ascending: false).sorted(byKeyPath: "isImportantDialog", ascending: false).filter("isPrivateConversation = %@", false).filter("ownerId = %@", currentUserId)
+    
     var selectedConversations = [Conversation]()
     private let swipeGesture: UIPanGestureRecognizer = {
         let gesture = UIPanGestureRecognizer()
@@ -106,13 +107,27 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
             case .initial:
                 self.mainTable.reloadData()
             case .update(_, let deletions, let insertions, let updates):
-                self.mainTable.applyChanges(with: deletions, with: insertions, with: updates, at: 0)
+                if deletions.count == insertions.count {
+                    self.mainTable.beginUpdates()
+                    
+                    _ = deletions.enumerated().map { index, deleted in
+                        self.mainTable.moveRow(at: IndexPath(row: deleted, section: 0), to: IndexPath(row: insertions[index], section: 0))
+                    }
+
+                    self.mainTable.endUpdates()
+                } else {
+                    self.mainTable.applyChanges(with: deletions, with: insertions, with: updates, at: 0)
+                }
+            
             case .error(let error):
                 self.event(message: error.localizedDescription, isError: true)
             }
+            
+            DispatchQueue.main.async(after: 0.2) {
+                self.mainTable.reloadData()
+            }
         }) { [weak self] (token) in
             guard let self = self else { return }
-
             self.token = token
         }
     }
@@ -120,7 +135,6 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
     // Подготовка таблицы
     func prepareTable() {
         view.addSubview(mainTable)
-        mainTable.separatorStyle = .none
         mainTable.autoPinEdgesToSuperviewSafeArea(with: .top(12))
         mainTable.autoPinEdge(.bottom, to: .bottom, of: view)
         mainTable.autoPinEdge(.trailing, to: .trailing, of: view)
@@ -140,14 +154,14 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
         mainTable.separatorStyle = .none
         mainTable.delegate = self
         mainTable.dataSource = self
-        mainTable.register(UINib(nibName: "MessageViewCell", bundle: nil), forCellReuseIdentifier: "MessageViewCell")
+        mainTable.register(UINib(nibName: "ConversationTableViewCell", bundle: nil), forCellReuseIdentifier: "ConversationTableViewCell")
         swipeGesture.addTarget(self, action: #selector(onOpenPrivateConversation))
         mainTable.addGestureRecognizer(swipeGesture)
         refreshControl.add(to: mainTable) { [weak self] in
             guard let self = self else { return }
             self.reloadMessages()
         }
-        nativeSearchController.setupSearchBar()
+        nativeSearchController.setupSearchBar(from: .init(top: 16, leading: 20, bottom: -16, trailing: 20))
         mainTable.tableHeaderView = nativeSearchController.searchBar
     }
     
@@ -215,6 +229,11 @@ open class ConversationsViewController: BaseViewController, ConversationsViewPro
             self.initialActionSheet(title: conversation.interlocutor?.name ?? "---", message: message, actions: self.getActions(at: conversation, from: indexPath!))
         }
     }
+    
+    func isNeedDivider(at indexPath: IndexPath) -> Bool {
+        guard indexPath.row > 0 && indexPath.row + 1 < conversations.count else { return false }
+        return !conversations[indexPath.row].isImportantDialog && !conversations[indexPath.row + 1].isImportantDialog && conversations[indexPath.row - 1].isImportantDialog
+    }
 }
 extension ConversationsViewController: UITableViewDelegate, UITableViewDataSource {
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -222,26 +241,30 @@ extension ConversationsViewController: UITableViewDelegate, UITableViewDataSourc
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "MessageViewCell", for: indexPath) as! MessageViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ConversationTableViewCell", for: indexPath) as! ConversationTableViewCell
         cell.alternativeSetup(conversation: conversations[indexPath.row])
         cell.selectionStyle = .default
-        cell.delegate = self
+        cell.dividerThickness = isNeedDivider(at: indexPath) ? 0.4 : 0
+        cell.dividerAlignment = .top
+        cell.dividerColor = .adaptableDivider
+        cell.dividerContentEdgeInsets = .horizontal(12)
         return cell
     }
     
     public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if indexPath.row == conversations.count - 20 {
+        let conversationsCount = try! Realm().objects(Conversation.self).count
+        if indexPath.row == conversations.count - 20 && conversationsCount < UserDefaults.standard.integer(forKey: "conversations_count") {
             presenter?.getConversations(offset: indexPath.row)
         }
     }
     
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UITableView.automaticDimension
+        return conversations[indexPath.row].lastMessage?.text.width(with: 20, font: GoogleSansFont.regular(with: 15)) ?? 0 >= screenWidth - 96 ? 95 : 75
     }
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if isTableEditing {
-            let cell = tableView.cellForRow(at: indexPath) as! MessageViewCell
+            let cell = tableView.cellForRow(at: indexPath) as! ConversationTableViewCell
             guard selectedConversations.count < 25 else {
                 cell.setSelected(false, animated: true)
                 event(message: "Выбрано максимальное количество", isError: true)
@@ -258,8 +281,8 @@ extension ConversationsViewController: UITableViewDelegate, UITableViewDataSourc
     
     public func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
         if isTableEditing {
-            let cell = tableView.cellForRow(at: indexPath) as! MessageViewCell
-            for (index, conversation) in selectedConversations.enumerated() {
+            let cell = tableView.cellForRow(at: indexPath) as! ConversationTableViewCell
+            selectedConversations.enumerated().forEach { index, conversation in
                 if conversations[indexPath.row].peerId == conversation.peerId {
                     selectedConversations.remove(at: index)
                     cell.setSelected(false, animated: true)
@@ -273,15 +296,10 @@ extension ConversationsViewController: UITableViewDelegate, UITableViewDataSourc
         return 1
     }
 }
-extension ConversationsViewController: MessageViewCellDelegate {
-    func didTapAvatar(cell: MessageViewCell, with peerId: Int) {
-        self.presenter?.onTapPerformProfile(from: peerId)
-    }
-}
 extension ConversationsViewController {
     // Получение доступных с диалогом действий
     func getActions(at conversation: Conversation, from indexPath: IndexPath) -> [MDCActionSheetAction] {
-        guard let presenter = self.presenter, let cell = mainTable.cellForRow(at: indexPath) as? MessageViewCell else { return [] }
+        guard let presenter = self.presenter, let cell = mainTable.cellForRow(at: indexPath) as? ConversationTableViewCell else { return [] }
         let selectConversation = MDCActionSheetAction(title: "Выбрать", image: UIImage(named: "edit_outline_28"), handler: { action in
             self.setTableViewEditing(true, animated: true)
             self.selectedConversations.append(conversation)

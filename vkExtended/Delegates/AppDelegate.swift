@@ -9,13 +9,37 @@ import UIKit
 import MaterialComponents
 import UserNotifications
 import AwesomeCache
+import RealmSwift
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    var window: UIWindow?
+    var vkDelegate: ExtendedVKDelegate?
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         application.beginReceivingRemoteControlEvents()
         registerForPushNotifications()
+        
+        vkDelegate = VKGeneralDelegate()
+
+        let rootViewController = VK.sessions.default.state == .authorized ? FullScreenNavigationController(rootViewController: BottomNavigationViewController()) : FullScreenNavigationController(rootViewController: LoginViewController())
+        rootViewController.motionNavigationTransitionType = .zoom
+        rootViewController.setNavigationBarHidden(true, animated: false)
+        
+        self.window = UIWindow(frame: UIScreen.main.bounds)
+        self.window?.rootViewController = rootViewController
+        self.window?.makeKeyAndVisible()
+        
+        Realm.Configuration.defaultConfiguration = Realm.Configuration(schemaVersion: 1, migrationBlock: { migration, oldSchemaVersion in
+            // We haven’t migrated anything yet, so oldSchemaVersion == 0
+            if (oldSchemaVersion < 1) {
+                
+            }
+        })
+        
+        _ = try! Realm()
+
         return true
     }
     
@@ -38,8 +62,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
         let token = tokenParts.joined()
         print("Device Token: \(token)")
-        guard VK.sessions.default.state == .authorized else { return }
-        VKGeneralDelegate().registerDevice(token: token)
+        guard VK.sessions.default.state == .authorized, vkDelegate is VKGeneralDelegate else { return }
+        (vkDelegate as! VKGeneralDelegate).registerDevice(token: token)
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {

@@ -73,7 +73,11 @@ class FriendsCollectionView: UICollectionView, UICollectionViewDelegate, UIColle
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return .custom((collectionView.bounds.width / 6), 110)
+        if UIDevice.type.rawValue >= 6 {
+            return .custom((collectionView.bounds.width / 6), 110)
+        } else {
+            return .custom((collectionView.bounds.width / 4.5), 110)
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
